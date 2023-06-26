@@ -29,6 +29,7 @@
    <modules>
       <module>proxy-core</module>
       <module>proxy-server</module>
+      <module>proxy-client</module>
    </modules>
 
    <dependencyManagement>

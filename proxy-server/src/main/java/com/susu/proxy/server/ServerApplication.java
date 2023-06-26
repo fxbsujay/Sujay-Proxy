@@ -23,8 +23,7 @@ public class ServerApplication {
         server.addHandler(new AbstractChannelHandler() {
             @Override
             protected boolean handlePackage(ChannelHandlerContext ctx, NetPacket packet) throws Exception {
-
-                System.out.println(packet.getData());
+                log.info(packet.getData());
                 return false;
             }
 
@@ -36,7 +35,7 @@ public class ServerApplication {
 
         try {
             Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
-            server.start(9988);
+            server.start(9986);
         } catch (Exception e) {
             log.info("Tracker Application Start Error!!");
             System.exit(1);

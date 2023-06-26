@@ -2,10 +2,13 @@ package com.susu.proxy.core.netty.msg;
 
 import com.susu.proxy.core.common.eum.PacketType;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.UUID;
 
 /**
  * <p>Description: 统一的网络数据包</p>
@@ -18,9 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Slf4j
 @NoArgsConstructor
+@AllArgsConstructor
 public class NetPacket {
 
     private int type;
+
+    private long sequence;
 
     private int code;
 
@@ -28,12 +34,6 @@ public class NetPacket {
 
     public NetPacket(int type, String data) {
         this.type = type;
-        this.data = data;
-    }
-
-    public NetPacket(int type, int code, String data) {
-        this.type = type;
-        this.code = code;
         this.data = data;
     }
 
@@ -68,6 +68,7 @@ public class NetPacket {
     public void write(ByteBuf out) {
         out.writeInt(type);
         out.writeInt(code);
+        out.writeLong(sequence);
         byte[] bytes = data.getBytes();
         out.writeInt(bytes.length);
         out.writeBytes(bytes);
@@ -82,12 +83,14 @@ public class NetPacket {
     public static NetPacket read(ByteBuf in) {
         int type = in.readInt();
         int code = in.readInt();
+        long sequence = in.readLong();
         int bodyLength = in.readInt();
         byte[] bodyBytes = new byte[bodyLength];
         in.readBytes(bodyBytes);
         return NetPacket.builder()
                 .code(code)
                 .type(type)
+                .sequence(sequence)
                 .data(new String(bodyBytes))
                 .build();
     }
