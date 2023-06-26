@@ -94,4 +94,14 @@ public class NetPacket {
                 .data(new String(bodyBytes))
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return "NetPacket{" +
+                "type=" + type +
+                ", sequence=" + sequence +
+                ", code=" + code +
+                ", data='" + data + '\'' +
+                '}';
+    }
 }

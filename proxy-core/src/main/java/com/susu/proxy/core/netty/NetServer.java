@@ -42,6 +42,10 @@ public class NetServer {
 
     private EventLoopGroup worker;
 
+    public NetServer(String name) {
+        this(name, new TaskScheduler("Client-Task-Scheduler"));
+    }
+
     /**
      * @param name 启动的节点名称
      */
@@ -60,7 +64,7 @@ public class NetServer {
      * @param port 端口
      */
     public void startAsync(int port) {
-        taskScheduler.scheduleOnce("NettyServer", () -> {
+        taskScheduler.scheduleOnce(name, () -> {
             try {
                 start(Collections.singletonList(port));
             } catch (InterruptedException e) {

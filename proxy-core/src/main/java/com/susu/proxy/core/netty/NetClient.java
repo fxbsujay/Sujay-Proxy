@@ -78,6 +78,14 @@ public class NetClient {
     }
 
     /**
+     * 客户端的名称  调度器
+     * @param name          名称
+     */
+    public NetClient(String name) {
+        this(name,new TaskScheduler("Server-Task-Scheduler"),-1);
+    }
+
+    /**
      * @param retryTime 失败连接后尝试重连的次数
      */
     public NetClient(String name, TaskScheduler taskScheduler, int retryTime) {
@@ -132,11 +140,11 @@ public class NetClient {
                 channelFuture.channel()
                         .closeFuture()
                         .sync();
-            } catch (InterruptedException e) {
-                log.error("connect exception：[ex={}, started={}, name={}]", e.getMessage(), started.get(), name);
+            } catch (Exception e) {
+                log.error("Connect exception：[ex={}, started={}, name={}]", e.getMessage(), started.get(), name);
             } finally {
                 int curConnectTimes = connectTimes + 1;
-                reStart(host,port,curConnectTimes);
+                reStart(host, port, curConnectTimes);
             }
         },delay);
     }
@@ -153,7 +161,7 @@ public class NetClient {
         if (started.get()) {
             boolean retry = retryTime < 0 || connectTimes <= retryTime;
             if (retry) {
-                log.error("Client restart：[started={}, name={}]", started.get(), name);
+                log.info("Client restart：[started={}, name={}]", started.get(), name);
                 start(host, port, connectTimes,3000);
             } else {
                 shutdown();
@@ -194,11 +202,11 @@ public class NetClient {
         synchronized (this) {
             while (!isConnected()) {
                 if (!started.get()) {
-                    throw new InterruptedException("无法连接上服务器：" + name);
+                    throw new InterruptedException("Unable to connect to server：" + name);
                 }
                 if (timeout > 0) {
                     if (remainTimeout <= 0) {
-                        throw new InterruptedException("无法连接上服务器：" + name);
+                        throw new InterruptedException("Unable to connect to server：" + name);
                     }
                     wait(10);
                     remainTimeout -= 10;
