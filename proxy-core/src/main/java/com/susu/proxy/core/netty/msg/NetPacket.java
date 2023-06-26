@@ -1,14 +1,11 @@
 package com.susu.proxy.core.netty.msg;
 
-import com.susu.proxy.core.common.Constants;
 import com.susu.proxy.core.common.eum.PacketType;
 import io.netty.buffer.ByteBuf;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.*;
 
 /**
  * <p>Description: 统一的网络数据包</p>
