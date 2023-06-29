@@ -156,6 +156,7 @@ public class NetPacket {
         NetPacketHeader netPacketHeader = NetPacketHeader.newBuilder()
                 .putAllHeaders(header)
                 .build();
+
         byte[] headerBytes = netPacketHeader.toByteArray();
         out.writeInt(headerBytes.length);
         out.writeBytes(headerBytes);
@@ -173,10 +174,12 @@ public class NetPacket {
         int headerLength = in.readInt();
         byte[] headerBytes = new byte[headerLength];
         in.readBytes(headerBytes);
+
         NetPacketHeader nettyPackageHeader = NetPacketHeader.parseFrom(headerBytes);
         int bodyLength = in.readInt();
         byte[] bodyBytes = new byte[bodyLength];
         in.readBytes(bodyBytes);
+
         return NetPacket.builder()
                 .header(new HashMap<>(nettyPackageHeader.getHeadersMap()))
                 .body(bodyBytes)
@@ -195,16 +198,20 @@ public class NetPacket {
         if (!supportChunked) {
             return Collections.singletonList(this);
         }
+
         int bodyLength = body.length;
         if (bodyLength <= maxPackageSize) {
             return Collections.singletonList(this);
         }
+
         int packageCount = bodyLength / maxPackageSize;
         if (bodyLength % maxPackageSize > 0) {
             packageCount++;
         }
+
         List<NetPacket> results = new LinkedList<>();
         int remainLength = bodyLength;
+
         for (int i = 0; i < packageCount; i++) {
             int partitionBodyLength = Math.min(maxPackageSize, remainLength);
             byte[] partitionBody = new byte[partitionBodyLength];
@@ -216,6 +223,7 @@ public class NetPacket {
             partitionPackage.setSupportChunked(true);
             results.add(partitionPackage);
         }
+
         NetPacket tailPackage = new NetPacket();
         tailPackage.body = new byte[0];
         tailPackage.header = this.header;
@@ -233,8 +241,10 @@ public class NetPacket {
     public void mergeChunkedBody(NetPacket otherPackage) {
         int newBodyLength = body.length + otherPackage.getBody().length;
         byte[] newBody = new byte[newBodyLength];
+
         System.arraycopy(body, 0, newBody, 0, body.length);
         System.arraycopy(otherPackage.getBody(), 0, newBody, body.length, otherPackage.getBody().length);
+
         this.body = newBody;
     }
 

@@ -21,7 +21,6 @@ import java.util.concurrent.Executor;
 @ChannelHandler.Sharable
 public abstract class AbstractChannelHandler extends ChannelInboundHandlerAdapter {
 
-
     private Set<Integer> interestPackageTypes;
 
     @Override
