@@ -44,7 +44,7 @@ public class NetServer {
     private EventLoopGroup worker;
 
     public NetServer(String name) {
-        this(name, new TaskScheduler("Client-Task-Scheduler"));
+        this(name, null);
     }
 
     /**

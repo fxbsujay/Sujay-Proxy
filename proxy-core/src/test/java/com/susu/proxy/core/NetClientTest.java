@@ -7,6 +7,8 @@ import com.susu.proxy.core.task.TaskScheduler;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
+import java.io.IOException;
+
 /**
  * <p>Description: Client NetWork Test</p>
  * @author sujay
@@ -60,8 +62,8 @@ public class NetClientTest {
 
         try {
             client.ensureStart();
-            Thread.sleep(1000000);
-        } catch (InterruptedException e) {
+            System.in.read();
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);
         } finally {
             scheduler.shutdown();

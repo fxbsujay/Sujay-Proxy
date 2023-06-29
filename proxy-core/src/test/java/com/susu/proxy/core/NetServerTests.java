@@ -51,9 +51,9 @@ public class NetServerTests {
                 NetRequest request = new NetRequest(ctx, packet);
                 log.info("Handle Package: {}", new String(packet.getBody()));
 
-                ctx.channel().writeAndFlush(NetPacket.buildPacket("Nice to meet you !!".getBytes(), PacketType.EMPTY));
+                ctx.channel().writeAndFlush(NetPacket.buildPacket("Nice to meet you !".getBytes(), PacketType.EMPTY));
                 ctx.writeAndFlush(NetPacket.buildPacket("Nice to meet you !!".getBytes(), PacketType.EMPTY));
-                request.sendResponse(NetPacket.buildPacket("Nice to meet you !!".getBytes(), PacketType.EMPTY), null);
+                request.sendResponse(NetPacket.buildPacket("Nice to meet you !!!".getBytes(), PacketType.EMPTY), null);
                 return false;
             }
 
