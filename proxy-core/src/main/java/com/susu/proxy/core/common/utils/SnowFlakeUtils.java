@@ -3,9 +3,10 @@ package com.susu.proxy.core.common.utils;
 /**
  * <p>Description: Snow flakeId Worker</p>
  * <p>雪花算法ID</p>
+ *
  * @author sujay
- * @version 13:08 2022/4/28
- * @since JDK1.8 <br/>
+ * @since 13:08 2022/4/28
+ * @version 1.0 JDK1.8 <br/>
  */
 public class SnowFlakeUtils {
 

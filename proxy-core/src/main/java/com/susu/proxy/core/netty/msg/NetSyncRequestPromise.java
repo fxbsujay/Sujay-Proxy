@@ -8,7 +8,8 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: network Sync Request</p>
  *
  * @author sujay
- * @version 1:04 2022/7/10
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 public class NetSyncRequestPromise {
@@ -65,9 +66,22 @@ public class NetSyncRequestPromise {
      */
     public void setResult(NetPacket nettyPacket) {
         synchronized (this) {
-            this.response = nettyPacket;
-            this.receiveResponseCompleted = true;
-            notifyAll();
+            if (nettyPacket.isSupportChunked()) {
+                if (nettyPacket.getBody().length == 0) {
+                    this.receiveResponseCompleted = true;
+                    notifyAll();
+                } else {
+                    if (this.response == null) {
+                        this.response = nettyPacket;
+                    } else {
+                        this.response.mergeChunkedBody(nettyPacket);
+                    }
+                }
+            } else {
+                this.response = nettyPacket;
+                this.receiveResponseCompleted = true;
+                notifyAll();
+            }
         }
     }
 

@@ -14,13 +14,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
 
 /**
  * <p>Description: 用来处理客户端端的消息处理器</p>
  *
  * @author sujay
- * @version 17:45 2022/7/1
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 public class ClientChannelHandle extends AbstractChannelHandler {
@@ -76,7 +76,6 @@ public class ClientChannelHandle extends AbstractChannelHandler {
         invokeConnectListener(true);
         log.info("Socket channel is connected: {}", socketChannel);
         ctx.fireChannelInactive();
-
     }
 
     @Override

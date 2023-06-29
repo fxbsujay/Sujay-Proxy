@@ -17,6 +17,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <p>Description: Server NetWork Test</p>
+ *
+ * @author sujay
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
+ */
 @Slf4j
 public class NetServerTests {
 
@@ -42,11 +49,11 @@ public class NetServerTests {
             @Override
             protected boolean handlePackage(ChannelHandlerContext ctx, NetPacket packet) throws Exception {
                 NetRequest request = new NetRequest(ctx, packet);
-                log.info("Handle Package: {}", packet);
+                log.info("Handle Package: {}", new String(packet.getBody()));
 
-                ctx.channel().writeAndFlush(NetPacket.buildPacket("Nice to meet you !!", PacketType.EMPTY));
-                ctx.writeAndFlush(NetPacket.buildPacket("Nice to meet you !!", PacketType.EMPTY));
-                request.sendResponse("Nice to meet you !!");
+                ctx.channel().writeAndFlush(NetPacket.buildPacket("Nice to meet you !!".getBytes(), PacketType.EMPTY));
+                ctx.writeAndFlush(NetPacket.buildPacket("Nice to meet you !!".getBytes(), PacketType.EMPTY));
+                request.sendResponse(NetPacket.buildPacket("Nice to meet you !!".getBytes(), PacketType.EMPTY), null);
                 return false;
             }
 

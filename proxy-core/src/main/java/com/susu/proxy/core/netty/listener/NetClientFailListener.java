@@ -4,7 +4,8 @@ package com.susu.proxy.core.netty.listener;
 /**
  * <p>Description: 客户端连接失败监听器</p>
  * @author sujay
- * @version 9:40 2022/7/7
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 public interface NetClientFailListener {
 

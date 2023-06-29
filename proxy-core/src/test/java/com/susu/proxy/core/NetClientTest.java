@@ -10,7 +10,8 @@ import org.junit.Test;
 /**
  * <p>Description: Client NetWork Test</p>
  * @author sujay
- * @version 14:36 2022/7/2
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 public class NetClientTest {
@@ -34,12 +35,12 @@ public class NetClientTest {
         TaskScheduler scheduler = new TaskScheduler("Client-TaskScheduler");
         NetClient client = new NetClient("Test-Client", scheduler);
 
-        client.addPackageListener(request -> log.info("Handle Package: {}", request.getRequest()));
+        client.addPackageListener(request -> log.info("Handle Package: {}", new String(request.getRequest().getBody())));
 
         client.addConnectListener( isConnected -> {
             log.info("Tracker Client Connect Start : {}", isConnected);
             if (isConnected) {
-                client.send(NetPacket.buildPacket("Hello World !!", PacketType.EMPTY));
+                client.send(NetPacket.buildPacket("Hello World !!".getBytes(), PacketType.EMPTY));
             }
         });
 
@@ -51,7 +52,7 @@ public class NetClientTest {
 
         NetPacket response = null;
         try {
-            response = client.sendSync(NetPacket.buildPacket("Sync Message Test !!", PacketType.EMPTY));
+            response = client.sendSync(NetPacket.buildPacket("Sync Message Test !!".getBytes(), PacketType.EMPTY));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

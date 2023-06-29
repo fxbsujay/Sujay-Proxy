@@ -7,9 +7,9 @@ import java.util.UUID;
  * <p>Description: String processing class</p>
  * <p>字符串处理工具类</p>
  * @author sujay
- * @version 21:19 2022/1/20
+ * @since 21:19 2022/1/20
  * @see String
- * @since JDK1.8
+ * @version 1.0 JDK1.8
  */
 public class StringUtils {
 

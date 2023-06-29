@@ -15,7 +15,8 @@ import lombok.extern.slf4j.Slf4j;
  *  +--------------+-------------------------+---------------+-----------------------------+
  *
  * @author sujay
- * @version 16:11 2022/7/6
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 public class NetPacketDecoder extends LengthFieldBasedFrameDecoder {

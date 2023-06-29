@@ -4,7 +4,8 @@ package com.susu.proxy.core.netty.listener;
  * <p>Description: 网络包响应监听器</p>
  *
  * @author sujay
- * @version 11:55 2022/7/7
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 public interface NetConnectListener {
 

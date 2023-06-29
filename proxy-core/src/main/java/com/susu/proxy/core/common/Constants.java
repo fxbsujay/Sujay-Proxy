@@ -4,7 +4,8 @@ package com.susu.proxy.core.common;
  * <p>Description: Constants</p>
  * <p>Description: 常量</p>
  * @author sujay
- * @version 15:56 2022/7/6
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 public class Constants {
 
@@ -17,6 +18,11 @@ public class Constants {
      * map初始化容量
      */
     public static final int MAP_SIZE = 32;
+
+    /**
+     * 分块传输，每一块的大小
+     */
+    public static final int CHUNKED_SIZE = (int) (MAX_BYTES * 0.5F);
 
     /**
      * 请求处理器核心线程数

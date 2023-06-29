@@ -13,7 +13,8 @@ import java.util.List;
 /**
  * <p>Description: 一个简单的不做任何处理的消息处理器</p>
  * @author sujay
- * @version 16:02 2022/7/1
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @ChannelHandler.Sharable
 public class BaseChannelHandler extends ChannelInitializer<SocketChannel> {

@@ -12,7 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>Description: Task Scheduler</p>
  * <p>Description: 任务调度器</p>
  * @author sujay
- * @version 14:45 2022/7/5
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 public class TaskScheduler {

@@ -7,6 +7,8 @@ import lombok.Getter;
  * 请求类型
  *
  * @author sujay
+ * @since 13:08 2022/4/28
+ * @version 1.0 JDK1.8 <br/>
  */
 @Getter
 @AllArgsConstructor

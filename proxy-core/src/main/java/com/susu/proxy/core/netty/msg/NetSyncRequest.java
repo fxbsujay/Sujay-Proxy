@@ -4,7 +4,6 @@ import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -14,10 +13,12 @@ import java.util.concurrent.TimeUnit;
  * <p>Description: network Sync Request</p>
  *
  * @author sujay
- * @version 23:07 2022/7/9
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 public class NetSyncRequest {
+
 
     /**
      * 所有等待处理的同步请求

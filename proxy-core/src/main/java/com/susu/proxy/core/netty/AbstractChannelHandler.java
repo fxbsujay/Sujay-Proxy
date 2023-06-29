@@ -14,7 +14,8 @@ import java.util.concurrent.Executor;
 /**
  * <p>Description: 消息处理器的顶级抽象类，其他消息处理器需继承该抽象类</p>
  * @author sujay
- * @version 11:04 2022/7/7
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 @ChannelHandler.Sharable

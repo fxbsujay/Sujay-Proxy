@@ -3,7 +3,6 @@ package com.susu.proxy.core;
 import com.susu.proxy.core.task.TaskScheduler;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-
 import java.util.concurrent.TimeUnit;
 
 @Slf4j

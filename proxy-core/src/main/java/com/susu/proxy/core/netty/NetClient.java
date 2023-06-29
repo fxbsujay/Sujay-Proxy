@@ -21,7 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>Description: Client NetWork</p>
  * <p>Description: Netty 的 客户端端实现 网络服务</p>
  * @author sujay
- * @version 14:36 2022/7/1
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 public class NetClient {

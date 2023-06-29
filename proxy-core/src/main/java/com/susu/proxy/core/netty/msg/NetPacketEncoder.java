@@ -14,7 +14,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
  *  +--------------+-------------------------+---------------+-----------------------------+
  *
  * @author sujay
- * @version 16:11 2022/7/6
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 public class NetPacketEncoder extends MessageToByteEncoder<NetPacket> {
 

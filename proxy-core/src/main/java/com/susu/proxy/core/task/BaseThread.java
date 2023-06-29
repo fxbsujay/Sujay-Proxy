@@ -7,7 +7,8 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Description: 一个最基础的任务线程，只负责打印一些日志</p>
  *
  * @author sujay
- * @version 14:52 2022/7/5
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 public class BaseThread extends Thread{

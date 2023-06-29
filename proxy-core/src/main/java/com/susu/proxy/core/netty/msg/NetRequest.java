@@ -1,15 +1,19 @@
 package com.susu.proxy.core.netty.msg;
 
+import com.google.protobuf.MessageLite;
 import com.susu.proxy.core.common.eum.PacketType;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
+import com.susu.proxy.core.common.Constants;
+import java.util.List;
 
 /**
  * <p>Description: 网络请求</p>
  * <p>Description:  network Request</p>
  *
  * @author sujay
- * @version 0:31 2022/7/9
+ * @since 15:56 2023/6/29
+ * @version 1.0 JDK1.8
  */
 @Slf4j
 public class NetRequest {
@@ -17,15 +21,22 @@ public class NetRequest {
 
     private ChannelHandlerContext ctx;
 
-    private final long requestSequence;
+    private long requestSequence;
+
+    private int trackerIndex;
 
     private NetPacket request;
 
-
     public NetRequest(ChannelHandlerContext ctx, NetPacket request) {
+        this(ctx,request,-1);
+    }
+
+
+    public NetRequest(ChannelHandlerContext ctx, NetPacket request,int trackerIndex) {
         this.ctx = ctx;
         this.requestSequence = request.getSequence();
         this.request = request;
+        this.trackerIndex = trackerIndex;
     }
 
     public ChannelHandlerContext getCtx() {
@@ -40,7 +51,7 @@ public class NetRequest {
      * 发送响应
      */
     public void sendResponse() {
-        sendResponse(null);
+        sendResponse(new byte[0]);
     }
 
     /**
@@ -48,12 +59,24 @@ public class NetRequest {
      *
      * @param response 响应
      */
-    public void sendResponse(String response) {
-        NetPacket packet = NetPacket.buildPacket(response, PacketType.getEnum(request.getType()));
-        sendResponse(packet, requestSequence);
+    public void sendResponse(MessageLite response) {
+        byte[] body = response == null ? new byte[0] : response.toByteArray();
+        sendResponse(body);
+    }
+
+    public void sendResponse(byte[] body) {
+        NetPacket packet = NetPacket.buildPacket(body, PacketType.getEnum(request.getType()));
+        List<NetPacket> responses = packet.partitionChunk(request.isSupportChunked(), Constants.CHUNKED_SIZE);
+        if (responses.size() > 1) {
+            log.info("Split response data packet, number {}", responses.size());
+        }
+        for (NetPacket res : responses) {
+            sendResponse(res, requestSequence);
+        }
     }
 
     public void sendResponse(NetPacket response, Long sequence) {
+        response.setTrackerIndex(trackerIndex);
         if (sequence != null) {
             response.setSequence(sequence);
         }
