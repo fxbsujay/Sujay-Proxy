@@ -1,0 +1,3 @@
+client:
+  serverIp: localhost
+  serverPort: 8899

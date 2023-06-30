@@ -10,6 +10,11 @@ package com.susu.proxy.core.common;
 public class Constants {
 
     /**
+     * 配置文件名称
+     */
+    public static final String CONFIG_FILE_NAME = "/application.yaml";
+
+    /**
      * Netty 最大传输字节数
      */
     public static final int MAX_BYTES = 10 * 1024 * 1024;
