@@ -1,10 +1,14 @@
 package com.susu.proxy.core.common.utils;
 
+import cn.hutool.core.util.ClassUtil;
 import com.alibaba.fastjson.JSON;
 import com.susu.proxy.core.common.Config;
+import com.susu.proxy.core.stereotype.Configuration;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.Set;
 
 @Slf4j
 public class ConfigLoadUtils {
@@ -38,5 +42,9 @@ public class ConfigLoadUtils {
             return null;
         }
         return JSON.parseObject(JSON.toJSONString(obj), t);
+    }
+
+    public static Set<Class<?>> loadConfigurationClass() {
+        return  ClassUtil.scanPackageByAnnotation("", Configuration.class);
     }
 }

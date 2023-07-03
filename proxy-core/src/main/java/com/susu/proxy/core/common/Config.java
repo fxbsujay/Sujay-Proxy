@@ -4,11 +4,12 @@ import com.susu.proxy.core.common.utils.ConfigLoadUtils;
 import com.susu.proxy.core.stereotype.Configuration;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Data
-@Configuration
 public class Config {
 
     /**
@@ -16,30 +17,28 @@ public class Config {
      */
     public static String name;
 
-    /**
-     * 客户端配置
-     */
-    public static Client client;
-
     static {
         Map<String, Object> parameters = ConfigLoadUtils.load();
-        Object clientObj = parameters.get("client");
-
-        name = (String) parameters.getOrDefault("name","proxy");
-        if (clientObj != null) {
-            client = ConfigLoadUtils.convert(clientObj, Client.class);
+        Set<Class<?>> classes = ConfigLoadUtils.loadConfigurationClass();
+        for (Class<?> aClass : classes) {
+            Configuration annotation = aClass.getAnnotation(Configuration.class);
+            Object values = parameters.get(annotation.value());
+            if (values != null) {
+                if (!((Map<?, ?>) values).isEmpty()) {
+                    Field[] fields = aClass.getDeclaredFields();
+                    for (Field field : fields) {
+                        Object o = ((Map<?, ?>) values).get(field.getName());
+                        if (o != null) {
+                            try {
+                                Object instance = aClass.newInstance();
+                                field.set(instance,o);
+                            } catch (InstantiationException | IllegalAccessException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                }
+            }
         }
-
     }
-
-    @Data
-    public static class Client {
-        public String serverIp = "localhost";
-        public Integer serverPort = 8899;
-    }
-
-    public static class Server {
-        public Integer port = 8899;
-    }
-
 }
