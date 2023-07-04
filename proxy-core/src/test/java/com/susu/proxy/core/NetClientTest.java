@@ -36,7 +36,7 @@ public class NetClientTest {
         TaskScheduler scheduler = new TaskScheduler("Client-TaskScheduler");
         NetClient client = new NetClient("Test-Client", scheduler);
 
-        client.addPackageListener(request -> log.info("Handle Package: {}", request.getRequest().bodyToString());
+        client.addPackageListener(request -> log.info("Handle Package: {}", request.getRequest().bodyToString()));
 
         client.addConnectListener( isConnected -> {
             log.info("Tracker Client Connect Start : {}", isConnected);
