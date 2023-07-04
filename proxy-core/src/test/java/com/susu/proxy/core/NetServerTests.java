@@ -49,11 +49,11 @@ public class NetServerTests {
             @Override
             protected boolean handlePackage(ChannelHandlerContext ctx, NetPacket packet) throws Exception {
                 NetRequest request = new NetRequest(ctx, packet);
-                log.info("Handle Package: {}", new String(packet.getBody()));
+                log.info("Handle Package: {}", packet.bodyToString());
 
-                ctx.channel().writeAndFlush(NetPacket.buildPacket("Nice to meet you !".getBytes(), PacketType.EMPTY));
-                ctx.writeAndFlush(NetPacket.buildPacket("Nice to meet you !!".getBytes(), PacketType.EMPTY));
-                request.sendResponse(NetPacket.buildPacket("Nice to meet you !!!".getBytes(), PacketType.EMPTY), null);
+                ctx.channel().writeAndFlush(NetPacket.buildPacket("Nice to meet you !", PacketType.EMPTY));
+                ctx.writeAndFlush(NetPacket.buildPacket("Nice to meet you !!", PacketType.EMPTY));
+                request.sendResponse(NetPacket.buildPacket("Nice to meet you !!!", PacketType.EMPTY), null);
                 return false;
             }
 

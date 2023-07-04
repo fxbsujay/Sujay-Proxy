@@ -1,3 +1,5 @@
+app:
+  name: proxy-server
 client:
   serverIp: localhost
   serverPort: 8899

@@ -5,6 +5,8 @@ import com.susu.proxy.core.common.eum.PacketType;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import com.susu.proxy.core.common.Constants;
+
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -18,25 +20,25 @@ import java.util.List;
 @Slf4j
 public class NetRequest {
 
-
+    /**
+     * 管道
+     */
     private ChannelHandlerContext ctx;
 
+    /**
+     * 请求序列号
+     */
     private long requestSequence;
 
-    private int trackerIndex;
-
+    /**
+     * 请求包
+     */
     private NetPacket request;
 
     public NetRequest(ChannelHandlerContext ctx, NetPacket request) {
-        this(ctx,request,-1);
-    }
-
-
-    public NetRequest(ChannelHandlerContext ctx, NetPacket request,int trackerIndex) {
         this.ctx = ctx;
         this.requestSequence = request.getSequence();
         this.request = request;
-        this.trackerIndex = trackerIndex;
     }
 
     public ChannelHandlerContext getCtx() {
@@ -64,6 +66,16 @@ public class NetRequest {
         sendResponse(body);
     }
 
+    /**
+     * 发送响应
+     *
+     * @param response 响应
+     */
+    public void sendResponse(String response) {
+        byte[] body = response == null ? new byte[0] : response.getBytes(Constants.DEFAULT_ENCODING);
+        sendResponse(body);
+    }
+
     public void sendResponse(byte[] body) {
         NetPacket packet = NetPacket.buildPacket(body, PacketType.getEnum(request.getType()));
         List<NetPacket> responses = packet.partitionChunk(request.isSupportChunked(), Constants.CHUNKED_SIZE);
@@ -76,7 +88,6 @@ public class NetRequest {
     }
 
     public void sendResponse(NetPacket response, Long sequence) {
-        response.setTrackerIndex(trackerIndex);
         if (sequence != null) {
             response.setSequence(sequence);
         }

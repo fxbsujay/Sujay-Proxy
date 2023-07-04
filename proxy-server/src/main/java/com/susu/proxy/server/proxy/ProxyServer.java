@@ -1,5 +1,7 @@
 package com.susu.proxy.server.proxy;
 
+import com.susu.proxy.core.config.AppConfig;
+import com.susu.proxy.core.config.ServerConfig;
 import com.susu.proxy.core.netty.AbstractChannelHandler;
 import com.susu.proxy.core.netty.NetServer;
 import com.susu.proxy.core.task.TaskScheduler;
@@ -28,10 +30,10 @@ public class ProxyServer {
      */
     private AbstractChannelHandler handler;
 
-    public ProxyServer(int port, TaskScheduler taskScheduler, AbstractChannelHandler handler) {
-        this.netServer = new NetServer("PROXY_SERVER",taskScheduler);
+    public ProxyServer(TaskScheduler taskScheduler, AbstractChannelHandler handler) {
+        this.netServer = new NetServer(AppConfig.name, taskScheduler);
         this.handler = handler;
-        this.port = port;
+        this.port = ServerConfig.port;
     }
 
     /**

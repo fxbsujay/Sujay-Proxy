@@ -1,5 +1,8 @@
 package com.susu.proxy.core.common;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 /**
  * <p>Description: Constants</p>
  * <p>Description: 常量</p>
@@ -13,6 +16,11 @@ public class Constants {
      * 配置文件名称
      */
     public static final String CONFIG_FILE_NAME = "/application.yaml";
+
+    /**
+     * 系统默认编号
+     */
+    public static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
 
     /**
      * Netty 最大传输字节数

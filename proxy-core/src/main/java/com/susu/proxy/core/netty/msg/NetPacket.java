@@ -48,6 +48,17 @@ public class NetPacket {
      * @param packetType    请求体类型
      * @return              数据包
      */
+    public static NetPacket buildPacket(String body, PacketType packetType){
+        return buildPacket(body.getBytes(Constants.DEFAULT_ENCODING), packetType);
+    }
+
+    /**
+     * 一个静态的构造器
+     *
+     * @param body          请求体
+     * @param packetType    请求体类型
+     * @return              数据包
+     */
     public static NetPacket buildPacket(byte[] body, PacketType packetType){
         NetPacketBuilder builder = NetPacket.builder();
         builder.body = body;
@@ -63,7 +74,6 @@ public class NetPacket {
     public static NetPacket copy(NetPacket nettyPacket) {
         return new NetPacket(new HashMap<>(nettyPacket.getHeader()),nettyPacket.getBody());
     }
-
 
     /**
      * 设置请求序列号
@@ -81,15 +91,9 @@ public class NetPacket {
         return StringUtils.isNotBlank(header.get("sequence")) ? Long.parseLong(header.get("sequence")) : 0;
     }
 
-    public void setTrackerIndex(int trackerIndex) {
-        header.put("trackerIndex", String.valueOf(trackerIndex));
+    public String bodyToString() {
+        return new String(body);
     }
-
-    public int getTrackerIndex() {
-        String trackerIndex = header.getOrDefault("trackerIndex", "-1");
-        return Integer.parseInt(trackerIndex);
-    }
-
 
     /**
      * 请求包类型

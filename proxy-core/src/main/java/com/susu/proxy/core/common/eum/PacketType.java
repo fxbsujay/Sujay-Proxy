@@ -18,6 +18,8 @@ public enum PacketType {
      * 请求类型
      */
     EMPTY(1001, "空的的包类型"),
+    REGISTER(1002,"客户端注册"),
+
     ;
 
     public int value;

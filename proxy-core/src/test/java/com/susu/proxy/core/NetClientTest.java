@@ -6,7 +6,6 @@ import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.task.TaskScheduler;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-
 import java.io.IOException;
 
 /**
@@ -37,12 +36,12 @@ public class NetClientTest {
         TaskScheduler scheduler = new TaskScheduler("Client-TaskScheduler");
         NetClient client = new NetClient("Test-Client", scheduler);
 
-        client.addPackageListener(request -> log.info("Handle Package: {}", new String(request.getRequest().getBody())));
+        client.addPackageListener(request -> log.info("Handle Package: {}", request.getRequest().bodyToString());
 
         client.addConnectListener( isConnected -> {
             log.info("Tracker Client Connect Start : {}", isConnected);
             if (isConnected) {
-                client.send(NetPacket.buildPacket("Hello World !!".getBytes(), PacketType.EMPTY));
+                client.send(NetPacket.buildPacket("Hello World !!", PacketType.EMPTY));
             }
         });
 
@@ -54,7 +53,7 @@ public class NetClientTest {
 
         NetPacket response = null;
         try {
-            response = client.sendSync(NetPacket.buildPacket("Sync Message Test !!".getBytes(), PacketType.EMPTY));
+            response = client.sendSync(NetPacket.buildPacket("Sync Message Test !!", PacketType.EMPTY));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
