@@ -11,3 +11,29 @@ option java_package = "com.susu.proxy.core.common.model";
 message NetPacketHeader {
   map<string, string> headers = 1;
 }
+
+/**
+ *   客户端注册信息
+ */
+message RegisterRequest {
+  string name = 1;
+  string hostname = 2;
+}
+
+message RegisterResponse {
+  int64 clientId = 1;
+  bool isSuccess = 2;
+  string hostname = 3;
+}
+
+/**
+ *  客户端心跳
+ *  @param isSuccess 心跳是否发送成功
+ */
+message HeartbeatRequest {
+  string hostname = 1;
+}
+
+message HeartbeatResponse {
+  bool isSuccess = 1;
+}

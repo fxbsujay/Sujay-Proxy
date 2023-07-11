@@ -129,7 +129,7 @@ public class NetClient {
      * @param connectTimes 当前重连次数
      * @param delay 任务启动延时时间
      */
-    private void start(String host, int port, final int connectTimes,long delay) {
+    private void start(String host, int port, final int connectTimes, long delay) {
 
         taskScheduler.scheduleOnce("NettyClient",() -> {
             Bootstrap client = new Bootstrap()

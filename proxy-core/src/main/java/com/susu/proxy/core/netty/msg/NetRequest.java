@@ -5,8 +5,6 @@ import com.susu.proxy.core.common.eum.PacketType;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import com.susu.proxy.core.common.Constants;
-
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
