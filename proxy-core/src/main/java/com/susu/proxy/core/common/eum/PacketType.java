@@ -19,6 +19,7 @@ public enum PacketType {
      */
     EMPTY(1001, "空的的包类型"),
     SERVICE_REGISTER(1002,"客户端注册"),
+    SERVICE_HEART_BEAT(1003,"客户端心跳"),
     ;
 
     public int value;

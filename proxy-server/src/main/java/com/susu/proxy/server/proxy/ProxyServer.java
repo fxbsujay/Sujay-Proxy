@@ -18,11 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProxyServer {
 
-    /**
-     * 服务端口
-     */
-    private final int port;
-
     private NetServer netServer;
 
     /**
@@ -33,16 +28,15 @@ public class ProxyServer {
     public ProxyServer(TaskScheduler taskScheduler, AbstractChannelHandler handler) {
         this.netServer = new NetServer(AppConfig.name, taskScheduler);
         this.handler = handler;
-        this.port = ServerConfig.port;
     }
 
     /**
      * 启动服务
      */
-    public void start() {
+    public void start() throws InterruptedException {
         log.info("Start Proxy Server");
         this.netServer.addHandler(handler);
-        netServer.startAsync(port);
+        netServer.start(ServerConfig.port);
     }
 
     /**

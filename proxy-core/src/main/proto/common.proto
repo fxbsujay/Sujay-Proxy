@@ -21,9 +21,7 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
-  int64 clientId = 1;
   bool isSuccess = 2;
-  string hostname = 3;
 }
 
 /**

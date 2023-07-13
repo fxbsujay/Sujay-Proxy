@@ -23,6 +23,11 @@ public class Constants {
     public static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
 
     /**
+     * 服务心跳心跳间隔
+     */
+    public static final int HEARTBEAT_INTERVAL = 30000;
+
+    /**
      * Netty 最大传输字节数
      */
     public static final int MAX_BYTES = 10 * 1024 * 1024;

@@ -2,7 +2,8 @@ package com.susu.proxy.server;
 
 import com.susu.proxy.core.common.utils.ConfigLoadUtils;
 import com.susu.proxy.core.task.TaskScheduler;
-import com.susu.proxy.server.proxy.ProxyChannelHandle;
+import com.susu.proxy.server.client.ProxyChannelHandle;
+import com.susu.proxy.server.client.ProxyClientManager;
 import com.susu.proxy.server.proxy.ProxyServer;
 import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,6 +13,7 @@ public class ServerApplication {
 
     private final TaskScheduler taskScheduler;
 
+    private ProxyClientManager clientManager;
 
     private final ProxyChannelHandle handle;
 
@@ -19,7 +21,7 @@ public class ServerApplication {
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 
-    public static void main( String[] args ) {
+    public static void main(String[] args ) {
 
         ConfigLoadUtils.refreshConfig();
         ServerApplication application = new ServerApplication();
@@ -35,14 +37,15 @@ public class ServerApplication {
 
     public ServerApplication() {
         this.taskScheduler = new TaskScheduler("Server-Scheduler");
-        this.handle = new ProxyChannelHandle(taskScheduler);
+        this.clientManager = new ProxyClientManager();
+        this.handle = new ProxyChannelHandle(clientManager, taskScheduler);
         this.server = new ProxyServer(taskScheduler, handle);
     }
 
     /**
      * 启动
      */
-    public void start() {
+    public void start() throws InterruptedException {
         if (started.compareAndSet(false, true)) {
             this.server.start();
         }
