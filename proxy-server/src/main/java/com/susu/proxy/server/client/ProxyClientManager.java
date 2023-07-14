@@ -59,7 +59,6 @@ public class ProxyClientManager {
         return channels.get(hostname);
     }
 
-
     /**
      * <p>Description: 客户端注册</p>
      * <p>Description: Client Register</p>

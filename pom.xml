@@ -19,11 +19,13 @@
       <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
       <org.projectlombok.version>1.18.4</org.projectlombok.version>
       <netty.version>4.1.42.Final</netty.version>
+      <protobuf.version>3.3.0</protobuf.version>
       <slf4j.version>1.7.36</slf4j.version>
       <logback.version>1.2.11</logback.version>
       <yaml.version>1.26</yaml.version>
       <junit.version>4.12</junit.version>
       <fastjson.version>2.0.8</fastjson.version>
+      <tomcat.version>8.5.37</tomcat.version>
    </properties>
 
    <modules>
@@ -38,6 +40,24 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>${netty.version}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>${tomcat.version}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <version>${tomcat.version}</version>
          </dependency>
 
          <dependency>

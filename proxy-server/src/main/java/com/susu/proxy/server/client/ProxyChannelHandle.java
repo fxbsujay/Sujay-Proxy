@@ -79,7 +79,9 @@ public class ProxyChannelHandle extends AbstractChannelHandler {
     private void serviceRegisterHandle(NetRequest request) throws InvalidProtocolBufferException {
         RegisterRequest registerRequest = RegisterRequest.parseFrom(request.getRequest().getBody());
         boolean register = clientManager.register(registerRequest, request.getCtx());
-        RegisterResponse response = RegisterResponse.newBuilder().setIsSuccess(register).build();
+        RegisterResponse response = RegisterResponse.newBuilder()
+                .setIsSuccess(register)
+                .build();
         request.sendResponse(response);
     }
 

@@ -1,6 +1,5 @@
 package com.susu.proxy.core.common.utils;
 
-import cn.hutool.core.util.ClassUtil;
 import com.alibaba.fastjson.JSON;
 import com.susu.proxy.core.common.Constants;
 import com.susu.proxy.core.stereotype.Configuration;
@@ -46,7 +45,7 @@ public class ConfigLoadUtils {
     }
 
     public static Set<Class<?>> loadConfigurationClass() {
-        return  ClassUtil.scanPackageByAnnotation("", Configuration.class);
+        return  ClassUtils.scanPackageByAnnotation("", Configuration.class);
     }
 
     public static void refreshConfig() {
