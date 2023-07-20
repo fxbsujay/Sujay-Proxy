@@ -19,6 +19,7 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.susu.proxy</groupId>
             <artifactId>proxy-core</artifactId>
@@ -34,7 +35,15 @@
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+
 
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
@@ -42,7 +51,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>**/webapp/**</include>
+                    <include>**/static/**</include>
                     <include>**/*.yaml</include>
                     <include>**/*.xml</include>
                 </includes>

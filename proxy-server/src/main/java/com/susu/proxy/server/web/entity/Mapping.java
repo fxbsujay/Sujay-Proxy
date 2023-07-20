@@ -1,4 +1,4 @@
-package com.susu.proxy.server.web.servlet;
+package com.susu.proxy.server.web.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

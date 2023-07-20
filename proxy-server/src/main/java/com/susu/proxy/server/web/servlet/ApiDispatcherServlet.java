@@ -1,6 +1,9 @@
 package com.susu.proxy.server.web.servlet;
 
 import com.alibaba.fastjson.JSONObject;
+import com.susu.proxy.server.web.entity.Mapping;
+import com.susu.proxy.server.web.entity.Result;
+import com.susu.proxy.server.web.eum.ResponseStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +36,7 @@ public class ApiDispatcherServlet extends AbstractDispatcherServlet {
         Mapping mapping = findMapping(uri, method);
 
         if (mapping == null) {
-            responsive(resp, Result.error(ErrorEnum.ERROR_404));
+            responsive(resp, Result.error(ResponseStatusEnum.ERROR_404));
             return;
         }
 
@@ -49,7 +52,7 @@ public class ApiDispatcherServlet extends AbstractDispatcherServlet {
             result = invokeMethod.invoke(bean, args);
             responsive(resp, result);
         } catch (Exception e) {
-            responsive(resp, Result.error(ErrorEnum.ERROR_500));
+            responsive(resp, Result.error(ResponseStatusEnum.ERROR_500));
             log.error("Request exception：", e);
         }
     }

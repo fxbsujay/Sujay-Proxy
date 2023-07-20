@@ -1,5 +1,6 @@
-package com.susu.proxy.server.web.servlet;
+package com.susu.proxy.server.web.entity;
 
+import com.susu.proxy.server.web.eum.ResponseStatusEnum;
 import lombok.Data;
 
 /**
@@ -26,11 +27,11 @@ public class Result<T> {
     private T data;
 
     private Result() {
-        this(ErrorEnum.SUCCESS_200.getCode(), ErrorEnum.SUCCESS_200.getMessage());
+        this(ResponseStatusEnum.SUCCESS_200.getCode(), ResponseStatusEnum.SUCCESS_200.getMessage());
     }
 
     private Result(T data) {
-        this(ErrorEnum.SUCCESS_200.getCode(), ErrorEnum.SUCCESS_200.getMessage(), data);
+        this(ResponseStatusEnum.SUCCESS_200.getCode(), ResponseStatusEnum.SUCCESS_200.getMessage(), data);
     }
 
     private Result(Integer code, String msg) {
@@ -52,18 +53,18 @@ public class Result<T> {
     }
 
     public static <T> Result<T> error() {
-        return new Result<>(ErrorEnum.ERROR_500.getCode(),ErrorEnum.ERROR_500.getMessage());
+        return new Result<>(ResponseStatusEnum.ERROR_500.getCode(), ResponseStatusEnum.ERROR_500.getMessage());
     }
 
     public static <T> Result<T> error(String msg) {
-        return new Result<>(ErrorEnum.ERROR_500.getCode(),msg);
+        return new Result<>(ResponseStatusEnum.ERROR_500.getCode(),msg);
     }
 
     public static <T> Result<T> error(Integer code,String msg) {
         return new Result<>(code,msg);
     }
 
-    public static <T> Result<T> error(ErrorEnum e) {
+    public static <T> Result<T> error(ResponseStatusEnum e) {
         return new Result<>(e.getCode(),e.getMessage());
     }
 

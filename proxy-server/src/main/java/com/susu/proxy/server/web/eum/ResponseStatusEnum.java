@@ -1,4 +1,4 @@
-package com.susu.proxy.server.web.servlet;
+package com.susu.proxy.server.web.eum;
 
 import lombok.Getter;
 
@@ -6,7 +6,7 @@ import lombok.Getter;
  * @author fxbsujay@gmail.com
  */
 @Getter
-public enum ErrorEnum {
+public enum ResponseStatusEnum {
 
     SUCCESS_200(200, "操作成功"),
 
@@ -26,7 +26,7 @@ public enum ErrorEnum {
      */
     private final String message;
 
-    ErrorEnum(Integer code, String message) {
+    ResponseStatusEnum(Integer code, String message) {
         this.code = code;
         this.message = message;
     }

@@ -32,7 +32,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>**/webapp/**</include>
+                    <include>**/static/**</include>
                     <include>**/*.yaml</include>
                     <include>**/*.xml</include>
                 </includes>

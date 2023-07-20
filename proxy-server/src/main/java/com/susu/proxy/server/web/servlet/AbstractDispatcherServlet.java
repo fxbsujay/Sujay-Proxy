@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.susu.proxy.core.common.utils.ClassUtils;
 import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.server.web.annotation.*;
+import com.susu.proxy.server.web.entity.Mapping;
 import io.netty.handler.codec.http.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 import javax.servlet.http.HttpServlet;
