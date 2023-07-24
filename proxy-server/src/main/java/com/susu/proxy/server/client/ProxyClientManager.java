@@ -1,6 +1,5 @@
 package com.susu.proxy.server.client;
 
-
 import com.susu.proxy.core.common.model.RegisterRequest;
 import com.susu.proxy.core.common.utils.SnowFlakeUtils;
 import com.susu.proxy.core.common.utils.StringUtils;
@@ -22,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class ProxyClientManager {
 
-
     /**
      * 客户端实例
      *      Example:    {
@@ -40,7 +38,6 @@ public class ProxyClientManager {
      *                  }
      */
     private final Map<String, ChannelHandlerContext> channels = new ConcurrentHashMap<>();
-
 
     /**
      * 给注册进来的客户端分配id
