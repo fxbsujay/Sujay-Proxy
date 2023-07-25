@@ -19,13 +19,7 @@ public class PortMappingDTO {
     private Integer serverPort;
 
     /**
-     * 代理的客户端IP
+     * 代理的客户端 ip:port  127.0.0.1:3306
      */
-    private String  clientIp;
-
-    /**
-     * 代理的客户端端口
-     */
-    private String clientPort;
-
+    private String clientAddress;
 }

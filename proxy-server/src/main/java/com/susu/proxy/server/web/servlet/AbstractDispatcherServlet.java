@@ -7,7 +7,6 @@ import com.susu.proxy.server.web.annotation.*;
 import com.susu.proxy.server.web.entity.Mapping;
 import io.netty.handler.codec.http.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0 JDK1.8
  */
 @Slf4j
-public abstract class AbstractDispatcherServlet extends HttpServlet {
+public abstract class AbstractDispatcherServlet extends BaseDispatcherServlet {
 
     /**
      * BASE_PACKAGE 路径下扫描到的所有类名

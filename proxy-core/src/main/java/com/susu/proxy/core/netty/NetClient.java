@@ -131,7 +131,7 @@ public class NetClient {
      */
     private void start(String host, int port, final int connectTimes, long delay) {
 
-        taskScheduler.scheduleOnce("NettyClient",() -> {
+        taskScheduler.scheduleOnce("NetClient",() -> {
             Bootstrap client = new Bootstrap()
                     .group(loopGroup)
                     .channel(NioSocketChannel.class)
@@ -147,7 +147,7 @@ public class NetClient {
                 int curConnectTimes = connectTimes + 1;
                 reStart(host, port, curConnectTimes);
             }
-        },delay);
+        }, delay);
     }
 
     /**

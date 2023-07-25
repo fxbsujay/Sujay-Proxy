@@ -34,14 +34,18 @@ public class ResourcesDispatcherServlet extends HttpServlet {
         if (filePath.endsWith("/")) {
             filePath = filePath.substring(0, filePath.length() -1);
         }
-        if (StringUtils.isBlank(filePath)) {
-            filePath = "/index.html";
-        }
+
         String extension = getExtension(filePath);
+
+        if (StringUtils.isBlank(filePath) || StringUtils.isBlank(extension)) {
+            filePath = "/index.html";
+            extension = "html";
+        }
+
         String content = ContentTypeEnum.getContent(extension);
         if (content == null) {
-            filePath = "/index.html";
-            content = ContentTypeEnum.HTML.getContent();
+            error(resp);
+            return;
         }
         resp.setCharacterEncoding("UTF-8");
         resp.setHeader("Content-Type", content + ";charset=UTF-8");
@@ -53,7 +57,7 @@ public class ResourcesDispatcherServlet extends HttpServlet {
             error(resp);
             return;
         }
-        int len=0;
+        int len = 0;
         byte[] buffer = new byte[1024];
         while((len = resource.read(buffer)) != -1) {
             outputStream.write(buffer, 0, len);
@@ -70,7 +74,6 @@ public class ResourcesDispatcherServlet extends HttpServlet {
     private void error(HttpServletResponse resp) throws IOException {
         resp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
-
 
     /**
      * <p>Description: Get file extension</p>

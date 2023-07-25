@@ -17,6 +17,5 @@ public class TomcatServerTest {
         ResourcesDispatcherServlet servlet = new ResourcesDispatcherServlet();
         server.addServlet("/", servlet);
         server.start();
-        System.in.read();
     }
 }

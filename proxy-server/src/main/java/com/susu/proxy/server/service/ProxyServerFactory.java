@@ -1,6 +1,7 @@
 package com.susu.proxy.server.service;
 
 import com.susu.proxy.core.common.eum.ProtocolType;
+import com.susu.proxy.core.netty.NetServer;
 
 public interface ProxyServerFactory {
 
@@ -12,4 +13,5 @@ public interface ProxyServerFactory {
      * @param protocol   协议类型 http / tcp
      */
     public boolean bind(int port, ProtocolType protocol);
+
 }

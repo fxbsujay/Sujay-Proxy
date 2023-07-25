@@ -39,17 +39,17 @@ public class NetClientTest {
         client.addPackageListener(request -> log.info("Handle Package: {}", request.getRequest().bodyToString()));
 
         client.addConnectListener( isConnected -> {
-            log.info("Tracker Client Connect Start : {}", isConnected);
+            log.info("NetClient Connect Start : {}", isConnected);
             if (isConnected) {
                 client.send(NetPacket.buildPacket("Hello World !!", PacketType.EMPTY));
             }
         });
 
         client.addClientFailListener(() -> {
-            log.info("Tracker Server Down !!");
+            log.info("NetServer Down !!");
         });
 
-        client.start("localhost",8899);
+        client.start("localhost",8845);
 
         NetPacket response = null;
         try {

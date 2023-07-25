@@ -11,6 +11,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,6 +43,8 @@ public class NetServer {
     private EventLoopGroup boss;
 
     private EventLoopGroup worker;
+
+    private ServerBootstrap bootstrap;
 
     public NetServer(String name) {
         this(name, null);
@@ -85,6 +88,10 @@ public class NetServer {
         start(Collections.singletonList(ports));
     }
 
+    public void start() throws InterruptedException {
+        start(Collections.emptyList());
+    }
+
     /**
      * 启动服务
      * <p>Description: start server </p>
@@ -93,29 +100,51 @@ public class NetServer {
      * @exception InterruptedException 绑定端口异常
      */
     public void start(List<Integer> ports) throws InterruptedException {
-        ServerBootstrap bootstrap = new ServerBootstrap()
+         bootstrap = new ServerBootstrap()
                 .group(boss, worker)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childHandler(baseChannelHandler);
-        List<ChannelFuture> channelFeature = new ArrayList<>();
+
+        log.info("NetServer started : {}", name);
+
+        if (ports == null || ports.isEmpty()) {
+            return;
+        }
+
         try {
-            for (Integer port : ports) {
-                ChannelFuture future = bootstrap.bind(port).sync();
-                log.info("Netty Server started on port ：{}", port);
-                channelFeature.add(future);
-            }
-            for (ChannelFuture future : channelFeature) {
-                future.channel().closeFuture().addListener((ChannelFutureListener) future1 -> future1.channel().close());
-            }
-            for (ChannelFuture future : channelFeature) {
-                future.channel().closeFuture().sync();
-            }
+            bindSync(ports);
         } finally {
             boss.shutdownGracefully();
             worker.shutdownGracefully();
         }
+    }
+
+    /**
+     * 绑定端口
+     * <p>Description: bind port </p>
+     *
+     * @param ports 端口号
+     * @throws InterruptedException 绑定端口异常
+     */
+    public void bindSync(List<Integer> ports) throws InterruptedException {
+        List<ChannelFuture> channelFeature = new ArrayList<>();
+        for (Integer port : ports) {
+            ChannelFuture future = bootstrap.bind(port).sync();
+            log.info("NetServer bind port ：{}", port);
+            channelFeature.add(future);
+        }
+        for (ChannelFuture future : channelFeature) {
+            future.channel().closeFuture().addListener((ChannelFutureListener) future1 -> future1.channel().close());
+        }
+        for (ChannelFuture future : channelFeature) {
+            future.channel().closeFuture().sync();
+        }
+    }
+
+    public void bindSync(int port) throws InterruptedException {
+        bindSync(Collections.singletonList(port));
     }
 
     /**
@@ -134,7 +163,7 @@ public class NetServer {
      * <p>Description: shutdown server </p>
      */
     public void shutdown() {
-        log.info("Shutdown NetServer : [name={}]", name);
+        log.info("Shutdown NetServer : {}", name);
         if (boss != null && worker != null) {
             boss.shutdownGracefully();
             worker.shutdownGracefully();

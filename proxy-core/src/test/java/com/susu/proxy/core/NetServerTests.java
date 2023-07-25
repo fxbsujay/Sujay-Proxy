@@ -71,7 +71,8 @@ public class NetServerTests {
 
         try {
             Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
-            server.start(8899);
+            server.start();
+            server.bindSync(8845);
         } catch (Exception e) {
             log.info("Tracker Application Start Error!!");
             System.exit(1);

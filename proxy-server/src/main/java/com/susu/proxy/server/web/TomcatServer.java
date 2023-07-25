@@ -1,5 +1,6 @@
 package com.susu.proxy.server.web;
 
+import com.susu.proxy.core.common.Constants;
 import com.susu.proxy.server.web.servlet.CorsFilter;
 import com.susu.proxy.server.web.entity.Servlet;
 import lombok.extern.slf4j.Slf4j;
@@ -7,11 +8,9 @@ import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
-
 import javax.servlet.http.HttpServlet;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -24,6 +23,9 @@ import java.util.*;
 @Slf4j
 public class TomcatServer {
 
+    /**
+     * HTTP 端口
+     */
     private final int port;
 
     private final String basedir;
@@ -36,7 +38,6 @@ public class TomcatServer {
         this.tomcat = new Tomcat();
         this.basedir = createTempDir();
         this.port = port;
-
     }
 
     public void start() {
@@ -55,7 +56,7 @@ public class TomcatServer {
         filterMap.addURLPatternDecoded("/*");
         filterMap.addServletName("*");
         filterMap.setFilterName("CorsFilter");
-        filterMap.setCharset(StandardCharsets.UTF_8);
+        filterMap.setCharset(Constants.DEFAULT_ENCODING);
         context.addFilterDef(filterDef);
         context.addFilterMap(filterMap);
 
@@ -63,12 +64,16 @@ public class TomcatServer {
             tomcat.init();
             tomcat.start();
             log.info("Tomcat Server started on port：{}", port);
+            tomcat.getServer().await();
         } catch (Exception e) {
             log.error("Tomcat start fail：", e);
             System.exit(0);
         }
     }
 
+    /**
+     * 初始化 Servlet
+     */
     private Context initializeServlet() {
         Context context = tomcat.addContext("", null);
         if (!servlets.isEmpty()) {
@@ -80,6 +85,9 @@ public class TomcatServer {
         return context;
     }
 
+    /**
+     * 关机
+     */
     public void shutdown() {
         try {
             tomcat.stop();
@@ -88,6 +96,9 @@ public class TomcatServer {
         }
     }
 
+    /**
+     * 创建临时目录
+     */
     private String createTempDir() {
         File tempDir = null;
         try {
