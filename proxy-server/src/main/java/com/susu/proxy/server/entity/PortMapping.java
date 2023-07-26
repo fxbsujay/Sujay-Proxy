@@ -1,4 +1,4 @@
-package com.susu.proxy.server.dto;
+package com.susu.proxy.server.entity;
 
 import lombok.Data;
 
@@ -6,7 +6,8 @@ import lombok.Data;
  * 端口映射
  */
 @Data
-public class PortMappingDTO {
+public class PortMapping {
+
 
     /**
      * 代理协议  http or tcp
@@ -19,7 +20,12 @@ public class PortMappingDTO {
     private Integer serverPort;
 
     /**
-     * 代理的客户端 ip:port  127.0.0.1:3306
+     * 代理客户端ip
      */
-    private String clientAddress;
+    private String clientIp;
+
+    /**
+     * 代理客户端端口
+     */
+    private String clientPort;
 }

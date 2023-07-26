@@ -45,7 +45,7 @@ public class TaskScheduler {
      * @param corePoolSize  任务数量
      * @param isDaemon      该任务是否为守护线程
      */
-    public TaskScheduler(String schedulerName, int corePoolSize,boolean isDaemon) {
+    public TaskScheduler(String schedulerName, int corePoolSize, boolean isDaemon) {
         if (shutdown.compareAndSet(true, false)) {
             executor = new ScheduledThreadPoolExecutor(corePoolSize,
                     r -> new BaseThread(schedulerName + "-" + taskId.getAndIncrement(), r, isDaemon));
@@ -115,12 +115,16 @@ public class TaskScheduler {
         }
     }
 
+    public ScheduledThreadPoolExecutor getExecutor() {
+        return executor;
+    }
+
     /**
      * 关闭调度器，终止所有任务
      */
     public void shutdown() {
         if (shutdown.compareAndSet(false, true)) {
-            log.info("Shutdown Task Scheduler.");
+            log.info("Shutdown Task Scheduler");
             executor.shutdown();
         }
     }

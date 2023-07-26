@@ -59,7 +59,6 @@ public class SnowFlakeUtils {
      * 但又由于计算机中是以补码的形式存储的，所以0 1010全取反是1 0101（只是补码形式，还需要转成原码）
      * 此时得到的1 0101只是补码，我们需要将它先转为反码，反码 = 补码-1，得到反码为1 010
      * 我们得到反码后，将它转为原码，原码 = 反码符号位不变，其它位全取反，得到最终的原码为1 1011，转化为十进制就是-11
-     *
      * 每一部分的最大值
      */
     private final static long MAX_SEQUENCE = ~(-1L << SEQUENCE_BIT);
@@ -110,20 +109,16 @@ public class SnowFlakeUtils {
             throw new RuntimeException("Clock moved backwards. Refusing to generate id");
         }
         if (timeStamp == lastStamp) {
-            //相同毫秒内，序列号自增
             sequence = (sequence + 1) & MAX_SEQUENCE;
-            //同一毫秒的序列数已经达到最大
             if (sequence == 0L) {
                 timeStamp = getNextMill();
             }
         } else {
-            //不同毫秒内，序列号置为0
             sequence = 0L;
         }
 
         lastStamp = timeStamp;
 
-        // 移位并通过或运算拼到一起组成64位ID
         return (timeStamp - START_STAMP) << TIMESTAMP_LEFT
                 | DATA_CENTER_ID << DATACENTER_LEFT
                 | MACHINE_ID << MACHINE_LEFT

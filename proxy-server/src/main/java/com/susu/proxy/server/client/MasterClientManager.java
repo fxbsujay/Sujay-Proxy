@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0 JDK1.8
  */
 @Slf4j
-public class ProxyClientManager {
+public class MasterClientManager {
 
     /**
      * 客户端实例
@@ -52,6 +52,14 @@ public class ProxyClientManager {
         return new ArrayList<>(clients.values());
     }
 
+    /**
+     * 客户端是否存在
+     * @param hostname ip地址
+     */
+    public boolean isExist(String hostname) {
+        return clients.containsKey(hostname) && channels.containsKey(hostname);
+    }
+
     public ChannelHandlerContext getClientChannel(String hostname) {
         return channels.get(hostname);
     }
@@ -67,18 +75,13 @@ public class ProxyClientManager {
             return false;
         }
         String hostname = request.getHostname();
-        if (clients.get(hostname) != null) {
-            log.error("Registration failed, client side is registered : [hostname:{}]", hostname);
-            return false;
-        }
-
         ClientInfo client = new ClientInfo(hostname, request.getName());
         client.setName(request.getName());
         client.setClientId(snowFlakeUtils.nextId());
-        log.info("Client register request : [hostname:{}]",hostname);
+        log.info("Client registration : [name={}, hostname={}]", request.getName(), hostname);
 
-        clients.put(request.getHostname(),client);
-        if (channel != null) channels.put(hostname,channel);
+        clients.put(hostname, client);
+        if (channel != null) channels.put(hostname, channel);
         return true;
     }
 

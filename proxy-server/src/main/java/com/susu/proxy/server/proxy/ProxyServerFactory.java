@@ -1,4 +1,4 @@
-package com.susu.proxy.server.service;
+package com.susu.proxy.server.proxy;
 
 import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.netty.NetServer;

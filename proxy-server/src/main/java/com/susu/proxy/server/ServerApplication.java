@@ -2,9 +2,9 @@ package com.susu.proxy.server;
 
 import com.susu.proxy.core.common.utils.ConfigLoadUtils;
 import com.susu.proxy.core.task.TaskScheduler;
-import com.susu.proxy.server.client.ProxyChannelHandle;
-import com.susu.proxy.server.client.ProxyClientManager;
-import com.susu.proxy.server.proxy.ProxyServer;
+import com.susu.proxy.server.client.MasterChannelHandle;
+import com.susu.proxy.server.client.MasterClientManager;
+import com.susu.proxy.server.client.MasterServer;
 import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -13,11 +13,11 @@ public class ServerApplication {
 
     private final TaskScheduler taskScheduler;
 
-    private ProxyClientManager clientManager;
+    private MasterClientManager clientManager;
 
-    private final ProxyChannelHandle handle;
+    private final MasterChannelHandle handle;
 
-    private final ProxyServer server;
+    private final MasterServer server;
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -37,9 +37,9 @@ public class ServerApplication {
 
     public ServerApplication() {
         this.taskScheduler = new TaskScheduler("Server-Scheduler");
-        this.clientManager = new ProxyClientManager();
-        this.handle = new ProxyChannelHandle(clientManager, taskScheduler);
-        this.server = new ProxyServer(taskScheduler, handle);
+        this.clientManager = new MasterClientManager();
+        this.handle = new MasterChannelHandle(clientManager, taskScheduler);
+        this.server = new MasterServer(taskScheduler, handle);
     }
 
     /**

@@ -18,13 +18,16 @@ import java.io.IOException;
 public class NetClientTest {
 
     @Test
-    public void simpleClientTest() {
+    public void simpleClientTest() throws InterruptedException {
         NetClient client = new NetClient("Test-Client");
+        client.addPackageListener(request -> log.info("Handle Package: {}", request.getRequest().bodyToString()));
 
+        client.start("localhost",8845);
+        client.send(NetPacket.buildPacket("Simple Client Message Test !!", PacketType.EMPTY));
         try {
-            client.start("localhost",8899);
             client.ensureStart();
-        } catch (InterruptedException e) {
+            System.in.read();
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException(e);
         } finally {
             client.shutdown();

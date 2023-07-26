@@ -14,16 +14,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ProtocolType {
 
-    TCP(0, "TCP"),
-    HTTP(1, "HTTP");
-
-    private int value;
+    TCP( "TCP"),
+    HTTP("HTTP");
 
     private String name;
 
-    public static ProtocolType getEnum(int value) {
+    public static ProtocolType getEnum(String name) {
         for (ProtocolType protocolType : values()) {
-            if (protocolType.getValue() == value) {
+            if (protocolType.getName().equals(name)) {
                 return protocolType;
             }
         }

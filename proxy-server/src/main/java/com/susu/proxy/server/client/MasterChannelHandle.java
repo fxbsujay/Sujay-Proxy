@@ -18,12 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class ProxyChannelHandle extends AbstractChannelHandler {
-
-    /**
-     * 消息处理执行器
-     */
-    private final ThreadPoolExecutor executor;
+public class MasterChannelHandle extends AbstractChannelHandler {
 
     /**
      * 共享线程池
@@ -31,13 +26,11 @@ public class ProxyChannelHandle extends AbstractChannelHandler {
     private final TaskScheduler taskScheduler;
 
 
-    private final ProxyClientManager clientManager;
+    private final MasterClientManager clientManager;
 
-    public ProxyChannelHandle(ProxyClientManager clientManager, TaskScheduler taskScheduler) {
+    public MasterChannelHandle(MasterClientManager clientManager, TaskScheduler taskScheduler) {
         this.clientManager = clientManager;
         this.taskScheduler = taskScheduler;
-        this.executor = new ThreadPoolExecutor(Constants.HANDLE_THREAD_EXECUTOR_CORE_SIZE,Constants.HANDLE_THREAD_EXECUTOR_CORE_SIZE_MAX,
-                60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(Constants.HANDLE_THREAD_EXECUTOR_QUEUE_SIZE_MAX));
     }
 
     @Override
@@ -67,7 +60,7 @@ public class ProxyChannelHandle extends AbstractChannelHandler {
 
     @Override
     public ThreadPoolExecutor getExecutor() {
-        return executor;
+        return taskScheduler.getExecutor();
     }
 
     /**

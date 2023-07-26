@@ -1,4 +1,4 @@
-package com.susu.proxy.server.service;
+package com.susu.proxy.server.proxy;
 
 import com.susu.proxy.core.netty.NetServer;
 
@@ -13,6 +13,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     protected NetServer proxyServer;
 
     public AbstractProxyServerFactory() {
+        proxyServer = new NetServer("Proxy-Server");
     }
 
 }

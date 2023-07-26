@@ -18,6 +18,7 @@ import java.util.List;
 /**
  * <p>Description: Server NetWork</p>
  * <p>Description: Netty 的 服务端实现 网络服务</p>
+ *
  * @author sujay
  * @since 15:56 2023/6/29
  * @version 1.0 JDK1.8
@@ -132,7 +133,7 @@ public class NetServer {
         List<ChannelFuture> channelFeature = new ArrayList<>();
         for (Integer port : ports) {
             ChannelFuture future = bootstrap.bind(port).sync();
-            log.info("NetServer bind port ：{}", port);
+            log.info("NetServer bind port : {}", port);
             channelFeature.add(future);
         }
         for (ChannelFuture future : channelFeature) {

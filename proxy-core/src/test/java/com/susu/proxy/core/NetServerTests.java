@@ -3,7 +3,9 @@ package com.susu.proxy.core;
 import com.susu.proxy.core.common.Constants;
 import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.netty.AbstractChannelHandler;
+import com.susu.proxy.core.netty.ClientChannelHandle;
 import com.susu.proxy.core.netty.NetServer;
+import com.susu.proxy.core.netty.listener.NetPacketListener;
 import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.netty.msg.NetRequest;
 import com.susu.proxy.core.task.TaskScheduler;
@@ -61,6 +63,24 @@ public class NetServerTests {
             protected Executor getExecutor() {
                 return new ThreadPoolExecutor(Constants.HANDLE_THREAD_EXECUTOR_CORE_SIZE,Constants.HANDLE_THREAD_EXECUTOR_CORE_SIZE_MAX,
                         60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(Constants.HANDLE_THREAD_EXECUTOR_QUEUE_SIZE_MAX));
+            }
+
+            @Override
+            protected Set<Integer> interestPackageTypes() {
+                return new HashSet<>();
+            }
+        });
+
+        server.addHandler(new AbstractChannelHandler() {
+            @Override
+            protected boolean handlePackage(ChannelHandlerContext ctx, NetPacket packet) throws Exception {
+                log.info("Two Handle Package: {}", packet.bodyToString());
+                return true;
+            }
+
+            @Override
+            protected Executor getExecutor() {
+                return scheduler.getExecutor();
             }
 
             @Override

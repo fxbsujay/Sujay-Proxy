@@ -5,6 +5,8 @@ import com.susu.proxy.core.common.eum.PacketType;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import com.susu.proxy.core.common.Constants;
+
+import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
@@ -41,6 +43,10 @@ public class NetRequest {
 
     public ChannelHandlerContext getCtx() {
         return ctx;
+    }
+
+    public int getChannelPort() {
+        return ((InetSocketAddress) ctx.channel().localAddress()).getPort();
     }
 
     public NetPacket getRequest() {

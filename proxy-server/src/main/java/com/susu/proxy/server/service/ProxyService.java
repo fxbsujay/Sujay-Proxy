@@ -1,12 +1,12 @@
 package com.susu.proxy.server.service;
 
-import com.susu.proxy.server.dto.PortMappingDTO;
+import com.susu.proxy.server.entity.PortMapping;
 
 public class ProxyService {
 
 
 
-    private Boolean createProxy(PortMappingDTO mapping) {
+    private Boolean createProxy(PortMapping mapping) {
 
 
         return true;

@@ -12,7 +12,6 @@ public abstract class BaseDispatcherServlet extends HttpServlet {
 
     private String path;
 
-    private final Charset encode;
 
 
 

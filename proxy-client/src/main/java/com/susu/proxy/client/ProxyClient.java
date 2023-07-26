@@ -47,7 +47,7 @@ public class ProxyClient {
     public void start () {
         this.netClient.addPackageListener(this::onTrackerResponse);
         this.netClient.addConnectListener( isConnected -> {
-            log.info("[{}] Client Connect Start : {}", AppConfig.name, isConnected);
+            log.info("Client Connect Start : {}", isConnected);
             if (isConnected) {
                 register();
             } else {
@@ -69,7 +69,7 @@ public class ProxyClient {
                 .setHostname(AppConfig.localhost)
                 .build();
         NetPacket packet = NetPacket.buildPacket(request.toByteArray(), PacketType.SERVICE_REGISTER);
-        log.info("[{}] Client Register {}:{}", AppConfig.name, ClientConfig.serverIp, ClientConfig.serverPort);
+        log.info("Client Register {}:{}", ClientConfig.serverIp, ClientConfig.serverPort);
         netClient.send(packet);
     }
 

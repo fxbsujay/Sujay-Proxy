@@ -1,4 +1,4 @@
 app:
-  name: proxy-server
+  name: master-server
 server:
-  port: 8899
+  port: 8845

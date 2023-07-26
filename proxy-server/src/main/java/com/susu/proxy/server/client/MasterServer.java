@@ -1,4 +1,4 @@
-package com.susu.proxy.server.proxy;
+package com.susu.proxy.server.client;
 
 import com.susu.proxy.core.config.AppConfig;
 import com.susu.proxy.core.config.ServerConfig;
@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0 JDK1.8
  */
 @Slf4j
-public class ProxyServer {
+public class MasterServer {
 
     private NetServer netServer;
 
@@ -25,7 +25,7 @@ public class ProxyServer {
      */
     private AbstractChannelHandler handler;
 
-    public ProxyServer(TaskScheduler taskScheduler, AbstractChannelHandler handler) {
+    public MasterServer(TaskScheduler taskScheduler, AbstractChannelHandler handler) {
         this.netServer = new NetServer(AppConfig.name, taskScheduler);
         this.handler = handler;
     }
@@ -34,7 +34,6 @@ public class ProxyServer {
      * 启动服务
      */
     public void start() throws InterruptedException {
-        log.info("Start Proxy Server");
         this.netServer.addHandler(handler);
         netServer.start(ServerConfig.port);
     }
@@ -43,7 +42,6 @@ public class ProxyServer {
      * 停止服务
      */
     public void shutdown() {
-        log.info("Shutdown Proxy Server");
         netServer.shutdown();
     }
 }
