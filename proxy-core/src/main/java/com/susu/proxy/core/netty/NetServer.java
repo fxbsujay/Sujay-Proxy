@@ -68,10 +68,10 @@ public class NetServer {
      *
      * @param port 端口
      */
-    public void startAsync(int port) {
+    public void startAsync(Integer... port) {
         taskScheduler.scheduleOnce(name, () -> {
             try {
-                start(Collections.singletonList(port));
+                start(Arrays.asList(port));
             } catch (InterruptedException e) {
                 log.info("NetServer internalBind is Interrupted !!");
             }
