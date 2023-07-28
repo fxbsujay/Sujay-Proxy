@@ -44,9 +44,11 @@ public class ResourcesDispatcherServlet extends HttpServlet {
 
         String content = ContentTypeEnum.getContent(extension);
         if (content == null) {
+            log.error("Unsupported file formats : {}", extension);
             error(resp);
             return;
         }
+
         resp.setCharacterEncoding("UTF-8");
         resp.setHeader("Content-Type", content + ";charset=UTF-8");
         resp.setStatus(HttpServletResponse.SC_OK);
@@ -54,9 +56,11 @@ public class ResourcesDispatcherServlet extends HttpServlet {
         ServletOutputStream outputStream = resp.getOutputStream();
         InputStream resource = this.getClass().getClassLoader().getResourceAsStream("static" + filePath);
         if (resource == null) {
+            log.error("No resources found : {}", filePath);
             error(resp);
             return;
         }
+        
         int len = 0;
         byte[] buffer = new byte[1024];
         while((len = resource.read(buffer)) != -1) {

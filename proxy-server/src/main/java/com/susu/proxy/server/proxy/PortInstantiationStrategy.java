@@ -1,8 +1,12 @@
 package com.susu.proxy.server.proxy;
 
 import com.susu.proxy.core.common.eum.ProtocolType;
+import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.entity.PortMapping;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 15:20 2022/07/26
  * @version 1.0 JDK1.8
  */
-public class PortInstantiationStrategy {
+@Slf4j
+public class PortInstantiationStrategy extends AbstractProxyServerFactory {
 
     /**
      * 客户端管理器
@@ -27,7 +32,8 @@ public class PortInstantiationStrategy {
      */
     private final Map<Integer, PortMapping> pool = new ConcurrentHashMap<>();
 
-    public PortInstantiationStrategy(MasterClientManager clientManager) {
+    public PortInstantiationStrategy(MasterClientManager clientManager, TaskScheduler scheduler) {
+        super(scheduler);
         this.clientManager = clientManager;
     }
 
@@ -46,7 +52,18 @@ public class PortInstantiationStrategy {
             return false;
         }
 
-        pool.put(serverPort, mapping);
+        boolean bind;
+        try {
+            bind = bind(mapping.getServerPort());
+        } catch (InterruptedException e) {
+            log.error("Port creation failed, {}", e.getMessage());
+            return false;
+        }
+
+        if (bind) {
+            pool.put(serverPort, mapping);
+        }
+
         return true;
     }
 
@@ -54,4 +71,13 @@ public class PortInstantiationStrategy {
         return pool.containsKey(port);
     }
 
+    @Override
+    public boolean close(int port) {
+        return false;
+    }
+
+    @Override
+    public List<Integer> getAllPort() {
+        return null;
+    }
 }
