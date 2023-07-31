@@ -5,6 +5,8 @@ import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterChannelHandle;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.client.MasterServer;
+import com.susu.proxy.server.entity.PortMapping;
+import com.susu.proxy.server.proxy.PortInstantiationStrategy;
 import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -16,6 +18,8 @@ public class ServerApplication {
     private MasterClientManager clientManager;
 
     private final MasterChannelHandle handle;
+
+    private final  PortInstantiationStrategy strategy;
 
     private final MasterServer server;
 
@@ -40,6 +44,14 @@ public class ServerApplication {
         this.clientManager = new MasterClientManager();
         this.handle = new MasterChannelHandle(clientManager, taskScheduler);
         this.server = new MasterServer(taskScheduler, handle);
+        this.strategy = new PortInstantiationStrategy(clientManager, taskScheduler);
+        PortMapping mapping = new PortMapping();
+        mapping.setClientIp("127.0.0.1");
+        mapping.setServerPort(8856);
+        mapping.setProtocol("TCP");
+        mapping.setClientPort("8899");
+        boolean mapping1 = this.strategy.createMapping(mapping);
+
     }
 
     /**

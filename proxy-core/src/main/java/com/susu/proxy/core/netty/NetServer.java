@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <p>Description: Server NetWork</p>
@@ -47,8 +48,10 @@ public class NetServer {
 
     private ServerBootstrap bootstrap;
 
+    private final AtomicBoolean stated = new AtomicBoolean(false);
+
     public NetServer(String name) {
-        this(name, null);
+        this(name, new TaskScheduler("NetServer-Scheduler"));
     }
 
     /**
@@ -79,7 +82,7 @@ public class NetServer {
     }
 
     /**
-     * 启动服务
+     * 启动服务, 会堵塞线程
      * <p>Description: start server </p>
      *
      * @param ports 端口
@@ -87,10 +90,6 @@ public class NetServer {
      */
     public void start(int ports) throws InterruptedException {
         start(Collections.singletonList(ports));
-    }
-
-    public void start() throws InterruptedException {
-        start(Collections.emptyList());
     }
 
     /**
@@ -101,12 +100,19 @@ public class NetServer {
      * @exception InterruptedException 绑定端口异常
      */
     public void start(List<Integer> ports) throws InterruptedException {
-         bootstrap = new ServerBootstrap()
-                .group(boss, worker)
-                .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childHandler(baseChannelHandler);
+        if (!stated.get()) {
+            bootstrap = new ServerBootstrap()
+                    .group(boss, worker)
+                    .channel(NioServerSocketChannel.class)
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .childHandler(baseChannelHandler);
+        } else {
+            log.error("NetServer failed to start, already starting : {}", name);
+            return;
+        }
+
+        stated.set(true);
 
         log.info("NetServer started : {}", name);
 
@@ -115,7 +121,7 @@ public class NetServer {
         }
 
         try {
-            bindSync(ports);
+            bind(ports);
         } finally {
             boss.shutdownGracefully();
             worker.shutdownGracefully();
@@ -129,23 +135,42 @@ public class NetServer {
      * @param ports 端口号
      * @throws InterruptedException 绑定端口异常
      */
-    public void bindSync(List<Integer> ports) throws InterruptedException {
+    public void bindAsync(List<Integer> ports) throws InterruptedException {
+
+        synchronized (NetServer.this) {
+            while (bootstrap == null) {
+                wait(20);
+            }
+        }
+
+        taskScheduler.scheduleOnce("", () -> {
+            try {
+                bind(ports);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+
+    public void bindAsync(int port) throws InterruptedException {
+        bindAsync(Collections.singletonList(port));
+    }
+
+    public void bind(List<Integer> ports)  throws InterruptedException {
         List<ChannelFuture> channelFeature = new ArrayList<>();
         for (Integer port : ports) {
             ChannelFuture future = bootstrap.bind(port).sync();
-            log.info("NetServer bind port : {}", port);
+            log.info("[{}] NetServer bind port : {}", name, port);
             channelFeature.add(future);
         }
+
         for (ChannelFuture future : channelFeature) {
-            future.channel().closeFuture().addListener((ChannelFutureListener) future1 -> future1.channel().close());
+            future.channel().closeFuture().addListener((ChannelFutureListener) f -> f.channel().close());
         }
         for (ChannelFuture future : channelFeature) {
             future.channel().closeFuture().sync();
         }
-    }
-
-    public void bindSync(int port) throws InterruptedException {
-        bindSync(Collections.singletonList(port));
     }
 
     /**
@@ -165,9 +190,12 @@ public class NetServer {
      */
     public void shutdown() {
         log.info("Shutdown NetServer : {}", name);
-        if (boss != null && worker != null) {
-            boss.shutdownGracefully();
-            worker.shutdownGracefully();
+        if (stated.compareAndSet(true, false)) {
+
+            if (boss != null && worker != null) {
+                boss.shutdownGracefully();
+                worker.shutdownGracefully();
+            }
         }
     }
 }

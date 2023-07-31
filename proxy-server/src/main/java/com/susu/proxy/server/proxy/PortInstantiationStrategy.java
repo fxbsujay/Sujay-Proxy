@@ -4,8 +4,13 @@ import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.entity.PortMapping;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,11 +39,12 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
 
     public PortInstantiationStrategy(MasterClientManager clientManager, TaskScheduler scheduler) {
         super(scheduler);
+        initializeChannelHandle();
         this.clientManager = clientManager;
     }
 
     public boolean createMapping(PortMapping mapping) {
-        if (!clientManager.isExist(mapping.getClientIp())) {
+        if (clientManager.isExist(mapping.getClientIp())) {
             return false;
         }
 
@@ -64,20 +70,39 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
             pool.put(serverPort, mapping);
         }
 
-        return true;
+        return bind;
     }
 
+    @Override
     public boolean isExist(int port) {
         return pool.containsKey(port);
     }
 
     @Override
     public boolean close(int port) {
+
         return false;
     }
 
     @Override
     public List<Integer> getAllPort() {
-        return null;
+        return new ArrayList<>(pool.keySet());
+    }
+
+    private void initializeChannelHandle() {
+        channelHandle.addHandler(new SimpleChannelInboundHandler<ByteBuf>() {
+            @Override
+            protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
+                int port = ((InetSocketAddress) ctx.channel().localAddress()).getPort();
+                log.info("proxy port {}", port);
+
+
+                ctx.channel().parent().close();
+                log.info("close");
+
+                byte[] bytes = new byte[buf.readableBytes()];
+                buf.readBytes(bytes);
+            }
+        });
     }
 }

@@ -4,6 +4,7 @@ import com.susu.proxy.core.common.Constants;
 import com.susu.proxy.core.netty.msg.NetPacketDecoder;
 import com.susu.proxy.core.netty.msg.NetPacketEncoder;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldPrepender;
@@ -22,7 +23,7 @@ public class BaseChannelHandler extends ChannelInitializer<SocketChannel> {
     /**
      * 添加其他处理器的数组
      */
-    private List<AbstractChannelHandler> handlerList = new LinkedList<>();
+    protected List<ChannelInboundHandlerAdapter> handlerList = new LinkedList<>();
 
     @Override
     protected void initChannel(SocketChannel ch) {
@@ -31,7 +32,7 @@ public class BaseChannelHandler extends ChannelInitializer<SocketChannel> {
                 new LengthFieldPrepender(3),
                 new NetPacketEncoder()
         );
-        for (AbstractChannelHandler handler : handlerList) {
+        for (ChannelInboundHandlerAdapter handler : handlerList) {
             ch.pipeline().addLast(handler);
         }
     }
