@@ -1,0 +1,39 @@
+{
+  "name": "mrv-pro",
+  "private": true,
+  "version": "2.3.1",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@types/js-cookie": "^3.0.2",
+    "@types/nprogress": "^0.2.0",
+    "@types/qs": "^6.9.7",
+    "@vime/core": "5.4.0",
+    "moment": "2.29.4",
+    "@vime/vue-next": "5.4.0",
+    "@vitejs/plugin-vue": "4.2.3",
+    "@vitejs/plugin-vue-jsx": "3.0.1",
+    "ant-design-vue": "3.2.20",
+    "axios": "^0.27.2",
+    "esbuild-windows-64": "^0.15.18",
+    "js-cookie": "3.0.5",
+    "less": "^4.1.2",
+    "less-loader": "^11.0.0",
+    "nprogress": "^0.2.0",
+    "qs": "^6.10.3",
+    "typescript": "4.5.4",
+    "unplugin-vue-components": "0.25.1",
+    "vite": "4.3.9",
+    "vue": "3.2.25",
+    "vue-i18n": "9.2.2",
+    "vue-router": "4.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "20.2.5",
+    "lib-flexible": "0.3.2",
+    "vite-plugin-svg-icons": "2.0.1"
+  }
+}
