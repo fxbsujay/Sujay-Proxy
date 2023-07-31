@@ -39,7 +39,6 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
 
     public PortInstantiationStrategy(MasterClientManager clientManager, TaskScheduler scheduler) {
         super(scheduler);
-        initializeChannelHandle();
         this.clientManager = clientManager;
     }
 
@@ -74,14 +73,14 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     }
 
     @Override
-    public boolean isExist(int port) {
-        return pool.containsKey(port);
+    public boolean close(int port) {
+        pool.remove(port);
+        return super.close(port);
     }
 
     @Override
-    public boolean close(int port) {
-
-        return false;
+    public boolean isExist(int port) {
+        return pool.containsKey(port);
     }
 
     @Override
@@ -89,20 +88,8 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         return new ArrayList<>(pool.keySet());
     }
 
-    private void initializeChannelHandle() {
-        channelHandle.addHandler(new SimpleChannelInboundHandler<ByteBuf>() {
-            @Override
-            protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) throws Exception {
-                int port = ((InetSocketAddress) ctx.channel().localAddress()).getPort();
-                log.info("proxy port {}", port);
+    @Override
+    protected void channelReadInternal(int port, byte[] bytes) {
 
-
-                ctx.channel().parent().close();
-                log.info("close");
-
-                byte[] bytes = new byte[buf.readableBytes()];
-                buf.readBytes(bytes);
-            }
-        });
     }
 }

@@ -2,9 +2,11 @@ package com.susu.proxy.core.common.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
@@ -137,7 +139,11 @@ public class ClassUtils {
             URL url = resources.nextElement();
             switch (url.getProtocol()) {
                 case "file":
-                    this.scanFile(new File(new String(url.getFile().getBytes(StandardCharsets.ISO_8859_1), this.charset)), null);
+                    try {
+                        this.scanFile(new File(URLDecoder.decode(url.getFile(), this.charset.toString())), null);
+                    } catch (UnsupportedEncodingException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "jar":
                     JarFile jarFile;

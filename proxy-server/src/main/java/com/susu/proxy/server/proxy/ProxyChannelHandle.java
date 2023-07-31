@@ -1,9 +1,7 @@
 package com.susu.proxy.server.proxy;
 
 import com.susu.proxy.core.netty.BaseChannelHandler;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,7 +15,7 @@ public class ProxyChannelHandle extends BaseChannelHandler {
         }
     }
 
-    public void addHandler(SimpleChannelInboundHandler<ByteBuf> handler) {
+    public void addHandler(ChannelInboundHandlerAdapter handler) {
         handlerList.add(handler);
     }
 }

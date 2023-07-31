@@ -1,5 +1,6 @@
 package com.susu.proxy.server.proxy;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ProxyServerFactory {

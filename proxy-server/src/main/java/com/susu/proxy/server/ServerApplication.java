@@ -45,13 +45,6 @@ public class ServerApplication {
         this.handle = new MasterChannelHandle(clientManager, taskScheduler);
         this.server = new MasterServer(taskScheduler, handle);
         this.strategy = new PortInstantiationStrategy(clientManager, taskScheduler);
-        PortMapping mapping = new PortMapping();
-        mapping.setClientIp("127.0.0.1");
-        mapping.setServerPort(8856);
-        mapping.setProtocol("TCP");
-        mapping.setClientPort("8899");
-        boolean mapping1 = this.strategy.createMapping(mapping);
-
     }
 
     /**
