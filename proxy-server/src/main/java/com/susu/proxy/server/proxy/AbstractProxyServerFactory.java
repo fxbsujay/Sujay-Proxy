@@ -7,20 +7,19 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
 
     protected final ProxyChannelHandle channelHandle;
 
+    /**
+     * 访客连接服务器
+     */
     protected final NetServer proxyServer;
-
-    private final TaskScheduler scheduler;
 
     /**
      * 访客群组 port -> channel
@@ -28,10 +27,9 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     private final Map<Integer, List<ChannelHandlerContext>> visitorChannels = new ConcurrentHashMap<>();
 
     public AbstractProxyServerFactory(TaskScheduler scheduler) {
-        this.scheduler = scheduler;
         this.channelHandle = new ProxyChannelHandle();
         initializeChannelHandle(channelHandle);
-        this.proxyServer = new NetServer("proxy-server", this.scheduler);
+        this.proxyServer = new NetServer("proxy-server", scheduler);
         this.proxyServer.setBaseChannelHandler(this.channelHandle);
         this.proxyServer.startAsync();
     }
@@ -45,11 +43,16 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
 
     @Override
     public boolean close(int port) {
-        List<ChannelHandlerContext> channels = visitorChannels.get(port);
-        for (ChannelHandlerContext channel : channels) {
-            channel.channel().close();
-            channel.channel().parent().close();
+        List<ChannelHandlerContext> channels = visitorChannels.remove(port);
+
+        if (channels != null && !channels.isEmpty()) {
+            channels.get(0).channel().parent().close();
+            for (ChannelHandlerContext channel : channels) {
+                channel.channel().close();
+            }
         }
+
+        log.info("Visitor proxy channels are all closed : {}", port);
         return true;
     }
 
@@ -58,16 +61,83 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
      */
     private  void initializeChannelHandle(ProxyChannelHandle channelHandle) {
         channelHandle.addHandler(new SimpleChannelInboundHandler<ByteBuf>() {
+
+            @Override
+            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+                log.error("VisitorChannelHandler exception caught：", cause);
+            }
+
+            /**
+             * 访客连接成功
+             */
+            @Override
+            public void channelActive(ChannelHandlerContext ctx) {
+                int port = getCtxPort(ctx);
+                if (isExist(port)) {
+                    ctx.channel().close();
+                    close(port);
+                    return;
+                }
+
+                List<ChannelHandlerContext> channels = visitorChannels.get(port);
+                if (channels == null) {
+                    visitorChannels.put(port, Collections.singletonList(ctx));
+                } else {
+                    channels.add(ctx);
+                }
+
+                log.info("Visitor channel is connected: {}", ctx.channel());
+
+                invokeVisitorConnectListener(ctx, true);
+            }
+
+            /***
+             * 访客断开连接
+             */
+            @Override
+            public void channelInactive(ChannelHandlerContext ctx) {
+                int port = getCtxPort(ctx);
+                List<ChannelHandlerContext> channels = visitorChannels.get(port);
+                if (channels != null) {
+                    channels = channels.stream().filter(item -> !getCtxId(item).equals(getCtxId(ctx))).collect(Collectors.toList());
+                    visitorChannels.put(port, channels);
+                }
+                log.debug("Visitor channel is disconnected！{}", ctx.channel());
+                invokeVisitorConnectListener(ctx, false);
+            }
+
             @Override
             protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) {
-                ScheduledThreadPoolExecutor executor = scheduler.getExecutor();
-                int port = ((InetSocketAddress) ctx.channel().localAddress()).getPort();
+                int port = getCtxPort(ctx);
                 byte[] bytes = new byte[buf.readableBytes()];
                 buf.readBytes(bytes);
-                executor.execute(() -> channelReadInternal(port, bytes));
+                channelReadInternal(port, bytes);
             }
         });
     };
 
+    /**
+     * 消息处理
+     *
+     * @param port  端口
+     * @param bytes 数据
+     */
     protected abstract void channelReadInternal(int port, byte[] bytes);
+
+    /**
+     * 访客连接监听
+     *
+     * @param ctx           访客
+     * @param isConnected   是连接还是断开
+     */
+    protected abstract void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected);
+
+    public int getCtxPort(ChannelHandlerContext ctx) {
+        return ((InetSocketAddress) ctx.channel().localAddress()).getPort();
+    }
+
+    public String getCtxId(ChannelHandlerContext ctx) {
+        return ctx.channel().id().asLongText().replaceAll("-","");
+    }
+
 }

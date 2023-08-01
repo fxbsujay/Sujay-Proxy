@@ -8,8 +8,8 @@ import com.susu.proxy.core.task.TaskScheduler;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Description: Proxy Server NetWork</p>
- * <p>Description: 代理服务器 </p>
+ * <p>Description: Server NetWork</p>
+ * <p>Description: 代理客户端服务器 </p>
  *
  * @author sujay
  * @since 18:13 2023/6/29

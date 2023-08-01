@@ -4,6 +4,13 @@ import lombok.Data;
 import javax.servlet.http.HttpServlet;
 import java.util.Objects;
 
+/**
+ * <p>Description: Servlet 封装类</p>
+ *
+ * @author sujay
+ * @since 10:20 2023/08/01
+ * @version 1.0 JDK1.8
+ */
 @Data
 public class Servlet {
 

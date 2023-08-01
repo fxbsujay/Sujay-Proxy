@@ -1,7 +1,6 @@
 package com.susu.proxy.server.web.eum;
 
 
-import com.susu.proxy.core.common.eum.PacketType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

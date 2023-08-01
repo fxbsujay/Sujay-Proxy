@@ -1,7 +1,6 @@
 package com.susu.proxy.server.client;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.susu.proxy.core.common.Constants;
 import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.model.HeartbeatRequest;
 import com.susu.proxy.core.common.model.HeartbeatResponse;
@@ -14,10 +13,15 @@ import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
+/**
+ * <p>Description: 代理客户端的消息处理器</p>
+ *
+ * @author sujay
+ * @since 10:20 2023/08/01
+ * @version 1.0 JDK1.8
+ */
 public class MasterChannelHandle extends AbstractChannelHandler {
 
     /**

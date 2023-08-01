@@ -3,7 +3,11 @@ package com.susu.proxy.server.web.eum;
 import lombok.Getter;
 
 /**
+ * <p>Description: Controller 响应状态码</p>
+ *
  * @author fxbsujay@gmail.com
+ * @since 10:20 2023/08/01
+ * @version 1.0 JDK1.8
  */
 @Getter
 public enum ResponseStatusEnum {

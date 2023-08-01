@@ -5,6 +5,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * <p>Description: 访客消息处理器 </p>
+ *
+ * @author fxbsujay@gmail.com
+ * @since 10:20 2023/08/01
+ * @version 1.0 JDK1.8
+ */
 @Slf4j
 public class ProxyChannelHandle extends BaseChannelHandler {
 

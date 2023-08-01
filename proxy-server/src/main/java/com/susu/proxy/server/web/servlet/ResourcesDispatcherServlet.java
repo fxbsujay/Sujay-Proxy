@@ -10,6 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * <p>Description: 处理静态资源文件的请求  xxx.png，xxx.html...</p>
+ *
+ * @author fxbsujay@gmail.com
+ * @since 10:20 2023/08/01
+ * @version 1.0 JDK1.8
+ */
 @Slf4j
 public class ResourcesDispatcherServlet extends HttpServlet {
 
@@ -60,7 +67,7 @@ public class ResourcesDispatcherServlet extends HttpServlet {
             error(resp);
             return;
         }
-        
+
         int len = 0;
         byte[] buffer = new byte[1024];
         while((len = resource.read(buffer)) != -1) {

@@ -4,12 +4,8 @@ import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.entity.PortMapping;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
-
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +38,9 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         this.clientManager = clientManager;
     }
 
+    /**
+     * 创建端口映射
+     */
     public boolean createMapping(PortMapping mapping) {
         if (clientManager.isExist(mapping.getClientIp())) {
             return false;
@@ -72,10 +71,12 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         return bind;
     }
 
-    @Override
-    public boolean close(int port) {
+    /**
+     * 删除端口映射
+     */
+    public void removeMapping(int port) {
         pool.remove(port);
-        return super.close(port);
+        close(port);
     }
 
     @Override
@@ -90,6 +91,11 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
 
     @Override
     protected void channelReadInternal(int port, byte[] bytes) {
+
+    }
+
+    @Override
+    protected void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected) {
 
     }
 }

@@ -2,11 +2,17 @@ package com.susu.proxy.server.web.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * <p>Description: Controller 接口映射</p>
+ *
+ * @author sujay
+ * @since 10:20 2023/08/01
+ * @version 1.0 JDK1.8
+ */
 @Data
 public class Mapping {
 
