@@ -5,8 +5,6 @@ import DuplicateRequest from './duplicate'
 import { message } from 'ant-design-vue'
 import 'ant-design-vue/es/message/style/css'
 import { RootObject } from '@/model/BaseObject'
-import { UserActionTypes, UserMutationsTypes } from '@/store/modules/auth'
-import store from '@/store'
 
 
 /**
@@ -107,10 +105,6 @@ export default class HttpClient {
 
           let {code, data: result, msg } = Convert.jsonToModel(data) as RootObject<T>
           if (code !== 200) {
-            if (code === 10000) {
-              store.commit(UserMutationsTypes.SET_USER, [])
-              store.dispatch(UserActionTypes.LOGOUT, false)
-            }
             return Promise.reject(new AxiosError(msg));
           }
           return result as T;

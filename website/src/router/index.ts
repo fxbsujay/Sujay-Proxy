@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, RouteRecordRaw, RouterOptions } from 'vue-router'
 import BasicLayout from '@/layout/BasicLayout.vue'
 import { RouteModel } from '@/model/AuthModel'
 
@@ -38,7 +38,7 @@ const routes: Array<RouteRecordRaw> = [
     ...constantRoutes.concat(commonRoutes) as RouteRecordRaw[],
 ]
 
-const router = createRouter({
+const router = createRouter(<RouterOptions> {
     history: createWebHistory(),
     routes
 })
