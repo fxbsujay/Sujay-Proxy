@@ -35,7 +35,7 @@ public class MasterServer {
      */
     public void start() throws InterruptedException {
         this.netServer.addHandler(handler);
-        netServer.start(ServerConfig.port);
+        netServer.startAsync(ServerConfig.port);
     }
 
     /**

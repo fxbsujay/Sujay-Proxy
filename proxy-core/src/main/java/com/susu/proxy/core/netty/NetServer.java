@@ -168,6 +168,7 @@ public class NetServer {
         for (ChannelFuture future : channelFeature) {
             future.channel().closeFuture().addListener((ChannelFutureListener) f -> f.channel().close());
         }
+
         for (ChannelFuture future : channelFeature) {
             future.channel().closeFuture().sync();
         }

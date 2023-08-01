@@ -3,7 +3,7 @@ package com.susu.proxy.server.proxy;
 import java.util.List;
 
 /**
- * <p>Description: 代理服务工厂</p>
+ * <p>Description: 访客服务工厂</p>
  *
  * @author fxbsujay@gmail.com
  * @since 10:20 2023/08/01

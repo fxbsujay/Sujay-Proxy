@@ -5,23 +5,43 @@ import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterChannelHandle;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.client.MasterServer;
-import com.susu.proxy.server.entity.PortMapping;
 import com.susu.proxy.server.proxy.PortInstantiationStrategy;
+import com.susu.proxy.server.web.TomcatServer;
 import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class ServerApplication {
 
+    /**
+     * 线程池
+     */
     private final TaskScheduler taskScheduler;
 
+    /**
+     * 代理客户端管理器
+     */
     private MasterClientManager clientManager;
 
+    /**
+     * 代理客户端连接消息处理器
+     */
     private final MasterChannelHandle handle;
 
-    private final  PortInstantiationStrategy strategy;
+    /**
+     * 端口代理策略
+     */
+    private final PortInstantiationStrategy strategy;
 
+    /**
+     * 代理服务器
+     */
     private final MasterServer server;
+
+    /**
+     * Api 服务器
+     */
+    private final TomcatServer tomcatServer;
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -45,6 +65,7 @@ public class ServerApplication {
         this.handle = new MasterChannelHandle(clientManager, taskScheduler);
         this.server = new MasterServer(taskScheduler, handle);
         this.strategy = new PortInstantiationStrategy(clientManager, taskScheduler);
+        this.tomcatServer = new TomcatServer(8848);
     }
 
     /**
@@ -53,6 +74,7 @@ public class ServerApplication {
     public void start() throws InterruptedException {
         if (started.compareAndSet(false, true)) {
             this.server.start();
+            this.tomcatServer.start();
         }
     }
 
@@ -63,6 +85,7 @@ public class ServerApplication {
         if (started.compareAndSet(true, false)) {
             this.taskScheduler.shutdown();
             this.server.shutdown();
+            this.tomcatServer.shutdown();
         }
     }
 
