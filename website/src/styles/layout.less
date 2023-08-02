@@ -1,1 +1,48 @@
 @import "variable";
+
+.s-layout-header {
+    background: @ThemeMasterBackground !important;
+    display: flex;
+    align-items: center;
+    height: @LayoutHeaderHeight !important;
+    box-shadow: 0 16px 20px -16px rgba(0,0,0,.2),0 0 0 1px rgba(0,0,0,.1);
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    .logo {
+        background: transparent;
+        color: @ThemeMasterColor;
+        font-weight: bolder;
+        font-size: 44px;
+        margin: 0 50px;
+    }
+    .ant-menu {
+        line-height: 40px !important;
+        border-bottom: none !important;
+        background: @ThemeMasterBackground !important;
+
+        .ant-menu-item {
+            color: @ThemeMasterColor;
+            font-weight: 600;
+            margin: 0 10px;
+            letter-spacing: 1.5px;
+            &:hover:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected) {
+                color: @ThemeViceColor !important;
+            }
+
+            a {
+                transition: none;
+            }
+        }
+
+        .ant-menu-item-selected {
+            background: @ThemeMasterColor;
+            color: @ThemeMasterBackground;
+        }
+    }
+}
+
+.s-layout-content {
+    padding: 0 50px;
+    margin-top: calc(@LayoutHeaderHeight + 20px);
+}

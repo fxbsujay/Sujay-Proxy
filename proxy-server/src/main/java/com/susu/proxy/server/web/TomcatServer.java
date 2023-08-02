@@ -1,8 +1,10 @@
 package com.susu.proxy.server.web;
 
 import com.susu.proxy.core.common.Constants;
+import com.susu.proxy.server.web.servlet.ApiDispatcherServlet;
 import com.susu.proxy.server.web.servlet.CorsFilter;
 import com.susu.proxy.server.web.entity.Servlet;
+import com.susu.proxy.server.web.servlet.ResourcesDispatcherServlet;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
@@ -75,6 +77,8 @@ public class TomcatServer {
      * 初始化 Servlet
      */
     private Context initializeServlet() {
+        addServlet("/api/*", new ApiDispatcherServlet());
+        addServlet("/*", new ResourcesDispatcherServlet());
         Context context = tomcat.addContext("", null);
         if (!servlets.isEmpty()) {
             for (Servlet servlet : servlets) {

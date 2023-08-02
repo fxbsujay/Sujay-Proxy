@@ -152,7 +152,6 @@ public class NetServer {
         });
     }
 
-
     public void bindAsync(int port) throws InterruptedException {
         bindAsync(Collections.singletonList(port));
     }

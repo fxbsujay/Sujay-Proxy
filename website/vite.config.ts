@@ -21,7 +21,7 @@ export default defineConfig({
   ],
   server: {
       open: true,
-      port: 8891,
+      port: 8892,
       proxy: {
           '/api': {
               target: 'https://fengkeai-ui-pro.1cno.com',

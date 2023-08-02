@@ -65,7 +65,7 @@ public class ServerApplication {
         this.handle = new MasterChannelHandle(clientManager, taskScheduler);
         this.server = new MasterServer(taskScheduler, handle);
         this.strategy = new PortInstantiationStrategy(clientManager, taskScheduler);
-        this.tomcatServer = new TomcatServer(8848);
+        this.tomcatServer = new TomcatServer(9999);
     }
 
     /**

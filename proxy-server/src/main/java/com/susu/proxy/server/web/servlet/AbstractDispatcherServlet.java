@@ -45,7 +45,7 @@ public abstract class AbstractDispatcherServlet extends BaseDispatcherServlet {
     /**
      * Tomcat Servlet 扫描路径
      */
-    private static final String BASE_PACKAGE = "com.susu.proxy.server.web.servlet";
+    private static final String BASE_PACKAGE = "com.susu.proxy.server.web";
 
     /**
      *  key:    类名
@@ -257,18 +257,18 @@ public abstract class AbstractDispatcherServlet extends BaseDispatcherServlet {
             } else if (metadata.getType().equals(Mapping.Type.REQUEST_BODY)) {
 
                 if (request.getMethod().equals(HttpMethod.GET.toString())) {
-                    throw new IllegalArgumentException("@RequestBody注解不支持GET请求方式");
+                    throw new IllegalArgumentException("@RequestBody annotation does not support GET request method");
                 }
 
                 if (!request.getContentType().contains("application/json")) {
-                    throw new IllegalArgumentException("@RequestBody注解只支持json格式数据");
+                    throw new IllegalArgumentException("@RequestBody annotation only supports json format data ");
                 }
 
-                String json = readInput(request.getInputStream());
                 try {
+                    String json = readInput(request.getInputStream());
                     params[i] = JSONObject.parseObject(json, metadata.getParamClassType());
                 } catch (Exception e) {
-                    throw new IllegalArgumentException("JSON格式有误： " + json);
+                    throw new IllegalArgumentException("Request parameter error");
                 }
 
             } else if (metadata.getType().equals(Mapping.Type.QUERY_ENTITY)) {
