@@ -26,6 +26,7 @@
       <junit.version>4.12</junit.version>
       <fastjson.version>2.0.8</fastjson.version>
       <tomcat.version>8.5.37</tomcat.version>
+      <jwt.version>0.9.1</jwt.version>
    </properties>
 
    <modules>
@@ -58,6 +59,12 @@
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
             <version>${tomcat.version}</version>
+         </dependency>
+         <!-- Token 生成 -->
+         <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${jwt.version}</version>
          </dependency>
          <!-- Json解析工具-->
          <dependency>

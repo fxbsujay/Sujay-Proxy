@@ -17,6 +17,7 @@ public enum ResponseStatusEnum {
     /**
      *  系统异常
      */
+    ERROR_401(401, "未登录"),
     ERROR_404(404,"未找到对应资源"),
     ERROR_500(500,"操作失败");
 

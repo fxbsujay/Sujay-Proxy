@@ -99,6 +99,7 @@ public class MasterClientManager {
         }
         long latestHeartbeatTime = System.currentTimeMillis();
         dataNode.setLatestHeartbeatTime(latestHeartbeatTime);
+        dataNode.setStatus(ClientInfo.STATUS_READY);
         return true;
     }
 }

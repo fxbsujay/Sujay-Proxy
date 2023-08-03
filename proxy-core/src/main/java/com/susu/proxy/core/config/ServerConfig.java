@@ -8,4 +8,10 @@ import lombok.Data;
 public class ServerConfig {
 
     public static Integer port = 8899;
+
+    public static Integer httpPort = 8890;
+
+    public static String username = "admin";
+
+    public static String password = "admin";
 }

@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <p>Description: Tomcat  Http服务端</p>
@@ -35,6 +37,10 @@ public class TomcatServer {
     private final Tomcat tomcat;
 
     private final List<Servlet> servlets = new ArrayList<>();
+
+    static {
+        Logger.getLogger("org.apache").setLevel(Level.OFF);
+    }
 
     public TomcatServer(int port) {;
         this.tomcat = new Tomcat();
@@ -65,7 +71,7 @@ public class TomcatServer {
         try {
             tomcat.init();
             tomcat.start();
-            log.info("Tomcat Server started on port：{}", port);
+            log.info("Tomcat Server started on port : {}", port);
             tomcat.getServer().await();
         } catch (Exception e) {
             log.error("Tomcat start fail：", e);
@@ -82,6 +88,7 @@ public class TomcatServer {
         Context context = tomcat.addContext("", null);
         if (!servlets.isEmpty()) {
             for (Servlet servlet : servlets) {
+                log.info("Initialize Selvet {}, request path is {}", servlet.getName(), servlet.getPath());
                 Tomcat.addServlet(context, servlet.getName(),servlet.getServlet());
                 context.addServletMappingDecoded(servlet.getPath(), servlet.getName());
             }
@@ -95,6 +102,7 @@ public class TomcatServer {
     public void shutdown() {
         try {
             tomcat.stop();
+            log.info("Shutdown Tomcat");
         } catch (Exception e) {
             log.error("Shutdown Tomcat Server：", e);
         }

@@ -89,13 +89,17 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         return new ArrayList<>(pool.keySet());
     }
 
+    public List<PortMapping> getAllMapping() {
+        return new ArrayList<>(pool.values());
+    }
+
     @Override
     protected void channelReadInternal(int port, byte[] bytes) {
-
+        log.info("port: {}", port);
     }
 
     @Override
     protected void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected) {
-
+        log.info("invokeVisitorConnectListener: {}", isConnected);
     }
 }

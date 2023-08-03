@@ -48,6 +48,11 @@ public class ApiDispatcherServlet extends AbstractDispatcherServlet {
             return;
         }
 
+        if (!"/api/auth/login".equals(uri) && !JwtUtils.check(req)) {
+            responsive(resp, Result.error(ResponseStatusEnum.ERROR_401));
+            return;
+        }
+
         Method invokeMethod = mapping.getInvokeMethod();
         String className = invokeMethod.getDeclaringClass().getCanonicalName();
 

@@ -1,13 +1,18 @@
 package com.susu.proxy.server;
 
 import com.susu.proxy.core.common.utils.ConfigLoadUtils;
+import com.susu.proxy.core.config.ServerConfig;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterChannelHandle;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.client.MasterServer;
 import com.susu.proxy.server.proxy.PortInstantiationStrategy;
 import com.susu.proxy.server.web.TomcatServer;
+import com.susu.proxy.server.web.service.ClientService;
+import com.susu.proxy.server.web.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.ProtocolHandler;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -65,7 +70,9 @@ public class ServerApplication {
         this.handle = new MasterChannelHandle(clientManager, taskScheduler);
         this.server = new MasterServer(taskScheduler, handle);
         this.strategy = new PortInstantiationStrategy(clientManager, taskScheduler);
-        this.tomcatServer = new TomcatServer(9999);
+        this.tomcatServer = new TomcatServer(ServerConfig.httpPort);
+        new ClientService(this.clientManager);
+        new ProxyService(this.strategy);
     }
 
     /**

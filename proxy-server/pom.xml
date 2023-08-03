@@ -41,6 +41,10 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+        </dependency>
     </dependencies>
 
 
@@ -60,7 +64,7 @@
             <resource>
                 <directory>src/main/java</directory>
                 <includes>
-                    <include>**/webapp/**</include>
+                    <include>**/static/**</include>
                     <include>**/*.yaml</include>
                     <include>**/*.xml</include>
                 </includes>

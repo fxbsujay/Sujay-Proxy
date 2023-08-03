@@ -2,3 +2,6 @@ app:
   name: master-server
 server:
   port: 8845
+  httpPort: 8846
+  username: admin
+  password: admin

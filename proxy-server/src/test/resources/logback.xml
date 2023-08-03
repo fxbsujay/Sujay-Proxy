@@ -52,6 +52,7 @@
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
     </appender>
+    <logger name="org.apache" level="off" />
 
     <root level="INFO">
         <appender-ref ref="D"/>

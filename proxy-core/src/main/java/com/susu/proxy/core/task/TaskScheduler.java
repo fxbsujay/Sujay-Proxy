@@ -124,7 +124,6 @@ public class TaskScheduler {
      */
     public void shutdown() {
         if (shutdown.compareAndSet(false, true)) {
-            log.info("Shutdown Task Scheduler");
             executor.shutdown();
         }
     }
