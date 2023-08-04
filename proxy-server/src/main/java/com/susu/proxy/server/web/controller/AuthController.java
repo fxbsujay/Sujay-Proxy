@@ -7,6 +7,7 @@ import com.susu.proxy.server.web.annotation.RestController;
 import com.susu.proxy.server.web.dto.LoginDTO;
 import com.susu.proxy.server.web.entity.Result;
 import com.susu.proxy.server.web.servlet.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Description: 登录认证</p>
@@ -16,6 +17,7 @@ import com.susu.proxy.server.web.servlet.JwtUtils;
  */
 @RestController
 @RequestMapping("/api/auth")
+@Slf4j
 public class AuthController {
 
     @RequestMapping( value = "/login", method = "POST")

@@ -16,7 +16,6 @@ public class ProxyService implements InstantiationComponent {
         instantiationComponent();
     }
 
-
     public List<MappingDTO> selectList() {
         List<PortMapping> mappings = strategy.getAllMapping();
         List<MappingDTO> result = new ArrayList<>();

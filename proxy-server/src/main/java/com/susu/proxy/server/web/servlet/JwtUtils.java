@@ -16,10 +16,10 @@ public class JwtUtils {
 
     public static String encryption(String username){
         return Jwts.builder()
-                .setHeaderParam("typ", "JWT")   // 头信息
+                .setHeaderParam("typ", "JWT")
                 .setHeaderParam("alg", "HS256")
 
-                .setSubject("greenLeaf") // 分类以及过期时间
+                .setSubject("greenLeaf")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE))
 
@@ -46,10 +46,9 @@ public class JwtUtils {
      * 判断是否存在与有效
      */
     public static boolean check(HttpServletRequest request) {
-        String jwtToken = request.getHeader("token");
+        String jwtToken = request.getHeader("s-token");
         return check(jwtToken);
     }
-
 
     public static String decode(String token) {
         if (StringUtils.isEmpty(token)) return "";
@@ -62,7 +61,7 @@ public class JwtUtils {
      * 根据token获取用户名
      */
     public static String decode(HttpServletRequest request) {
-        String token = request.getHeader("token");
+        String token = request.getHeader("s-token");
         return decode(token);
     }
 

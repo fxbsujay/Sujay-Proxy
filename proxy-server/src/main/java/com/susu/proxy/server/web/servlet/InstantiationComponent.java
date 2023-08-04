@@ -10,7 +10,7 @@ package com.susu.proxy.server.web.servlet;
  */
 public interface InstantiationComponent {
 
-    default public void instantiationComponent() {
+    default void instantiationComponent() {
         DispatchComponentProvider.getInstance().addComponent(this);
     }
 }

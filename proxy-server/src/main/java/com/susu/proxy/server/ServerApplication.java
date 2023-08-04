@@ -11,8 +11,6 @@ import com.susu.proxy.server.web.TomcatServer;
 import com.susu.proxy.server.web.service.ClientService;
 import com.susu.proxy.server.web.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.ProtocolHandler;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -26,7 +24,7 @@ public class ServerApplication {
     /**
      * 代理客户端管理器
      */
-    private MasterClientManager clientManager;
+    private final MasterClientManager clientManager;
 
     /**
      * 代理客户端连接消息处理器

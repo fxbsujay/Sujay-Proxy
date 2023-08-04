@@ -6,7 +6,6 @@ import { message } from 'ant-design-vue'
 import 'ant-design-vue/es/message/style/css'
 import { RootObject } from '@/model/BaseObject'
 
-
 /**
  * <p>Axios封装</p>
  * @author fxbsujay@gmail.com
@@ -73,7 +72,7 @@ export default class HttpClient {
       headers,
     };
 
-    if (DuplicateRequest.hashUrlAndParams(requestConfig.url ?? '', method, allParams, clickInterval)) {
+    if (DuplicateRequest.hashUrlAndParams(requestConfig.url ?? '', method, allParams as RequestParams, clickInterval)) {
       return Promise.reject();
     }
 

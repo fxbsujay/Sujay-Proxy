@@ -16,16 +16,8 @@ export const constantRoutes: Array<RouteModel> = [
     {
         path: '/login',
         name: 'Login',
-        component: Layout,
-        children: [
-            {
-                path: '/login',
-                component: () => import('@/views/auth/login.vue'),
-                name: 'login',
-            }
-        ]
+        component: () => import('@/views/auth/login.vue')
     }
-
 ]
 
 /**
@@ -38,7 +30,7 @@ export const commonRoutes: RouteModel = {
     children: [
         {
             path: '/home',
-            component: () => import('@/views/auth/login.vue'),
+            component: () => import('@/views/client/index.vue'),
             name: 'HomeA',
             meta: {
                 title: '客户端'
@@ -46,7 +38,7 @@ export const commonRoutes: RouteModel = {
         },
         {
             path: '/homeA',
-            component: () => import('@/views/auth/login.vue'),
+            component: () => import('@/views/client/index.vue'),
             name: 'HomeB',
             meta: {
                 title: '服务列表'

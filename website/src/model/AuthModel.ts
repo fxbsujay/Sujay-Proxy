@@ -7,14 +7,8 @@ import { RouteComponent } from 'vue-router'
 export interface LoginModel {
     // 用户名
     username: string
-    // 手机号
-    phone: string
     // 密码
     password: string
-    // 校验码
-    captcha: string
-    // 验证码
-    code: string
 }
 
 /**

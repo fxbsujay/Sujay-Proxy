@@ -5,10 +5,13 @@
  */
 import HttpClient, { ContentType, HttpClientConfig } from './index'
 import { SysConstant } from '@/constant/sys'
+import { getToken } from '@/utils/cookies'
+
 const https = () => {
   const config: HttpClientConfig = {
     headers: {
-      'content-type': ContentType.json
+      'content-type': ContentType.json,
+      's-token': getToken()
     },
     baseURL: SysConstant.baseApiPrefix,
     clickInterval: 1000,

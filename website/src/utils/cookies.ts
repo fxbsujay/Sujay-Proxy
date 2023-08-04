@@ -5,27 +5,15 @@
  */
 import Cookies from 'js-cookie'
 import Keys from '../constant/key'
-import { CookieUserInfoModel, UserInfoModel } from '@/model/UserModel'
-import Copy from '@/utils/copy'
 
-export const getUser = (): UserInfoModel | void =>  {
-    const user = Cookies.get(Keys.userKey) as string
-    if (user) return JSON.parse(user) as UserInfoModel
-    return
+export const getToken = (): string =>  {
+    return Cookies.get(Keys.tokenKey) as string
 }
 
-export const setUser = (user: UserInfoModel ) => {
-    Cookies.set(Keys.userKey, JSON.stringify(Copy.UnCoverSimpleClone(user,new CookieUserInfoModel)))
+export const setToken = (token: string) => {
+    Cookies.set(Keys.tokenKey, JSON.stringify(token))
 }
 
-export const removeUser = () => {
-    Cookies.remove(Keys.userKey)
-}
-
-export const getLang = (): string | void =>  {
-    return Cookies.get(Keys.lang)
-}
-
-export const setLang = (lang: string) => {
-    Cookies.set(Keys.lang, lang)
+export const removeToken = () => {
+    Cookies.remove(Keys.tokenKey)
 }

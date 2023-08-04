@@ -9,13 +9,7 @@ class Keys {
     /**
      * 用户
      */
-    static userKey: string = 'x-user'
-
-    /**
-     * 语言
-     */
-    static lang: string ='x-lang'
-
+    static tokenKey: string = 's-token'
 }
 
 export default Keys
