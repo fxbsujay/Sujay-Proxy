@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import {defineStore, StoreDefinition, _GettersTree} from 'pinia'
 import { loginRequest } from '@/api/auth'
 import { LoginModel } from '@/model/AuthModel'
 import { setToken, removeToken } from '@/utils/cookies'
@@ -8,9 +8,8 @@ interface AuthInfo {
     token: string
 }
 
-export const authStore = defineStore('auth', {
-
-    state: (): AuthInfo => ({
+export const authStore: StoreDefinition<string> = defineStore('auth', {
+    state: () => ({
         token: '',
     }),
     actions: {

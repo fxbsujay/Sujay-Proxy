@@ -24,7 +24,7 @@ export default defineConfig({
       port: 8892,
       proxy: {
           '/api': {
-              target: 'https://fengkeai-ui-pro.1cno.com',
+              target: 'http://localhost:8846',
               changeOrigin: true,
               ws: true,
               rewrite: (path) => path.replace(/^\/api/, 'api'),
