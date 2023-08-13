@@ -32,4 +32,13 @@ public class ProxyService implements InstantiationComponent {
         return result;
     }
 
+    public Boolean save(MappingDTO dto) {
+        PortMapping mapping = new PortMapping();
+        mapping.setClientIp(dto.getClientIp());
+        mapping.setProtocol(dto.getProtocol());
+        mapping.setServerPort(dto.getServerPort());
+        mapping.setClientPort(dto.getClientPort());
+        return strategy.createMapping(mapping);
+    }
+
 }

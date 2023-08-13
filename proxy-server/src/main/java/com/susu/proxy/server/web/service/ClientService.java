@@ -31,7 +31,6 @@ public class ClientService implements InstantiationComponent {
             }
 
             ClientDTO dto = new ClientDTO();
-            dto.setLatestHeartbeatTime(new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(clientInfo.getLatestHeartbeatTime()));
             dto.setHostname(clientInfo.getHostname());
             dto.setName(clientInfo.getName());
             result.add(dto);

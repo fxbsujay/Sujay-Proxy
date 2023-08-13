@@ -26,6 +26,7 @@ export const constantRoutes: Array<RouteModel> = [
 export const commonRoutes: RouteModel = {
     path: '/',
     name: 'Home',
+    redirect: 'home',
     component: Layout,
     children: [
         {

@@ -15,9 +15,4 @@ public class ClientDTO {
      */
     private String hostname;
 
-    /**
-     * 最近一次心跳时间
-     */
-    private String latestHeartbeatTime;
-
 }

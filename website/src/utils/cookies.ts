@@ -11,7 +11,7 @@ export const getToken = (): string =>  {
 }
 
 export const setToken = (token: string) => {
-    Cookies.set(Keys.tokenKey, JSON.stringify(token))
+    Cookies.set(Keys.tokenKey, token)
 }
 
 export const removeToken = () => {

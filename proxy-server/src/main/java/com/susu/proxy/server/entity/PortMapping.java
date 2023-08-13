@@ -8,7 +8,6 @@ import lombok.Data;
 @Data
 public class PortMapping {
 
-
     /**
      * 代理协议  http or tcp
      */

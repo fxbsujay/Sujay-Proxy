@@ -41,7 +41,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     /**
      * 创建端口映射
      */
-    public boolean createMapping(PortMapping mapping) {
+    public boolean  createMapping(PortMapping mapping) {
         if (clientManager.isExist(mapping.getClientIp())) {
             return false;
         }

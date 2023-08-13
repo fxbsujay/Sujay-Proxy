@@ -30,7 +30,6 @@ public class ClientApplication {
             log.info("Client Application Start Error!!");
             System.exit(1);
         }
-
     }
 
     /**
