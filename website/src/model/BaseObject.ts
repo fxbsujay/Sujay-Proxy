@@ -13,7 +13,7 @@ export interface RootObject<T>{
  * @author fxbsujay@gmail.com
  */
 export interface Constant {
-  key: string
+  label: string
   value: string
-  desc: string
+  desc?: string
 }

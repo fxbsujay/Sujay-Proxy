@@ -194,7 +194,6 @@ public abstract class AbstractDispatcherServlet extends BaseDispatcherServlet {
         boolean hasQueries = false;
 
         String name = mapping.getInvokeMethod().getDeclaringClass().getSimpleName() + "#" + mapping.getInvokeMethod().getName();
-
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(PathVariable.class)) {
                 PathVariable annotation = parameter.getAnnotation(PathVariable.class);
@@ -210,14 +209,18 @@ public abstract class AbstractDispatcherServlet extends BaseDispatcherServlet {
                 Class<?> type = parameter.getType();
                 mapping.addParameterList(Mapping.Type.REQUEST_BODY, null, type);
             } else {
+                String variableKey = null;
+                if (parameter.isAnnotationPresent(RequestParam.class)) {
+                    RequestParam annotation = parameter.getAnnotation(RequestParam.class);
+                    variableKey = annotation.value();
+                }
 
                 if (hasQueries) {
                     throw new IllegalArgumentException("Only one get request entity is supported：" + name);
                 }
-
                 hasQueries = true;
                 Class<?> type = parameter.getType();
-                mapping.addParameterList(Mapping.Type.QUERY_ENTITY, null, type);
+                mapping.addParameterList(Mapping.Type.QUERY_ENTITY, variableKey, type);
             }
         }
     }
@@ -274,19 +277,31 @@ public abstract class AbstractDispatcherServlet extends BaseDispatcherServlet {
             } else if (metadata.getType().equals(Mapping.Type.QUERY_ENTITY)) {
 
                 Map<String, String> queriesMap = extractQueries(request);
-                Class<?> paramClassType = metadata.getParamClassType();
-                Field[] declaredFields = paramClassType.getDeclaredFields();
-                Object param = paramClassType.newInstance();
 
-                for (Field field : declaredFields) {
-                    String name = field.getName();
-                    String value = queriesMap.get(name);
-                    if (value == null) {
-                        continue;
+                Class<?> paramClassType = metadata.getParamClassType();
+
+
+                Object param = paramClassType.newInstance();
+                if (ClassUtils.isPrimitiveOrWrapper(paramClassType) || paramClassType.isAssignableFrom(String.class)) {
+                    String name = metadata.getParamKey();
+                    if (StringUtils.isNotBlank(name)) {
+                        Field value = paramClassType.getDeclaredField("value");
+                        value.setAccessible(true);
+                        value.set(param, queriesMap.get(name).toCharArray());
                     }
-                    field.setAccessible(true);
-                    field.set(param, mapValue(field.getType(), value));
+                } else {
+                    Field[] declaredFields = paramClassType.getDeclaredFields();
+                    for (Field field : declaredFields) {
+                        String name = field.getName();
+                        String value = queriesMap.get(name);
+                        if (value == null) {
+                            continue;
+                        }
+                        field.setAccessible(true);
+                        field.set(param, mapValue(field.getType(), value));
+                    }
                 }
+
                 params[i] = param;
             }
         }

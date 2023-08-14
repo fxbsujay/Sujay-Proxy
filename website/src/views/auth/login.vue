@@ -55,8 +55,8 @@ const loginSubmit = () => {
   .title {
     color: white;
     font-weight: bolder;
-    font-size: 50px;
-    margin: 20px 50px;
+    font-size: 60px;
+    margin: 3% 5%;
     position: absolute;
   }
   .footer {

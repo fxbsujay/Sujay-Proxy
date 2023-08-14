@@ -1,8 +1,8 @@
 <template>
   <div class="wrapper">
     <a-input-search
-        v-model:value="wrapper.name"
-        placeholder="客户端名称"
+        v-model:value="wrapper.port"
+        placeholder="代理端口"
         enter-button
         style="width: 300px"
         size="large"
@@ -15,17 +15,17 @@
 
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue'
-import { clientListRequest } from '@/api/proxy'
+import { mappingListRequest } from '@/api/proxy'
 import { ProxyModel } from '@/model/ProxyModel'
 import { columns, Wrapper } from './data'
 
 const wrapper = ref<Wrapper>({
-  name: ''
+  port: ''
 })
 const dataSource = ref<ProxyModel[]>([])
 
 const queryList = () => {
-  clientListRequest(wrapper.value).then( res => {
+  mappingListRequest(wrapper.value).then( res => {
     dataSource.value = res
     console.log(res)
   })

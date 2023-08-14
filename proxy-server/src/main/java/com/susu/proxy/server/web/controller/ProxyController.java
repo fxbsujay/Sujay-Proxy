@@ -1,9 +1,6 @@
 package com.susu.proxy.server.web.controller;
 
-import com.susu.proxy.server.web.annotation.Autowired;
-import com.susu.proxy.server.web.annotation.RequestBody;
-import com.susu.proxy.server.web.annotation.RequestMapping;
-import com.susu.proxy.server.web.annotation.RestController;
+import com.susu.proxy.server.web.annotation.*;
 import com.susu.proxy.server.web.dto.MappingDTO;
 import com.susu.proxy.server.web.entity.Result;
 import com.susu.proxy.server.web.service.ProxyService;
@@ -17,8 +14,8 @@ public class ProxyController {
     private ProxyService proxyService;
 
     @RequestMapping("/list")
-    public Result<List<MappingDTO>> selectList() {
-        List<MappingDTO> clients = proxyService.selectList();
+    public Result<List<MappingDTO>> selectList(@RequestParam("port") String port) {
+        List<MappingDTO> clients = proxyService.selectList(port);
         return Result.ok(clients);
     }
 

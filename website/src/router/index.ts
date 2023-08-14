@@ -26,23 +26,23 @@ export const constantRoutes: Array<RouteModel> = [
 export const commonRoutes: RouteModel = {
     path: '/',
     name: 'Home',
-    redirect: 'home',
+    redirect: 'client',
     component: Layout,
     children: [
         {
-            path: '/home',
+            path: '/client',
             component: () => import('@/views/client/index.vue'),
-            name: 'HomeA',
+            name: 'Client',
             meta: {
                 title: '客户端'
             }
         },
         {
-            path: '/homeA',
-            component: () => import('@/views/client/index.vue'),
-            name: 'HomeB',
+            path: '/port',
+            component: () => import('@/views/port/index.vue'),
+            name: 'Port',
             meta: {
-                title: '服务列表'
+                title: '端口池'
             }
         }
     ]
