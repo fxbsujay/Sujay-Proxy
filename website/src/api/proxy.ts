@@ -8,4 +8,4 @@ export const clientListRequest = (param: RequestParams) => {
 
 export const mappingListRequest = (param: RequestParams) => {
     return https().request<Array<MappingModel>>('/port/list', Method.GET, param, ContentType.form)
-}
+}   

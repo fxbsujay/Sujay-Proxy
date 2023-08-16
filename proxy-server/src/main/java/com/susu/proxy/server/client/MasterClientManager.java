@@ -1,14 +1,18 @@
 package com.susu.proxy.server.client;
 
 import com.susu.proxy.core.common.model.RegisterRequest;
+import com.susu.proxy.core.common.utils.DateUtils;
+import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.common.utils.SnowFlakeUtils;
 import com.susu.proxy.core.common.utils.StringUtils;
+import com.susu.proxy.core.config.ServerConfig;
+import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Description: Proxy Client Manager</p>
@@ -52,6 +56,15 @@ public class MasterClientManager {
         return new ArrayList<>(clients.values());
     }
 
+    public MasterClientManager(TaskScheduler taskScheduler) {
+        taskScheduler.schedule(
+                "Client-Check",
+                new ClientAliveMonitor(),
+                ServerConfig.heartbeatCheckInterval,
+                ServerConfig.heartbeatCheckInterval,
+                TimeUnit.MILLISECONDS);
+    }
+
     /**
      * 客户端是否存在
      * @param hostname ip地址
@@ -78,11 +91,43 @@ public class MasterClientManager {
         ClientInfo client = new ClientInfo(hostname, request.getName());
         client.setName(request.getName());
         client.setClientId(snowFlakeUtils.nextId());
-        log.info("Client registration : [name={}, hostname={}]", request.getName(), hostname);
+
+        if (clients.get(hostname) != null) {
+            log.info("Client reconnection : [name={}, hostname={}]", request.getName(), hostname);
+        } else {
+            log.info("Client registration : [name={}, hostname={}]", request.getName(), hostname);
+        }
+
 
         clients.put(hostname, client);
         if (channel != null) channels.put(hostname, channel);
         return true;
+    }
+
+    /**
+     * <p>Description: 客户端断线</p>
+     * <p>Description: Client Disconnected</p>
+     *
+     * @param ctx 客户端通道
+     */
+    public void disconnected(ChannelHandlerContext ctx) {
+        String ctxId = NetUtils.getChannelId(ctx);
+
+        for (String hostname : channels.keySet()) {
+            ChannelHandlerContext context = channels.get(hostname);
+            String clientId = NetUtils.getChannelId(context);
+
+            if (!clientId.equals(ctxId)) {
+                continue;
+            }
+
+            channels.remove(hostname);
+            ClientInfo clientInfo = clients.get(hostname);
+            clientInfo.setStatus(ClientInfo.STATUS_DISCONNECT);
+            ctx.fireChannelInactive();
+            log.warn("Client disconnected : [name={}, hostname={}]", clientInfo.getName(), hostname);
+            return;
+        }
     }
 
     /**
@@ -99,7 +144,29 @@ public class MasterClientManager {
         }
         long latestHeartbeatTime = System.currentTimeMillis();
         dataNode.setLatestHeartbeatTime(latestHeartbeatTime);
-        dataNode.setStatus(ClientInfo.STATUS_READY);
+        dataNode.setStatus(ClientInfo.STATUS_ACTIVE);
         return true;
+    }
+
+    /**
+     * client 是否存活的监控线程
+     */
+    private class ClientAliveMonitor implements Runnable {
+        @Override
+        public void run() {
+            Iterator<ClientInfo> iterator = clients.values().iterator();
+            while (iterator.hasNext()) {
+                ClientInfo next = iterator.next();
+                long currentTimeMillis = System.currentTimeMillis();
+                if (currentTimeMillis < next.getLatestHeartbeatTime() + ServerConfig.heartbeatOutTime) {
+                    continue;
+                }
+
+                log.info("Client out time, remove client：[hostname={}, current={}, latestHeartbeatTime={}]",
+                        next, DateUtils.getTime(new Date(currentTimeMillis)),DateUtils.getTime(new Date(next.getLatestHeartbeatTime())));
+
+                iterator.remove();
+            }
+        }
     }
 }

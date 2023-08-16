@@ -11,6 +11,8 @@ import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.netty.msg.NetRequest;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -22,6 +24,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @since 10:20 2023/08/01
  * @version 1.0 JDK1.8
  */
+@Slf4j
 public class MasterChannelHandle extends AbstractChannelHandler {
 
     /**
@@ -35,6 +38,11 @@ public class MasterChannelHandle extends AbstractChannelHandler {
     public MasterChannelHandle(MasterClientManager clientManager, TaskScheduler taskScheduler) {
         this.clientManager = clientManager;
         this.taskScheduler = taskScheduler;
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        clientManager.disconnected(ctx);
     }
 
     @Override

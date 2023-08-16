@@ -1,5 +1,6 @@
 package com.susu.proxy.server.proxy;
 
+import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.netty.NetServer;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.buffer.ByteBuf;
@@ -72,7 +73,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
              */
             @Override
             public void channelActive(ChannelHandlerContext ctx) {
-                int port = getCtxPort(ctx);
+                int port = NetUtils.getChannelPort(ctx);
                 if (isExist(port)) {
                     ctx.channel().close();
                     close(port);
@@ -96,10 +97,10 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
              */
             @Override
             public void channelInactive(ChannelHandlerContext ctx) {
-                int port = getCtxPort(ctx);
+                int port = NetUtils.getChannelPort(ctx);
                 List<ChannelHandlerContext> channels = visitorChannels.get(port);
                 if (channels != null) {
-                    channels = channels.stream().filter(item -> !getCtxId(item).equals(getCtxId(ctx))).collect(Collectors.toList());
+                    channels = channels.stream().filter(item -> !NetUtils.getChannelId(item).equals(NetUtils.getChannelId(ctx))).collect(Collectors.toList());
                     visitorChannels.put(port, channels);
                 }
                 log.debug("Visitor channel is disconnected！{}", ctx.channel());
@@ -108,7 +109,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
 
             @Override
             protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) {
-                int port = getCtxPort(ctx);
+                int port = NetUtils.getChannelPort(ctx);
                 byte[] bytes = new byte[buf.readableBytes()];
                 buf.readBytes(bytes);
                 channelReadInternal(port, bytes);
@@ -131,13 +132,4 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
      * @param isConnected   是连接还是断开
      */
     protected abstract void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected);
-
-    public int getCtxPort(ChannelHandlerContext ctx) {
-        return ((InetSocketAddress) ctx.channel().localAddress()).getPort();
-    }
-
-    public String getCtxId(ChannelHandlerContext ctx) {
-        return ctx.channel().id().asLongText().replaceAll("-","");
-    }
-
 }

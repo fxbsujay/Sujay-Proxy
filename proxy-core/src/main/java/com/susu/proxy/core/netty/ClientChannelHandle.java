@@ -82,7 +82,7 @@ public class ClientChannelHandle extends AbstractChannelHandler {
     public void channelInactive(ChannelHandlerContext ctx) {
         socketChannel = null;
         invokeConnectListener(false);
-        log.debug("Socket channel is disconnected！{}", ctx.channel().id().asLongText().replaceAll("-",""));
+        log.warn("Socket channel is disconnected！{}", ctx.channel());
         ctx.fireChannelInactive();
     }
 

@@ -5,3 +5,4 @@ server:
   httpPort: 8846
   username: admin
   password: admin
+  heartbeatInterval: 1000

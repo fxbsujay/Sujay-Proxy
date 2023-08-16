@@ -12,14 +12,19 @@ import java.util.Objects;
 public class ClientInfo {
 
     /**
-     * 心跳检测初始化
+     * 刚刚注册
      */
     public static final int STATUS_INIT = 1;
 
     /**
-     * 心跳检测就绪
+     * 活跃的
      */
-    public static final int STATUS_READY = 2;
+    public static final int STATUS_ACTIVE = 2;
+
+    /**
+     *  可能因为网络异常而断开连接但未清除
+     */
+    public static final int STATUS_DISCONNECT = 3;
 
     /**
      * 客户端Id

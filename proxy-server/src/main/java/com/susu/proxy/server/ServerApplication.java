@@ -64,7 +64,7 @@ public class ServerApplication {
 
     public ServerApplication() {
         this.taskScheduler = new TaskScheduler("Server-Scheduler");
-        this.clientManager = new MasterClientManager();
+        this.clientManager = new MasterClientManager(taskScheduler);
         this.handle = new MasterChannelHandle(clientManager, taskScheduler);
         this.server = new MasterServer(taskScheduler, handle);
         this.strategy = new PortInstantiationStrategy(clientManager, taskScheduler);

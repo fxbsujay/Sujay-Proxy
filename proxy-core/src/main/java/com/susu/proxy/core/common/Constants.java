@@ -28,6 +28,11 @@ public class Constants {
     public static final int HEARTBEAT_INTERVAL = 30000;
 
     /**
+     * 客户端存活时间
+     */
+    public static final int HEARTBEAT_OUT_TIME = 600000;
+
+    /**
      * Netty 最大传输字节数
      */
     public static final int MAX_BYTES = 10 * 1024 * 1024;
