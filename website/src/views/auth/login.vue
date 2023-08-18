@@ -78,7 +78,7 @@ const loginSubmit = () => {
     width: 400px;
     transform: translate(-50%, -50%);
     transition: transform 300ms, box-shadow 300ms;
-    box-shadow: 5px 10px 10px rgba(rgba(2, 128, 144, 1), 0.2);
+    box-shadow: 5px 10px 10px rgba(2, 128, 144, 0.2);
 
     &::before, &::after {
       content: '';

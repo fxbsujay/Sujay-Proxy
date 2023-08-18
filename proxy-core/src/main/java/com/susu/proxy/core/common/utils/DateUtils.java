@@ -37,6 +37,10 @@ public class DateUtils {
         return  getDateTimeFormatter(pattern).format(getLocalDateTime(date));
     }
 
+    public static String getTime(long timeMillis, String pattern) {
+        return getDateTimeFormatter(pattern).format(getLocalDateTime(timeMillis));
+    }
+
     /**
      *  <p>Description: Get the year of the time</p>
      *  <p>获取时间所在年份</p>
@@ -95,6 +99,11 @@ public class DateUtils {
         return  instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
+    public static LocalDateTime getLocalDateTime(long milliseconds) {
+        Instant instant = Instant.ofEpochMilli(milliseconds);
+        return  instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
     /**
      *  <p>Description: Get date formatting class</p>
      *  <p>获取日期格式化类</p>
@@ -112,6 +121,7 @@ public class DateUtils {
         cd.setTime(date);
         return cd;
     }
+
 
     public static Calendar getCalender() {
         return Calendar.getInstance();

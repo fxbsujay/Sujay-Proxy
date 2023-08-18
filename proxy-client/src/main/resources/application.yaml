@@ -3,4 +3,4 @@ app:
 client:
   serverIp: localhost
   serverPort: 8849
-  heartbeatInterval: 1000
+  heartbeatInterval: 30000

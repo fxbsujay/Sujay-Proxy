@@ -14,6 +14,6 @@ export interface RootObject<T>{
  */
 export interface Constant {
   label: string
-  value: string
+  value: string | number
   desc?: string
 }

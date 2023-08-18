@@ -1,4 +1,4 @@
-export interface ProxyModel {
+export interface ClientModel {
     name: string
     hostname: string
 }
