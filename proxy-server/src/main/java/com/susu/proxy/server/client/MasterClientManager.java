@@ -163,8 +163,8 @@ public class MasterClientManager {
                     continue;
                 }
 
-                log.info("Client out time, remove client：[name={}, hostname={},latestHeartbeatTime={}]",
-                        next.getName(), next.getStatus(), DateUtils.getTime(next.getLatestHeartbeatTime(), DateUtils.PATTERN_WHOLE));
+                log.info("Client out time, remove client：[name={}, hostname={}, latestHeartbeatTime={}]",
+                        next.getName(), next.getHostname(), DateUtils.getTime(next.getLatestHeartbeatTime(), DateUtils.PATTERN_WHOLE));
                 iterator.remove();
             }
         }
