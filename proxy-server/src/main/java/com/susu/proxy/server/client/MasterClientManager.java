@@ -158,13 +158,13 @@ public class MasterClientManager {
             while (iterator.hasNext()) {
                 ClientInfo next = iterator.next();
                 long currentTimeMillis = System.currentTimeMillis();
+
                 if (currentTimeMillis < next.getLatestHeartbeatTime() + ServerConfig.heartbeatOutTime) {
                     continue;
                 }
 
-                log.info("Client out time, remove client：[hostname={}, current={}, latestHeartbeatTime={}]",
-                        next, DateUtils.getTime(new Date(currentTimeMillis)),DateUtils.getTime(new Date(next.getLatestHeartbeatTime())));
-
+                log.info("Client out time, remove client：[name={}, hostname={},latestHeartbeatTime={}]",
+                        next.getName(), next.getStatus(), DateUtils.getTime(next.getLatestHeartbeatTime(), DateUtils.PATTERN_WHOLE));
                 iterator.remove();
             }
         }
