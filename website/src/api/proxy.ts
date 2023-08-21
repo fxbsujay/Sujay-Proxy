@@ -9,3 +9,11 @@ export const clientListRequest = (param: RequestParams) => {
 export const mappingListRequest = (param: RequestParams) => {
     return https().request<Array<MappingModel>>('/port/list', Method.GET, param, ContentType.form)
 }
+
+export const mappingSaveRequest = (data: MappingModel) => {
+    return https().request<boolean>('/port/save', Method.POST, data, ContentType.json)
+}
+
+export const mappingUpdateRequest = (data: MappingModel) => {
+    return https().request<boolean>('/port/update', Method.PUT, data, ContentType.json)
+}

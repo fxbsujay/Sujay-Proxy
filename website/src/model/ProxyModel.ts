@@ -4,6 +4,7 @@ export interface ClientModel {
 }
 
 export interface MappingModel {
+    id: string
     protocol: string
     serverPort: number
     clientIp: string
