@@ -70,7 +70,7 @@ public class ServerApplication {
         this.strategy = new PortInstantiationStrategy(clientManager, taskScheduler);
         this.tomcatServer = new TomcatServer(ServerConfig.httpPort);
         new ClientService(this.clientManager);
-        new ProxyService(this.strategy);
+        new ProxyService(this.strategy, this.clientManager);
     }
 
     /**

@@ -19,7 +19,7 @@ public class ProxyController {
         return Result.ok(clients);
     }
 
-    @RequestMapping(value="save", method = "POST")
+    @RequestMapping(value="/save", method = "POST")
     public Result<Boolean> save(@RequestBody MappingDTO mapping) {
         Boolean save = proxyService.save(mapping);
         return Result.ok(save);

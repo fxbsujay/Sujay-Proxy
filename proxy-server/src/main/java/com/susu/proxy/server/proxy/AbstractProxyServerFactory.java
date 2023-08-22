@@ -4,6 +4,7 @@ import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.netty.NetServer;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
 
     public AbstractProxyServerFactory(TaskScheduler scheduler) {
         this.channelHandle = new ProxyChannelHandle();
-        initializeChannelHandle(channelHandle);
+        this.channelHandle.addHandler(new ProxySimpleChannelHandler());
         this.proxyServer = new NetServer("proxy-server", scheduler);
         this.proxyServer.setBaseChannelHandler(this.channelHandle);
         this.proxyServer.startAsync();
@@ -58,66 +59,6 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     }
 
     /**
-     * 初始化代理客户端通道处理器
-     */
-    private  void initializeChannelHandle(ProxyChannelHandle channelHandle) {
-        channelHandle.addHandler(new SimpleChannelInboundHandler<ByteBuf>() {
-
-            @Override
-            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                log.error("VisitorChannelHandler exception caught：", cause);
-            }
-
-            /**
-             * 访客连接成功
-             */
-            @Override
-            public void channelActive(ChannelHandlerContext ctx) {
-                int port = NetUtils.getChannelPort(ctx);
-                if (isExist(port)) {
-                    ctx.channel().close();
-                    close(port);
-                    return;
-                }
-
-                List<ChannelHandlerContext> channels = visitorChannels.get(port);
-                if (channels == null) {
-                    visitorChannels.put(port, Collections.singletonList(ctx));
-                } else {
-                    channels.add(ctx);
-                }
-
-                log.info("Visitor channel is connected: {}", ctx.channel());
-
-                invokeVisitorConnectListener(ctx, true);
-            }
-
-            /***
-             * 访客断开连接
-             */
-            @Override
-            public void channelInactive(ChannelHandlerContext ctx) {
-                int port = NetUtils.getChannelPort(ctx);
-                List<ChannelHandlerContext> channels = visitorChannels.get(port);
-                if (channels != null) {
-                    channels = channels.stream().filter(item -> !NetUtils.getChannelId(item).equals(NetUtils.getChannelId(ctx))).collect(Collectors.toList());
-                    visitorChannels.put(port, channels);
-                }
-                log.debug("Visitor channel is disconnected！{}", ctx.channel());
-                invokeVisitorConnectListener(ctx, false);
-            }
-
-            @Override
-            protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) {
-                int port = NetUtils.getChannelPort(ctx);
-                byte[] bytes = new byte[buf.readableBytes()];
-                buf.readBytes(bytes);
-                channelReadInternal(port, bytes);
-            }
-        });
-    };
-
-    /**
      * 消息处理
      *
      * @param port  端口
@@ -132,4 +73,59 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
      * @param isConnected   是连接还是断开
      */
     protected abstract void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected);
+
+    @ChannelHandler.Sharable
+    private class ProxySimpleChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+            log.error("VisitorChannelHandler exception caught：", cause);
+        }
+
+        /**
+         * 访客连接成功
+         */
+        @Override
+        public void channelActive(ChannelHandlerContext ctx) {
+            int port = NetUtils.getChannelPort(ctx);
+            if (!isExist(port)) {
+                ctx.channel().close();
+                close(port);
+                return;
+            }
+
+            List<ChannelHandlerContext> channels = visitorChannels.get(port);
+            if (channels == null) {
+                visitorChannels.put(port, Collections.singletonList(ctx));
+            } else {
+                channels.add(ctx);
+            }
+
+            log.info("Visitor channel is connected: {}", ctx.channel());
+
+            invokeVisitorConnectListener(ctx, true);
+        }
+
+        /***
+         * 访客断开连接
+         */
+        @Override
+        public void channelInactive(ChannelHandlerContext ctx) {
+            int port = NetUtils.getChannelPort(ctx);
+            List<ChannelHandlerContext> channels = visitorChannels.get(port);
+            if (channels != null) {
+                channels = channels.stream().filter(item -> !NetUtils.getChannelId(item).equals(NetUtils.getChannelId(ctx))).collect(Collectors.toList());
+                visitorChannels.put(port, channels);
+            }
+            log.debug("Visitor channel is disconnected！{}", ctx.channel());
+            invokeVisitorConnectListener(ctx, false);
+        }
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) {
+            int port = NetUtils.getChannelPort(ctx);
+            byte[] bytes = new byte[buf.readableBytes()];
+            buf.readBytes(bytes);
+            channelReadInternal(port, bytes);
+        }
+    }
 }

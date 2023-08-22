@@ -1,6 +1,5 @@
 package com.susu.proxy.server.proxy;
 
-import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.entity.PortMapping;
@@ -41,18 +40,14 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     /**
      * 创建端口映射
      */
-    public boolean  createMapping(PortMapping mapping) {
-        if (clientManager.isExist(mapping.getClientIp())) {
-            return false;
-        }
+    public boolean createMapping(PortMapping mapping) {
 
         Integer serverPort = mapping.getServerPort();
         if (isExist(serverPort)) {
             return false;
         }
 
-        ProtocolType protocol = ProtocolType.getEnum(mapping.getProtocol());
-        if (protocol == null) {
+        if (mapping.getProtocol() == null) {
             return false;
         }
 

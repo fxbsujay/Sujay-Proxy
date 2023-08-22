@@ -1,5 +1,6 @@
 package com.susu.proxy.server.entity;
 
+import com.susu.proxy.core.common.eum.ProtocolType;
 import lombok.Data;
 
 /**
@@ -11,7 +12,7 @@ public class PortMapping {
     /**
      * 代理协议  http or tcp
      */
-    private String protocol;
+    private ProtocolType protocol;
 
     /**
      * 服务端端口

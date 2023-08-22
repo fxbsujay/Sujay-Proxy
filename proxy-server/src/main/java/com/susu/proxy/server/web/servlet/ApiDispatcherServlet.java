@@ -52,9 +52,9 @@ public class ApiDispatcherServlet extends AbstractDispatcherServlet {
             responsive(resp, Result.error(ResponseStatusEnum.ERROR_401));
             return;
         }
-
         Method invokeMethod = mapping.getInvokeMethod();
         String className = invokeMethod.getDeclaringClass().getCanonicalName();
+
 
         String beanName = classNameToBeanNameMap.get(className);
         Object bean = beanNameToInstanceMap.get(beanName);
@@ -65,8 +65,14 @@ public class ApiDispatcherServlet extends AbstractDispatcherServlet {
             result = invokeMethod.invoke(bean, args);
             responsive(resp, result);
         } catch (Exception e) {
-            responsive(resp, Result.error(ResponseStatusEnum.ERROR_500));
-            log.error("Request exception：", e);
+
+            if (e.getCause() instanceof SysException) {
+                SysException cause = (SysException) e.getCause();
+                responsive(resp,Result.error(cause.getCode(), cause.getMsg()));
+                log.error("Api request failed: [url: {}, message: {}]", uri, cause.getMsg());
+            } else {
+                responsive(resp, Result.error(ResponseStatusEnum.ERROR_500));
+            }
         }
     }
 
