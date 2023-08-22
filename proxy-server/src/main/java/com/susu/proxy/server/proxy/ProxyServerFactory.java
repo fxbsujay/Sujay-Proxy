@@ -1,5 +1,8 @@
 package com.susu.proxy.server.proxy;
 
+import com.susu.proxy.core.common.eum.ProtocolType;
+import com.susu.proxy.server.entity.PortMapping;
+
 import java.util.List;
 
 /**
@@ -16,21 +19,32 @@ public interface ProxyServerFactory {
      *
      * @param port       服务端端口
      */
-    public boolean bind(int port) throws InterruptedException;
+    boolean bind(int port) throws InterruptedException;
 
     /**
      * 删除代理
      * @param port      服务端端口
      */
-    public boolean close(int port);
+    boolean close(int port);
 
     /**
      * 端口是否存在
      */
-    public boolean isExist(int port);
+    boolean isExist(int port);
 
     /**
      * 获取所有代理端口
      */
-    public List<Integer> getAllPort();
+    List<Integer> getAllPort();
+
+    /**
+     * 获取端口协议
+     * @param port 端口号
+     */
+    ProtocolType getProtocol(int port);
+
+    /**
+     * 获取所有映射
+     */
+    List<PortMapping> getAllMapping();
 }

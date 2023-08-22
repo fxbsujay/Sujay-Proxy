@@ -1,5 +1,6 @@
 package com.susu.proxy.server.proxy;
 
+import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.entity.PortMapping;
@@ -84,6 +85,16 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         return new ArrayList<>(pool.keySet());
     }
 
+    @Override
+    public ProtocolType getProtocol(int port) {
+        PortMapping portMapping = pool.get(port);
+        if (portMapping == null) {
+            return null;
+        }
+        return portMapping.getProtocol();
+    }
+
+    @Override
     public List<PortMapping> getAllMapping() {
         return new ArrayList<>(pool.values());
     }

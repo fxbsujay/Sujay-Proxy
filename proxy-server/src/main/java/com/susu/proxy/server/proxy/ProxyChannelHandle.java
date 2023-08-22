@@ -1,5 +1,7 @@
 package com.susu.proxy.server.proxy;
 
+import com.susu.proxy.core.common.eum.ProtocolType;
+import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.netty.BaseChannelHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
@@ -7,6 +9,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.NetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -19,8 +25,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProxyChannelHandle extends BaseChannelHandler {
 
+    private final ProxyServerFactory serverFactory;
+
+    public ProxyChannelHandle(ProxyServerFactory serverFactory) {
+        this.serverFactory = serverFactory;
+    }
+
     @Override
     protected void initChannel(SocketChannel ch) {
+
+        ProtocolType protocol = serverFactory.getProtocol(ch.localAddress().getPort());
+        if (protocol == ProtocolType.HTTP) {
+            ch.pipeline().addLast(new HttpServerCodec());
+            ch.pipeline().addLast(new HttpObjectAggregator(65536));
+            ch.pipeline().addLast(new ChunkedWriteHandler());
+        }
+
         for (ChannelInboundHandlerAdapter handler : handlerList) {
             ch.pipeline().addLast(handler);
         }

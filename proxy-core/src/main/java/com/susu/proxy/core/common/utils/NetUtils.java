@@ -26,5 +26,4 @@ public class NetUtils {
     public static int getChannelPort(ChannelHandlerContext channel) {
         return ((InetSocketAddress) channel.channel().localAddress()).getPort();
     }
-
 }

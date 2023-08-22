@@ -29,7 +29,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     private final Map<Integer, List<ChannelHandlerContext>> visitorChannels = new ConcurrentHashMap<>();
 
     public AbstractProxyServerFactory(TaskScheduler scheduler) {
-        this.channelHandle = new ProxyChannelHandle();
+        this.channelHandle = new ProxyChannelHandle(this);
         this.channelHandle.addHandler(new ProxySimpleChannelHandler());
         this.proxyServer = new NetServer("proxy-server", scheduler);
         this.proxyServer.setBaseChannelHandler(this.channelHandle);
