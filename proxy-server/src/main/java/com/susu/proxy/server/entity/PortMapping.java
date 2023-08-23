@@ -27,5 +27,5 @@ public class PortMapping {
     /**
      * 代理客户端端口
      */
-    private String clientPort;
+    private Integer clientPort;
 }

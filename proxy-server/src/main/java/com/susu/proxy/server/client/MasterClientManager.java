@@ -6,10 +6,10 @@ import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.common.utils.SnowFlakeUtils;
 import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.core.config.ServerConfig;
+import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -98,7 +98,6 @@ public class MasterClientManager {
             log.info("Client registration : [name={}, hostname={}]", request.getName(), hostname);
         }
 
-
         clients.put(hostname, client);
         if (channel != null) channels.put(hostname, channel);
         return true;
@@ -146,6 +145,30 @@ public class MasterClientManager {
         dataNode.setLatestHeartbeatTime(latestHeartbeatTime);
         dataNode.setStatus(ClientInfo.STATUS_ACTIVE);
         return true;
+    }
+
+    /**
+     * <p>Description: send message</p>
+     * <p>Description: 向客户端发送消息</p>
+     *
+     * @param hostname              客户端地址
+     * @param packet                网络包
+     * @throws InterruptedException 客户端不存在，客户端不可读，网络异常
+     */
+    public void send(String hostname, NetPacket packet) throws InterruptedException {
+
+        if (isExist(hostname)) {
+            throw new InterruptedException("Network request failed, the client side does not exist：" + hostname);
+        }
+
+        ClientInfo client = clients.get(hostname);
+        if (ClientInfo.STATUS_ACTIVE != client.getStatus()) {
+            throw new InterruptedException("Network request failed, the current client side status is not readable：" + hostname);
+        }
+
+        ChannelHandlerContext ctx = channels.get(hostname);
+        packet.setSequence(snowFlakeUtils.nextId());
+        ctx.channel().writeAndFlush(packet).sync();
     }
 
     /**

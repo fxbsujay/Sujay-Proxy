@@ -1,7 +1,10 @@
 package com.susu.proxy.server.web.service;
 
+import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.eum.ProtocolType;
+import com.susu.proxy.core.common.model.ProxyRequest;
 import com.susu.proxy.core.common.utils.StringUtils;
+import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.entity.PortMapping;
 import com.susu.proxy.server.proxy.PortInstantiationStrategy;
@@ -31,7 +34,7 @@ public class ProxyService implements InstantiationComponent {
 
         for (PortMapping mapping : mappings) {
 
-            if (StringUtils.isNotBlank(port) && !mapping.getClientPort().equals(port)) {
+            if (StringUtils.isNotBlank(port) && !port.equals(String.valueOf(mapping.getClientPort()))) {
                 continue;
             }
 
@@ -62,7 +65,26 @@ public class ProxyService implements InstantiationComponent {
         mapping.setProtocol(protocol);
         mapping.setServerPort(dto.getServerPort());
         mapping.setClientPort(dto.getClientPort());
-        return strategy.createMapping(mapping);
+        boolean createResult = strategy.createMapping(mapping);
+
+        if (createResult && clientManager.isExist(mapping.getClientIp())) {
+
+            ProxyRequest request = ProxyRequest.newBuilder()
+                    .setProtocol(mapping.getProtocol().getName())
+                    .setClientPort(mapping.getClientPort())
+                    .setServerPort(mapping.getServerPort())
+                    .build();
+
+            NetPacket nettyPacket = NetPacket.buildPacket(request.toByteArray(), PacketType.SERVER_CREATE_PROXY);
+
+            try {
+                clientManager.send(mapping.getClientIp(), nettyPacket);
+            } catch (InterruptedException e) {
+                throw new SysException(e.getMessage());
+            }
+        }
+
+        return createResult;
     }
 
 }

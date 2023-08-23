@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package com.susu.proxy.core.common.model;
+
+option java_multiple_files = true;
+option java_package = "com.susu.proxy.core.common.model";
+
+/**
+ *  代理信息
+ */
+message ProxyRequest {
+  int32 serverPort = 1;
+  int32 clientPort = 2;
+  string protocol = 3;
+}
+
+/**
+ *  所以的代理信息
+ */
+message ProxiesRequest {
+  repeated ProxyRequest mappings = 1;
+}

@@ -20,6 +20,8 @@ public enum PacketType {
     EMPTY(1001, "空的的包类型"),
     SERVICE_REGISTER(1002,"客户端注册"),
     SERVICE_HEART_BEAT(1003,"客户端心跳"),
+
+    SERVER_CREATE_PROXY(2001,"向客户端发送创建代理的请求"),
     ;
 
     public int value;
