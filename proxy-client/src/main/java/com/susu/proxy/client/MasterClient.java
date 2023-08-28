@@ -17,8 +17,16 @@ import io.netty.util.concurrent.ScheduledFuture;
 import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.TimeUnit;
 
+
+/**
+ * <p>Description: 通信客户端，负责调度任务，同步信息 </p>
+ *
+ * @author sujay
+ * @since 18:13 2023/6/29
+ * @version 1.0 JDK1.8
+ */
 @Slf4j
-public class ProxyClient {
+public class MasterClient {
 
     /**
      * 客户端心跳时间
@@ -34,7 +42,7 @@ public class ProxyClient {
      */
     private ScheduledFuture<?> scheduledFuture;
 
-    public ProxyClient(TaskScheduler taskScheduler) {
+    public MasterClient(TaskScheduler taskScheduler) {
         this.netClient = new NetClient(AppConfig.name, taskScheduler);
         this.taskScheduler = taskScheduler;
         this.heartbeatInterval = ClientConfig.heartbeatInterval;

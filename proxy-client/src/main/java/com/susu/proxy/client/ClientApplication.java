@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class ClientApplication {
 
-    private final ProxyClient client;
+    private final MasterClient client;
 
     private final TaskScheduler taskScheduler;
 
@@ -16,7 +16,7 @@ public class ClientApplication {
 
     public ClientApplication() {
         this.taskScheduler = new TaskScheduler("Client-Scheduler");
-        this.client = new ProxyClient(taskScheduler);
+        this.client = new MasterClient(taskScheduler);
     }
 
     public static void main( String[] args ) {
