@@ -88,8 +88,8 @@ public class NetServer {
      * @param ports 端口
      * @exception InterruptedException 绑定端口异常
      */
-    public void start(int ports) throws InterruptedException {
-        start(Collections.singletonList(ports));
+    public void start(int port) throws InterruptedException {
+        start(Collections.singletonList(port));
     }
 
     /**
@@ -156,7 +156,7 @@ public class NetServer {
         bindAsync(Collections.singletonList(port));
     }
 
-    public void bind(List<Integer> ports)  throws InterruptedException {
+    public void bind(List<Integer> ports) throws InterruptedException {
         List<ChannelFuture> channelFeature = new ArrayList<>();
         for (Integer port : ports) {
             ChannelFuture future = bootstrap.bind(port).sync();

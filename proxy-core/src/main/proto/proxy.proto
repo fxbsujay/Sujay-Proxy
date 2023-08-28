@@ -10,8 +10,9 @@ option java_package = "com.susu.proxy.core.common.model";
  */
 message ProxyRequest {
   int32 serverPort = 1;
-  int32 clientPort = 2;
-  string protocol = 3;
+  string clientIp = 2;
+  int32 clientPort = 3;
+  string protocol = 4;
 }
 
 /**

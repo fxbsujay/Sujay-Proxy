@@ -73,6 +73,7 @@ public class ProxyService implements InstantiationComponent {
                     .setProtocol(mapping.getProtocol().getName())
                     .setClientPort(mapping.getClientPort())
                     .setServerPort(mapping.getServerPort())
+                    .setClientIp(mapping.getClientIp())
                     .build();
 
             NetPacket nettyPacket = NetPacket.buildPacket(request.toByteArray(), PacketType.SERVER_CREATE_PROXY);

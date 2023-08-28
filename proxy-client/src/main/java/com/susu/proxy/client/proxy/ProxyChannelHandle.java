@@ -17,13 +17,13 @@ public class ProxyChannelHandle extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("---------A");
+        log.info("---------连接成功");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
-        log.info("---------B");
+        log.info("---------连接断开");
     }
 
     @Override

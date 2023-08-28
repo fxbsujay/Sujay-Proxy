@@ -157,7 +157,7 @@ public class MasterClientManager {
      */
     public void send(String hostname, NetPacket packet) throws InterruptedException {
 
-        if (isExist(hostname)) {
+        if (!isExist(hostname)) {
             throw new InterruptedException("Network request failed, the client side does not exist：" + hostname);
         }
 

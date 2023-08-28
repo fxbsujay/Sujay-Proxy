@@ -8,6 +8,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Description: 代理管理器 </p>
@@ -16,8 +17,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  * @since 17:37 2023/08/28
  * @version 1.0 JDK1.8
  */
+@Slf4j
 public class ProxyManager {
-
 
     /**
      *  EventLoopGroup
@@ -41,5 +42,15 @@ public class ProxyManager {
                         ch.pipeline().addLast(new ProxyChannelHandle(masterClient));
                     }
                 });
+
+        masterClient.setProxyManager(this);
     }
+
+
+    public void connect(String ip, int port) {
+        this.bootstrap.connect(ip, port).addListener(future -> {
+            log.info("客户端连接连接 {}", future.isSuccess());
+        });
+    }
+
 }

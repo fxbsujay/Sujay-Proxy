@@ -1,8 +1,10 @@
 package com.susu.proxy.client;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.susu.proxy.client.proxy.ProxyManager;
 import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.model.HeartbeatResponse;
+import com.susu.proxy.core.common.model.ProxyRequest;
 import com.susu.proxy.core.common.model.RegisterRequest;
 import com.susu.proxy.core.common.model.RegisterResponse;
 import com.susu.proxy.core.config.AppConfig;
@@ -37,6 +39,8 @@ public class MasterClient {
 
     private final TaskScheduler taskScheduler;
 
+    private ProxyManager proxyManager;
+
     /**
      * 用来客户端发送心跳
      */
@@ -46,7 +50,10 @@ public class MasterClient {
         this.netClient = new NetClient(AppConfig.name, taskScheduler);
         this.taskScheduler = taskScheduler;
         this.heartbeatInterval = ClientConfig.heartbeatInterval;
+    }
 
+    public void setProxyManager(ProxyManager proxyManager) {
+        this.proxyManager = proxyManager;
     }
 
     /**
@@ -103,7 +110,10 @@ public class MasterClient {
                 serviceRegisterResponse(request);
                 break;
             case SERVICE_HEART_BEAT:
-                storageHeartbeatResponse(request);
+                serviceHeartbeatResponse(request);
+                break;
+            case SERVER_CREATE_PROXY:
+                serverCreateProxy(request);
                 break;
             default:
                 break;
@@ -133,11 +143,18 @@ public class MasterClient {
      *
      * @param request NetWork Request 网络请求
      */
-    private void storageHeartbeatResponse(NetRequest request) throws Exception {
+    private void serviceHeartbeatResponse(NetRequest request) throws Exception {
         HeartbeatResponse response = HeartbeatResponse.parseFrom(request.getRequest().getBody());
         if (!response.getIsSuccess()) {
             log.warn("Client heartbeat fail!! ReRegister");
             register();
         }
+    }
+
+    private void serverCreateProxy(NetRequest request) throws Exception {
+        ProxyRequest response = ProxyRequest.parseFrom(request.getRequest().getBody());
+        String ip = response.getClientIp();
+        int port = response.getClientPort();
+        proxyManager.connect(ip, port);
     }
 }
