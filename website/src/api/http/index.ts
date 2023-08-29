@@ -4,6 +4,7 @@ import { Convert } from './json2Model'
 import DuplicateRequest from './duplicate'
 import { message } from 'ant-design-vue'
 import { RootObject } from '@/model/BaseObject'
+import { authStore } from '@/store/auth'
 
 /**
  * <p>Axios封装</p>
@@ -102,6 +103,11 @@ export default class HttpClient {
         if (res.status >= 200 && res.status < 300) {
 
           let { code, data: result, msg } = Convert.jsonToModel(data) as RootObject<T>
+          if (code === 401) {
+            authStore().logout()
+            return;
+          }
+
           if (code !== 200) {
             return Promise.reject(new AxiosError(msg));
           }

@@ -1,6 +1,7 @@
 package com.susu.proxy.client;
 
 import com.susu.proxy.client.proxy.ProxyManager;
+import com.susu.proxy.client.transmit.MasterClient;
 import com.susu.proxy.core.common.utils.ConfigLoadUtils;
 import com.susu.proxy.core.task.TaskScheduler;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ public class ClientApplication {
     public ClientApplication() {
         this.taskScheduler = new TaskScheduler("Client-Scheduler");
         this.client = new MasterClient(taskScheduler);
-        this.proxyManager = new ProxyManager(client);
+        this.proxyManager = new ProxyManager(client, taskScheduler);
     }
 
     public static void main( String[] args ) {

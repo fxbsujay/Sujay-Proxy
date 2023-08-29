@@ -3,7 +3,7 @@ package com.susu.proxy.server.proxy;
 import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
-import com.susu.proxy.server.entity.PortMapping;
+import com.susu.proxy.core.common.entity.PortMapping;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;

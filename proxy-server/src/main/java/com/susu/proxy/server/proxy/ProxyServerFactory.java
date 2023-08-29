@@ -1,7 +1,7 @@
 package com.susu.proxy.server.proxy;
 
 import com.susu.proxy.core.common.eum.ProtocolType;
-import com.susu.proxy.server.entity.PortMapping;
+import com.susu.proxy.core.common.entity.PortMapping;
 
 import java.util.List;
 

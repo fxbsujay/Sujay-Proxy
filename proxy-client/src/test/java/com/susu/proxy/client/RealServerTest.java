@@ -45,7 +45,7 @@ public class RealServerTest {
                         });
                     }
                 })
-                .bind(3308).sync();
+                .bind(3309).sync();
 
         sync.channel().closeFuture().addListener((ChannelFutureListener) f -> f.channel().close());
         sync.channel().closeFuture().sync();

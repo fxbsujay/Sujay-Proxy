@@ -56,7 +56,7 @@ public class MasterChannelHandle extends AbstractChannelHandler {
                 serviceRegisterHandle(request);
                 break;
             case SERVICE_HEART_BEAT:
-                storageHeartbeatHandle(request);
+                serviceHeartbeatHandle(request);
                 break;
             default:
                 break;
@@ -97,7 +97,7 @@ public class MasterChannelHandle extends AbstractChannelHandler {
      * @param request NetWork Request 网络请求
      * @throws InvalidProtocolBufferException protobuf error
      */
-    private void storageHeartbeatHandle(NetRequest request) throws InvalidProtocolBufferException {
+    private void serviceHeartbeatHandle(NetRequest request) throws InvalidProtocolBufferException {
         HeartbeatRequest heartbeatRequest = HeartbeatRequest.parseFrom(request.getRequest().getBody());
         Boolean isSuccess = clientManager.heartbeat(heartbeatRequest.getHostname());
         HeartbeatResponse response = HeartbeatResponse.newBuilder()

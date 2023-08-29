@@ -6,7 +6,7 @@ import com.susu.proxy.core.common.model.ProxyRequest;
 import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.server.client.MasterClientManager;
-import com.susu.proxy.server.entity.PortMapping;
+import com.susu.proxy.core.common.entity.PortMapping;
 import com.susu.proxy.server.proxy.PortInstantiationStrategy;
 import com.susu.proxy.server.web.dto.MappingDTO;
 import com.susu.proxy.server.web.servlet.InstantiationComponent;

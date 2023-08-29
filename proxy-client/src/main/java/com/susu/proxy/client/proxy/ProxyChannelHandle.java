@@ -1,6 +1,6 @@
 package com.susu.proxy.client.proxy;
 
-import com.susu.proxy.client.MasterClient;
+import com.susu.proxy.client.transmit.MasterClient;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -13,17 +13,6 @@ public class ProxyChannelHandle extends SimpleChannelInboundHandler<ByteBuf> {
 
     public ProxyChannelHandle(MasterClient client) {
         this.client = client;
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("---------连接成功");
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-
-        log.info("---------连接断开");
     }
 
     @Override

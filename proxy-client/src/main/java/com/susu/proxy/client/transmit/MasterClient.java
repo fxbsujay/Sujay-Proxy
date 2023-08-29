@@ -1,8 +1,10 @@
-package com.susu.proxy.client;
+package com.susu.proxy.client.transmit;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.susu.proxy.client.proxy.ProxyManager;
+import com.susu.proxy.core.common.entity.PortMapping;
 import com.susu.proxy.core.common.eum.PacketType;
+import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.model.HeartbeatResponse;
 import com.susu.proxy.core.common.model.ProxyRequest;
 import com.susu.proxy.core.common.model.RegisterRequest;
@@ -62,7 +64,6 @@ public class MasterClient {
     public void start () {
         this.netClient.addPackageListener(this::onTrackerResponse);
         this.netClient.addConnectListener( isConnected -> {
-            log.info("Client Connect Start : {}", isConnected);
             if (isConnected) {
                 register();
             } else {
@@ -113,7 +114,7 @@ public class MasterClient {
                 serviceHeartbeatResponse(request);
                 break;
             case SERVER_CREATE_PROXY:
-                serverCreateProxy(request);
+                serverCreateProxyResponse(request);
                 break;
             default:
                 break;
@@ -151,10 +152,29 @@ public class MasterClient {
         }
     }
 
-    private void serverCreateProxy(NetRequest request) throws Exception {
+    /**
+     * <p>Description: 接收创建代理的请求，连接真实服务</p>
+     * <p>Description: Receive a request to create a proxy to connect to the real service</p>
+     *
+     * @param request NetWork Request 网络请求
+     */
+    private void serverCreateProxyResponse(NetRequest request) throws Exception {
         ProxyRequest response = ProxyRequest.parseFrom(request.getRequest().getBody());
-        String ip = response.getClientIp();
-        int port = response.getClientPort();
-        proxyManager.connect(ip, port);
+
+        PortMapping mapping = new PortMapping();
+        mapping.setClientIp(response.getClientIp());
+        mapping.setProtocol(ProtocolType.getEnum(response.getProtocol()));
+        mapping.setClientPort(response.getClientPort());
+        mapping.setServerPort(response.getServerPort());
+
+        proxyManager.createProxy(mapping);
+    }
+
+    private void removeProxyRequest() {
+
+    }
+
+    public void forwardMessageRequest(Integer port, byte[] body) {
+
     }
 }

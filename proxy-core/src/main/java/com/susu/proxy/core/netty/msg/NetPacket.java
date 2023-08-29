@@ -151,6 +151,15 @@ public class NetPacket {
         return header.getOrDefault("token-x", "");
     }
 
+    public void setPort(Integer port) {
+        header.put("port", String.valueOf(port));
+    }
+
+    public Integer getPort() {
+        String port = header.get("port");
+        return StringUtils.isNotBlank(port) ? Integer.parseInt(port) : null;
+    }
+
     /**
      * <p>Description: 写入数据</p>
      *
