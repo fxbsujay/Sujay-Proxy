@@ -19,8 +19,12 @@ import java.util.Enumeration;
  */
 public class NetUtils {
 
-    public static String getChannelId(ChannelHandlerContext channel) {
-        return channel.channel().id().asLongText().replaceAll("-", "");
+    public static String getChannelId(ChannelHandlerContext ctx) {
+        return getChannelId(ctx.channel());
+    }
+
+    public static String getChannelId(Channel channel) {
+        return channel.id().asLongText().replaceAll("-", "");
     }
 
     public static int getChannelPort(ChannelHandlerContext channel) {

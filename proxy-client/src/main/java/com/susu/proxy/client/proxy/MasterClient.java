@@ -1,14 +1,12 @@
-package com.susu.proxy.client.transmit;
+package com.susu.proxy.client.proxy;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.susu.proxy.client.proxy.ProxyManager;
 import com.susu.proxy.core.common.entity.PortMapping;
 import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.eum.ProtocolType;
-import com.susu.proxy.core.common.model.HeartbeatResponse;
-import com.susu.proxy.core.common.model.ProxyRequest;
-import com.susu.proxy.core.common.model.RegisterRequest;
-import com.susu.proxy.core.common.model.RegisterResponse;
+import com.susu.proxy.core.common.eum.ProxyStateType;
+import com.susu.proxy.core.common.model.*;
 import com.susu.proxy.core.config.AppConfig;
 import com.susu.proxy.core.config.ClientConfig;
 import com.susu.proxy.core.netty.NetClient;
@@ -19,6 +17,11 @@ import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.ScheduledFuture;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -116,6 +119,15 @@ public class MasterClient {
             case SERVER_CREATE_PROXY:
                 serverCreateProxyResponse(request);
                 break;
+            case SERVER_SYNC_PROXY:
+                ProxiesRequest proxies = ProxiesRequest.parseFrom(request.getRequest().getBody());
+                proxyManager.syncProxies(convertProxiesRequest(proxies.getProxiesList()));
+                break;
+            case SERVER_CLOSE_PROXY:
+                CloseProxyRequest closeProxyRequest = CloseProxyRequest.parseFrom(request.getRequest().getBody());
+                String address = closeProxyRequest.getClientIp() + ":" + closeProxyRequest.getClientPort();
+                proxyManager.close(address);
+                break;
             default:
                 break;
         }
@@ -150,6 +162,8 @@ public class MasterClient {
             log.warn("Client heartbeat fail!! ReRegister");
             register();
         }
+
+        proxyManager.syncProxies(convertProxiesRequest(response.getProxiesList()));
     }
 
     /**
@@ -167,14 +181,39 @@ public class MasterClient {
         mapping.setClientPort(response.getClientPort());
         mapping.setServerPort(response.getServerPort());
 
-        proxyManager.createProxy(mapping);
+        proxyManager.create(mapping);
     }
 
-    private void removeProxyRequest() {
+    private List<PortMapping> convertProxiesRequest(List<ProxyRequest> proxies) {
+        List<PortMapping> mappings = new ArrayList<>();
 
+        if (proxies == null || proxies.isEmpty()) {
+            return mappings;
+        }
+
+        for (ProxyRequest proxy : proxies) {
+            PortMapping mapping = new PortMapping();
+            mapping.setClientIp(proxy.getClientIp());
+            mapping.setProtocol(ProtocolType.getEnum(proxy.getProtocol()));
+            mapping.setClientPort(proxy.getClientPort());
+            mapping.setServerPort(proxy.getServerPort());
+            mappings.add(mapping);
+        }
+
+        return mappings;
     }
 
     public void forwardMessageRequest(Integer port, byte[] body) {
 
+    }
+
+    public void reportConnectFuture(String ip, int port, ProxyStateType state) throws InterruptedException {
+        ReportConnectFuture request = ReportConnectFuture.newBuilder()
+                .setClientIp(ip)
+                .setClientPort(port)
+                .setState(state.getName())
+                .build();
+        NetPacket packet = NetPacket.buildPacket(request.toByteArray(), PacketType.CLIENT_REPORT_FUTURE);
+        netClient.send(packet);
     }
 }

@@ -27,11 +27,6 @@ public class ServerApplication {
     private final MasterClientManager clientManager;
 
     /**
-     * 代理客户端连接消息处理器
-     */
-    private final MasterChannelHandle handle;
-
-    /**
      * 端口代理策略
      */
     private final PortInstantiationStrategy strategy;
@@ -65,12 +60,11 @@ public class ServerApplication {
     public ServerApplication() {
         this.taskScheduler = new TaskScheduler("Server-Scheduler");
         this.clientManager = new MasterClientManager(taskScheduler);
-        this.handle = new MasterChannelHandle(clientManager, taskScheduler);
-        this.server = new MasterServer(taskScheduler, handle);
         this.strategy = new PortInstantiationStrategy(clientManager, taskScheduler);
+        this.server = new MasterServer(taskScheduler, new MasterChannelHandle(strategy, clientManager, taskScheduler));
         this.tomcatServer = new TomcatServer(ServerConfig.httpPort);
-        new ClientService(this.clientManager);
-        new ProxyService(this.strategy, this.clientManager);
+        new ClientService(clientManager);
+        new ProxyService(strategy, clientManager);
     }
 
     /**

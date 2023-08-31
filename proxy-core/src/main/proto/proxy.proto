@@ -16,8 +16,25 @@ message ProxyRequest {
 }
 
 /**
- *  所以的代理信息
+ *  所以有的代理信息
  */
 message ProxiesRequest {
-  repeated ProxyRequest mappings = 1;
+  repeated ProxyRequest proxies = 1;
 }
+
+/**
+ *  代理结果
+ */
+message ReportConnectFuture {
+  string clientIp = 1;
+  int32 clientPort = 2;
+  string state = 3;
+}
+/**
+ *  代理结果
+ */
+message CloseProxyRequest {
+  string clientIp = 1;
+  int32 clientPort = 2;
+}
+

@@ -1,7 +1,7 @@
 package com.susu.proxy.client;
 
 import com.susu.proxy.client.proxy.ProxyManager;
-import com.susu.proxy.client.transmit.MasterClient;
+import com.susu.proxy.client.proxy.MasterClient;
 import com.susu.proxy.core.common.utils.ConfigLoadUtils;
 import com.susu.proxy.core.task.TaskScheduler;
 import lombok.extern.slf4j.Slf4j;

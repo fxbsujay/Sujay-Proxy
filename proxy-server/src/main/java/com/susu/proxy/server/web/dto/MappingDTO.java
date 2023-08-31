@@ -24,4 +24,9 @@ public class MappingDTO {
      * 代理客户端端口
      */
     private Integer clientPort;
+
+    /**
+     * 代理状态
+     */
+    private String state;
 }

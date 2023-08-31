@@ -27,3 +27,21 @@ export const ClientStatusConstant: Constant[] = [
         label: '断线'
     }
 ]
+
+/**
+ * 代理状态
+ */
+export const ProxyStateConstant: Constant[] = [
+    {
+        value: 'READY',
+        label: '准备就绪'
+    },
+    {
+        value: 'RUNNING',
+        label: '运行中'
+    },
+    {
+        value: 'CLOSE',
+        label: '关闭'
+    }
+]

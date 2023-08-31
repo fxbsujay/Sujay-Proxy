@@ -3,7 +3,7 @@
       class="basic-form"
       v-model:open="open"
       :maskClosable="false"
-      :title="title"
+      :title="isUpdate ? '修改' : '新建'"
       :width="500"
       :centered="true"
       :confirm-loading="loading"
@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, nextTick } from 'vue'
-import { mappingSaveRequest, mappingUpdateRequest } from '@/api/proxy'
+import { mappingSaveRequest } from '@/api/proxy'
 import { MappingModel } from '@/model/ProxyModel'
 import { Form, notification } from 'ant-design-vue'
 import { ProtocolConstant } from '@/constant'
@@ -48,8 +48,8 @@ const formItemLayout = {
 
 const open = ref<boolean>(false)
 const loading = ref<boolean>(false)
-const title = ref<string>('新建')
-const formState = ref<MappingModel>(defaultForm)
+const isUpdate = ref<boolean>(false)
+const formState = ref<MappingModel>(Copy.DeepClone(defaultForm, {}))
 
 const { resetFields, validate, validateInfos, clearValidate } = useForm(formState,ruleList)
 
@@ -58,30 +58,19 @@ let callbackFunc = reactive<any>(null)
 const onAddOrUpdateSubmitHandle = () => {
   validate().then(() => {
     loading.value = true
-    if (formState.value.id) {
-      mappingUpdateRequest(formState.value).then(() => {
-        successHandle()
-      }).catch(() => loading.value = false)
-    } else {
-      mappingSaveRequest(formState.value).then(() => {
-        successHandle()
-      }).catch(() => loading.value = false)
-    }
+    mappingSaveRequest(formState.value).then(() => {
+      successHandle()
+    }).catch(() => loading.value = false)
 
   })
 }
 
-const init = (callback: () => void, data: MappingModel) => {
+const init = (callback: () => void) => {
   callbackFunc = callback
 
-  if (data && data.id) {
-    Copy.SimpleClone(data, formState)
-    title.value = '编辑'
-  } else {
-    Copy.DeepClone(defaultForm, formState)
-    resetFields()
-    title.value = '新建'
-  }
+  Copy.DeepClone(Copy.DeepClone(defaultForm, {}), formState)
+  resetFields()
+  isUpdate.value = false
 
   open.value = true
   nextTick(() => clearValidate())

@@ -1,6 +1,7 @@
 package com.susu.proxy.core.common.entity;
 
 import com.susu.proxy.core.common.eum.ProtocolType;
+import com.susu.proxy.core.common.eum.ProxyStateType;
 import lombok.Data;
 
 import java.util.Objects;
@@ -30,6 +31,11 @@ public class PortMapping {
      * 代理客户端端口
      */
     private Integer clientPort;
+
+    /**
+     * 代理状态
+     */
+    private ProxyStateType state = ProxyStateType.READY;
 
     @Override
     public boolean equals(Object o) {

@@ -1,6 +1,12 @@
 import { MappingModel } from '@/model/ProxyModel'
+import { ProxyStateConstant } from '@/constant'
 
 export const columns = [
+    {
+        title: '服务端口',
+        dataIndex: 'serverPort',
+        align: 'center',
+    },
     {
         title: '代理客户端',
         dataIndex: 'clientIp',
@@ -12,13 +18,19 @@ export const columns = [
         align: 'center'
     },
     {
-        title: '服务端口',
-        dataIndex: 'serverPort',
+        title: '状态',
+        dataIndex: 'state',
         align: 'center',
+        customRender: ({ text }) => ProxyStateConstant.find(item => item.value === text).label
     },
     {
         title: '协议',
         dataIndex: 'protocol',
+        align: 'center'
+    },
+    {
+        title: '操作',
+        dataIndex: 'operation',
         align: 'center'
     }
 ]
@@ -31,7 +43,8 @@ export const defaultForm: MappingModel = {
     clientIp: 'localhost',
     clientPort: 3306,
     protocol: 'HTTP',
-    serverPort: 3306
+    serverPort: 3306,
+    state: 'READY'
 }
 
 export const ruleList = {

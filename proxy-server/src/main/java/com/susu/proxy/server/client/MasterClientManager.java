@@ -109,7 +109,7 @@ public class MasterClientManager {
      *
      * @param ctx 客户端通道
      */
-    public void disconnected(ChannelHandlerContext ctx) {
+    public String disconnected(ChannelHandlerContext ctx) {
         String ctxId = NetUtils.getChannelId(ctx);
 
         for (String hostname : channels.keySet()) {
@@ -125,8 +125,10 @@ public class MasterClientManager {
             clientInfo.setStatus(ClientInfo.STATUS_DISCONNECT);
             ctx.fireChannelInactive();
             log.warn("Client disconnected : [name={}, hostname={}]", clientInfo.getName(), hostname);
-            return;
+            return hostname;
         }
+
+        return null;
     }
 
     /**

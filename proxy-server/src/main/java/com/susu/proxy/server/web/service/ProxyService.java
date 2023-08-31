@@ -2,6 +2,8 @@ package com.susu.proxy.server.web.service;
 
 import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.eum.ProtocolType;
+import com.susu.proxy.core.common.eum.ProxyStateType;
+import com.susu.proxy.core.common.model.CloseProxyRequest;
 import com.susu.proxy.core.common.model.ProxyRequest;
 import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.core.netty.msg.NetPacket;
@@ -11,12 +13,10 @@ import com.susu.proxy.server.proxy.PortInstantiationStrategy;
 import com.susu.proxy.server.web.dto.MappingDTO;
 import com.susu.proxy.server.web.servlet.InstantiationComponent;
 import com.susu.proxy.server.web.servlet.SysException;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProxyService implements InstantiationComponent {
-
 
     private final MasterClientManager clientManager;
 
@@ -43,13 +43,14 @@ public class ProxyService implements InstantiationComponent {
             dto.setClientPort(mapping.getClientPort());
             dto.setClientIp(mapping.getClientIp());
             dto.setServerPort(mapping.getServerPort());
+            dto.setState(mapping.getState().getName());
             result.add(dto);
         }
 
         return result;
     }
 
-    public Boolean save(MappingDTO dto) {
+    public void save(MappingDTO dto) {
         PortMapping mapping = new PortMapping();
         mapping.setClientIp(dto.getClientIp());
 
@@ -65,6 +66,8 @@ public class ProxyService implements InstantiationComponent {
         mapping.setProtocol(protocol);
         mapping.setServerPort(dto.getServerPort());
         mapping.setClientPort(dto.getClientPort());
+        mapping.setState(ProxyStateType.READY);
+
         boolean createResult = strategy.createMapping(mapping);
 
         if (createResult && clientManager.isExist(mapping.getClientIp())) {
@@ -84,8 +87,27 @@ public class ProxyService implements InstantiationComponent {
                 throw new SysException(e.getMessage());
             }
         }
-
-        return createResult;
     }
 
+    public void delete(Integer port) {
+        PortMapping mapping = strategy.removeMapping(port);
+
+        if (mapping == null || !clientManager.isExist(mapping.getClientIp())) {
+            return;
+        }
+
+        CloseProxyRequest request = CloseProxyRequest.newBuilder()
+                .setClientIp(mapping.getClientIp())
+                .setClientPort(mapping.getClientPort())
+                .build();
+
+        NetPacket nettyPacket = NetPacket.buildPacket(request.toByteArray(), PacketType.SERVER_CLOSE_PROXY);
+
+        try {
+            clientManager.send(mapping.getClientIp(),nettyPacket);
+        } catch (InterruptedException e) {
+            throw new SysException(e.getMessage());
+        }
+
+    }
 }

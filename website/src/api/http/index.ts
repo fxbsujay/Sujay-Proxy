@@ -105,7 +105,7 @@ export default class HttpClient {
           let { code, data: result, msg } = Convert.jsonToModel(data) as RootObject<T>
           if (code === 401) {
             authStore().logout()
-            return;
+            return Promise.reject()
           }
 
           if (code !== 200) {
@@ -113,7 +113,7 @@ export default class HttpClient {
           }
           return result as T;
         }
-        return Promise.reject(new AxiosError('网络异常 ！'));
+        return Promise.reject(new AxiosError('Network unavailable ！'))
       })
       .catch(async error => {
         message.error(error.message)

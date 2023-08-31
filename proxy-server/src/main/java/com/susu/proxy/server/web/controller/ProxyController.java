@@ -21,7 +21,14 @@ public class ProxyController {
 
     @RequestMapping(value="/save", method = "POST")
     public Result<Boolean> save(@RequestBody MappingDTO mapping) {
-        Boolean save = proxyService.save(mapping);
-        return Result.ok(save);
+        proxyService.save(mapping);
+        return Result.ok(true);
     }
+
+    @RequestMapping(value="/delete/{port}", method = "DELETE")
+    public Result<Boolean> delete(@PathVariable("port") Integer port) {
+        proxyService.delete(port);
+        return Result.ok(true);
+    }
+
 }

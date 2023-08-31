@@ -53,8 +53,6 @@ const routes: Array<RouteRecordRaw> = [
     ...constantRoutes as RouteRecordRaw[],
 ]
 
-console.log(routes)
-
 const router = createRouter(<RouterOptions> {
     history: createWebHistory(),
     routes

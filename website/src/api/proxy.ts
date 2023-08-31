@@ -14,6 +14,6 @@ export const mappingSaveRequest = (data: MappingModel) => {
     return https().request<boolean>('/port/save', Method.POST, data, ContentType.json)
 }
 
-export const mappingUpdateRequest = (data: MappingModel) => {
-    return https().request<boolean>('/port/update', Method.PUT, data, ContentType.json)
+export const mappingDeleteRequest = (port: number) => {
+    return https().request<boolean>('/port/delete/' + port, Method.DELETE)
 }
