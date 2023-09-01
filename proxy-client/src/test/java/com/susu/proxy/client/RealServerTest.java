@@ -31,6 +31,9 @@ public class RealServerTest {
                             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                                 ByteBuf buf = (ByteBuf) msg;
                                 log.info(buf.toString(StandardCharsets.UTF_8));
+                                buf.clear();
+                                buf.writeBytes("Hello World !!".getBytes());
+                                ctx.writeAndFlush(buf);
                             }
 
                             @Override

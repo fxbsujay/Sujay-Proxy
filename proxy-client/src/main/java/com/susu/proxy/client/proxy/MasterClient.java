@@ -7,6 +7,7 @@ import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.eum.ProxyStateType;
 import com.susu.proxy.core.common.model.*;
+import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.core.config.AppConfig;
 import com.susu.proxy.core.config.ClientConfig;
 import com.susu.proxy.core.netty.NetClient;
@@ -14,6 +15,7 @@ import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.netty.msg.NetRequest;
 import com.susu.proxy.core.task.HeartbeatTask;
 import com.susu.proxy.core.task.TaskScheduler;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.ScheduledFuture;
 import lombok.extern.slf4j.Slf4j;
@@ -128,6 +130,9 @@ public class MasterClient {
                 String address = closeProxyRequest.getClientIp() + ":" + closeProxyRequest.getClientPort();
                 proxyManager.close(address);
                 break;
+            case TRANSFER_NETWORK_PACKET:
+                transferServerNetworkPacket(request);
+                break;
             default:
                 break;
         }
@@ -182,6 +187,24 @@ public class MasterClient {
         mapping.setServerPort(response.getServerPort());
 
         proxyManager.create(mapping);
+    }
+
+    /**
+     * <p>Description: 转发服务端代理消息</p>
+     *
+     * @param request NetWork Request 网络请求
+     */
+    public void transferServerNetworkPacket(NetRequest request) {
+        NetPacket packet = request.getRequest();
+        String address = packet.getAddress();
+        if (StringUtils.isEmpty(address)) {
+            return;
+        }
+
+        byte[] body = packet.getBody();
+        ByteBuf buf = request.getCtx().alloc().buffer(body.length);
+        buf.writeBytes(body);
+        proxyManager.send(address, buf);
     }
 
     private List<PortMapping> convertProxiesRequest(List<ProxyRequest> proxies) {

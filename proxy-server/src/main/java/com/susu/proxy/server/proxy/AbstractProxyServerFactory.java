@@ -1,5 +1,6 @@
 package com.susu.proxy.server.proxy;
 
+import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.netty.NetServer;
 import com.susu.proxy.core.task.TaskScheduler;
@@ -7,6 +8,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.FullHttpRequest;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +40,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     @Override
     public boolean bind(int port) throws InterruptedException {
         proxyServer.bindAsync(port);
-        visitorChannels.put(port, new ArrayList<>());
+        setAllVisitorChannel(port,new ArrayList<>());
         return true;
     }
 
@@ -57,6 +59,33 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
         return true;
     }
 
+    public List<ChannelHandlerContext> getAllVisitorChannel(int port) {
+        return visitorChannels.get(port);
+    }
+
+    public void setAllVisitorChannel(int port, List<ChannelHandlerContext> channels) {
+        visitorChannels.put(port, channels);
+    }
+
+    /**
+     * 获取访客通道
+     *
+     * @param port        服务端代理端口
+     * @param channelId   访客通道Id
+     */
+    public ChannelHandlerContext getVisitorChannel(int port, String channelId) {
+        List<ChannelHandlerContext> channels = getAllVisitorChannel(port);
+        if (channels == null) {
+            return null;
+        }
+        for (ChannelHandlerContext channel : channels) {
+            if (NetUtils.getChannelId(channel).equals(channelId)) {
+                return channel;
+            }
+        }
+        return null;
+    }
+
     /**
      * 消息处理
      *
@@ -71,10 +100,12 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
      * @param ctx           访客
      * @param isConnected   是连接还是断开
      */
+
     protected abstract void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected);
 
     @ChannelHandler.Sharable
-    private class ProxySimpleChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
+    public class ProxySimpleChannelHandler extends SimpleChannelInboundHandler<Object> {
+
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             log.error("VisitorChannelHandler exception caught：", cause);
@@ -94,14 +125,18 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
 
             List<ChannelHandlerContext> channels = visitorChannels.get(port);
             if (channels == null) {
-                visitorChannels.put(port, Collections.singletonList(ctx));
+                channels = new ArrayList<>();
+                channels.add(ctx);
             } else {
                 channels.add(ctx);
             }
 
-            log.info("Visitor channel is connected: {}", ctx.channel());
+            setAllVisitorChannel(port, channels);
+
+            log.info("Visitor channel is connected: {}", port);
 
             invokeVisitorConnectListener(ctx, true);
+            ctx.fireChannelActive();
         }
 
         /***
@@ -113,15 +148,30 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
             List<ChannelHandlerContext> channels = visitorChannels.get(port);
             if (channels != null) {
                 channels = channels.stream().filter(item -> !NetUtils.getChannelId(item).equals(NetUtils.getChannelId(ctx))).collect(Collectors.toList());
-                visitorChannels.put(port, channels);
+                setAllVisitorChannel(port, channels);
             }
-            log.debug("Visitor channel is disconnected！{}", ctx.channel());
+            log.info("Visitor channel is disconnected！{}", port);
             invokeVisitorConnectListener(ctx, false);
         }
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) {
+        protected void channelRead0(ChannelHandlerContext ctx, Object data) {
+
             int port = NetUtils.getChannelPort(ctx);
+            if (!isExist(port)) {
+                ctx.channel().close();
+                close(port);
+                return;
+            }
+
+            ByteBuf buf;
+            if (getProtocol(port) == ProtocolType.HTTP) {
+                FullHttpRequest request = (FullHttpRequest) data;
+                buf = request.content();
+            } else {
+                buf = (ByteBuf) data;
+            }
+
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
             channelReadInternal(port, bytes);

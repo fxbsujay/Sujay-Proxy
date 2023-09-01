@@ -124,40 +124,13 @@ public class NetPacket {
         header.put("supportChunked", String.valueOf(chunkedFinish));
     }
 
-    /**
-     * 请求是否需要继续广播给其他节点
-     *
-     * @param broadcast 是否需要广播
-     */
-    public void setBroadcast(boolean broadcast) {
-        header.put("broadcast", String.valueOf(broadcast));
+
+    public void setAddress(String address) {
+        header.put("address", address);
     }
 
-    /**
-     * 请求是否需要继续广播给其他节点
-     */
-    public boolean getBroadcast() {
-        return Boolean.parseBoolean(header.getOrDefault("broadcast", "false"));
-    }
-
-    /**
-     *  客户端的认证信息
-     */
-    public void setToken(String token) {
-        header.put("token-x", token);
-    }
-
-    public String getToken() {
-        return header.getOrDefault("token-x", "");
-    }
-
-    public void setPort(Integer port) {
-        header.put("port", String.valueOf(port));
-    }
-
-    public Integer getPort() {
-        String port = header.get("port");
-        return StringUtils.isNotBlank(port) ? Integer.parseInt(port) : null;
+    public String getAddress() {
+        return header.get("address");
     }
 
     /**

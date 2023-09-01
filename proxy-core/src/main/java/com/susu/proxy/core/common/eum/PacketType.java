@@ -22,10 +22,12 @@ public enum PacketType {
     SERVICE_HEART_BEAT(1003,"客户端心跳，服务端返回同步代理信息"),
 
     SERVER_CREATE_PROXY(2001,"向客户端发送创建代理的请求"),
-    SERVER_SYNC_PROXY(2001, "同步代理代理"),
+    SERVER_SYNC_PROXY(2001, "同步代理"),
     SERVER_CLOSE_PROXY(2002,"向客户端发送删除代理的请求"),
 
     CLIENT_REPORT_FUTURE(3001,"当客户端连接真实服务端口或失败时上报客户端"),
+
+    TRANSFER_NETWORK_PACKET(4001,"传输网络包")
     ;
 
     public int value;

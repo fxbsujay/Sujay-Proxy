@@ -16,6 +16,7 @@ import io.netty.util.Mapping;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -162,8 +163,6 @@ public class ProxyManager {
                 close(address);
             }
         }
-
-        log.info("Sync port proxy information complete");
     }
 
     /**
@@ -180,6 +179,13 @@ public class ProxyManager {
         }
 
         log.info("Successfully close the agent: {}", address);
+    }
+
+    public void send(String address, ByteBuf buf) {
+        SocketChannel channel = channels.get(address);
+        if (channel != null) {
+            channel.writeAndFlush(buf);
+        }
     }
 
     /**
@@ -205,6 +211,10 @@ public class ProxyManager {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public PortMapping getMappingByServerPort(String address) {
+        return mappings.get(address);
     }
 
     /**

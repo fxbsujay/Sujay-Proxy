@@ -1,7 +1,9 @@
 package com.susu.proxy.server.proxy;
 
+import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.eum.ProxyStateType;
+import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.core.common.entity.PortMapping;
@@ -132,11 +134,23 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
 
     @Override
     protected void channelReadInternal(int port, byte[] bytes) {
-        log.info("port: {}", port);
+        PortMapping mapping = getMapping(port);
+
+        if(mapping == null || !clientManager.isExist(mapping.getClientIp())) {
+            return;
+        }
+
+        NetPacket packet = NetPacket.buildPacket(bytes, PacketType.TRANSFER_NETWORK_PACKET);
+        packet.setAddress(mapping.getClientIp() + ":" + mapping.getClientPort());
+
+        try {
+            clientManager.send(mapping.getClientIp(), packet);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected) {
-        log.info("invokeVisitorConnectListener: {}", isConnected);
     }
 }
