@@ -77,6 +77,8 @@ public class MasterChannelHandle extends AbstractChannelHandler {
             case CLIENT_REPORT_FUTURE:
                 clientReportFutureHandle(request);
                 break;
+            case TRANSFER_NETWORK_PACKET:
+                break;
             default:
                 break;
         }

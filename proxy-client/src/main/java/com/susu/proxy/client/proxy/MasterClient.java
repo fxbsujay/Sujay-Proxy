@@ -226,8 +226,11 @@ public class MasterClient {
         return mappings;
     }
 
-    public void forwardMessageRequest(Integer port, byte[] body) {
+    public void forwardMessageRequest(String address, byte[] bytes) throws InterruptedException {
 
+        NetPacket packet = NetPacket.buildPacket(bytes, PacketType.TRANSFER_NETWORK_PACKET);
+        packet.setAddress(address);
+        netClient.send(packet);
     }
 
     public void reportConnectFuture(String ip, int port, ProxyStateType state) throws InterruptedException {

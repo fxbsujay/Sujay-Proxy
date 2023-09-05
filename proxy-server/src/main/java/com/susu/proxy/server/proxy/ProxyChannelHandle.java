@@ -37,7 +37,6 @@ public class ProxyChannelHandle extends BaseChannelHandler {
 
         ProtocolType protocol = serverFactory.getProtocol(ch.localAddress().getPort());
         if (protocol == ProtocolType.HTTP) {
-            ch.pipeline().addLast(new HttpServerCodec());
             ch.pipeline().addLast(new HttpObjectAggregator(65536));
             ch.pipeline().addLast(new ChunkedWriteHandler());
         }

@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -243,8 +244,10 @@ public class ProxyManager {
                 close(address);
                 return;
             }
+            byte[] bytes = new byte[byteBuf.readableBytes()];
+            byteBuf.writeBytes(byteBuf);
 
-            log.info(byteBuf.toString());
+            masterClient.forwardMessageRequest(address, bytes);
         }
     }
 }

@@ -152,5 +152,8 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
 
     @Override
     protected void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected) {
+        if (isConnected) {
+            log.info(ctx.channel().toString());
+        }
     }
 }

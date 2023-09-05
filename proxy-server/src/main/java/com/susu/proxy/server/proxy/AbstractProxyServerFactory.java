@@ -9,6 +9,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -104,7 +105,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     protected abstract void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected);
 
     @ChannelHandler.Sharable
-    public class ProxySimpleChannelHandler extends SimpleChannelInboundHandler<Object> {
+    public class ProxySimpleChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -133,8 +134,6 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
 
             setAllVisitorChannel(port, channels);
 
-            log.info("Visitor channel is connected: {}", port);
-
             invokeVisitorConnectListener(ctx, true);
             ctx.fireChannelActive();
         }
@@ -150,26 +149,17 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
                 channels = channels.stream().filter(item -> !NetUtils.getChannelId(item).equals(NetUtils.getChannelId(ctx))).collect(Collectors.toList());
                 setAllVisitorChannel(port, channels);
             }
-            log.info("Visitor channel is disconnected！{}", port);
             invokeVisitorConnectListener(ctx, false);
         }
 
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, Object data) {
+        protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buf) {
 
             int port = NetUtils.getChannelPort(ctx);
             if (!isExist(port)) {
                 ctx.channel().close();
                 close(port);
                 return;
-            }
-
-            ByteBuf buf;
-            if (getProtocol(port) == ProtocolType.HTTP) {
-                FullHttpRequest request = (FullHttpRequest) data;
-                buf = request.content();
-            } else {
-                buf = (ByteBuf) data;
             }
 
             byte[] bytes = new byte[buf.readableBytes()];
