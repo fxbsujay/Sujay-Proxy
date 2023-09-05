@@ -23,7 +23,7 @@ public enum PacketType {
 
     SERVER_CREATE_PROXY(2001,"向客户端发送创建代理的请求"),
     SERVER_SYNC_PROXY(2001, "同步代理"),
-    SERVER_CLOSE_PROXY(2002,"向客户端发送删除代理的请求"),
+    SERVER_REMOVE_PROXY(2002,"向客户端发送删除代理的请求"),
 
     CLIENT_REPORT_FUTURE(3001,"当客户端连接真实服务端口或失败时上报客户端"),
 

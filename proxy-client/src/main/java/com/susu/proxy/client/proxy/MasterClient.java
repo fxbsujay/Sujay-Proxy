@@ -125,10 +125,9 @@ public class MasterClient {
                 ProxiesRequest proxies = ProxiesRequest.parseFrom(request.getRequest().getBody());
                 proxyManager.syncProxies(convertProxiesRequest(proxies.getProxiesList()));
                 break;
-            case SERVER_CLOSE_PROXY:
+            case SERVER_REMOVE_PROXY:
                 CloseProxyRequest closeProxyRequest = CloseProxyRequest.parseFrom(request.getRequest().getBody());
-                String address = closeProxyRequest.getClientIp() + ":" + closeProxyRequest.getClientPort();
-                proxyManager.close(address);
+                proxyManager.remove(closeProxyRequest.getClientPort());
                 break;
             case TRANSFER_NETWORK_PACKET:
                 transferServerNetworkPacket(request);
@@ -233,10 +232,9 @@ public class MasterClient {
         netClient.send(packet);
     }
 
-    public void reportConnectFuture(String ip, int port, ProxyStateType state) throws InterruptedException {
+    public void reportConnectFuture(int serverPort, ProxyStateType state) throws InterruptedException {
         ReportConnectFuture request = ReportConnectFuture.newBuilder()
-                .setClientIp(ip)
-                .setClientPort(port)
+                .setServerPort(serverPort)
                 .setState(state.getName())
                 .build();
         NetPacket packet = NetPacket.buildPacket(request.toByteArray(), PacketType.CLIENT_REPORT_FUTURE);

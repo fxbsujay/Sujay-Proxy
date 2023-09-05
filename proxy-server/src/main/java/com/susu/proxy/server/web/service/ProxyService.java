@@ -101,7 +101,7 @@ public class ProxyService implements InstantiationComponent {
                 .setClientPort(mapping.getClientPort())
                 .build();
 
-        NetPacket nettyPacket = NetPacket.buildPacket(request.toByteArray(), PacketType.SERVER_CLOSE_PROXY);
+        NetPacket nettyPacket = NetPacket.buildPacket(request.toByteArray(), PacketType.SERVER_REMOVE_PROXY);
 
         try {
             clientManager.send(mapping.getClientIp(),nettyPacket);

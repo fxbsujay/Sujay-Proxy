@@ -26,9 +26,8 @@ message ProxiesRequest {
  *  代理结果
  */
 message ReportConnectFuture {
-  string clientIp = 1;
-  int32 clientPort = 2;
-  string state = 3;
+  int32 serverPort = 1;
+  string state = 2;
 }
 /**
  *  代理结果

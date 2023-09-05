@@ -1,10 +1,8 @@
 package com.susu.proxy.client.proxy;
 
-
 import com.susu.proxy.core.common.entity.PortMapping;
 import com.susu.proxy.core.common.eum.ProxyStateType;
 import com.susu.proxy.core.common.utils.NetUtils;
-import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -12,14 +10,9 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.Mapping;
 import lombok.extern.slf4j.Slf4j;
-
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,15 +41,22 @@ public class ProxyManager {
 
     /**
      * 真实服务连接通道
-     * localhost:3306 -> SocketChannel
+     * 访客ID -> SocketChannel
      */
     private final Map<String, SocketChannel> channels = new ConcurrentHashMap<>();
 
     /**
-     * 端口映射信息
-     * localhost:3306 -> PortMapping
+     * 访客记录
+     * 服务端代理端口 -> 访客ID
      */
-    private final Map<String, PortMapping> mappings = new ConcurrentHashMap<>();
+    private final Map<Integer, List<String>> visitors = new ConcurrentHashMap<>();
+
+    /**
+     * 端口映射池
+     * key:     服务端代理端口
+     * value:   代理信息
+     */
+    private final Map<Integer, PortMapping> pool = new ConcurrentHashMap<>();
 
     public ProxyManager(MasterClient masterClient, TaskScheduler taskScheduler) {
         this.masterClient = masterClient;
@@ -82,53 +82,50 @@ public class ProxyManager {
      * @param mapping Port mapping information
      */
     public void create(PortMapping mapping) {
-        String address = mapping.getClientIp() + ":" + mapping.getClientPort();
-        if (!mappings.containsKey(address)) {
-            mappings.put(address, mapping);
+        Integer port = mapping.getServerPort();
+        if (!pool.containsKey(mapping.getServerPort())) {
+            pool.put(port, mapping);
+            visitors.put(port, new ArrayList<>());
         }
-        connect(mapping.getClientIp(), mapping.getClientPort());
-    }
-
-    private void connect(String host, int port) {
-        connect(host, port, 0);
     }
 
     /**
      * <p>Description: 代理客户端连接真实服务端</p>
      * <p>Description: The client side connects to the real server</p>
      *
-     * @param host  服务地址
-     * @param port  服务端口
-     * @param delay 任务延时毫秒数
+     * @param visitorId   访客ID
+     * @param serverPort  服务端端口
      */
-    private void connect(final String host, final int port, long delay) {
+    private void connect(final String visitorId, final int serverPort) {
 
-        String address = host + ":" + port;
-        if (!mappings.containsKey(address) || channels.containsKey(address)) {
+        if (!pool.containsKey(serverPort)) {
             return;
         }
 
+        PortMapping mapping = pool.get(serverPort);
+
+        String ip = mapping.getClientIp();
+        Integer port = mapping.getClientPort();
+
         taskScheduler.scheduleOnce("Real-Client",() -> {
             try {
-                ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port)).sync();
+                ChannelFuture future = bootstrap.connect(new InetSocketAddress(mapping.getClientIp(), mapping.getClientPort())).sync();
+
                 if (future.isSuccess()) {
-                    setConnectState(host, port, ProxyStateType.RUNNING);
-                    log.info("Successfully connected to the real server: {}", address);
-                    channels.put(host + ":" + port, (SocketChannel) future.channel());
+                    setConnectState(serverPort, ProxyStateType.RUNNING);
+                    channels.put(visitorId, (SocketChannel) future.channel());
+                    log.info("Successfully connected to the real server: {}:{}", ip, port);
                 }
 
                 future.channel().closeFuture().sync();
-                log.info("The real server is disconnected and the proxy service will be temporarily shut down: {}", address);
-
-                setConnectState(host, port, ProxyStateType.CLOSE);
-
             } catch (Exception e) {
-                log.error("Real connection exception, ready to reconnect：[ex={}, inetSocketAddress: {}]", e.getMessage(), address);
+                log.error("Real connection exception, ready to reconnect：[ex={}, inetSocketAddress: {}:{}]", e.getMessage(), ip, port);
             } finally {
-                channels.remove(address);
-                connect(host, port, 3000);
+                channels.remove(visitorId);
+                setConnectState(serverPort, ProxyStateType.CLOSE);
+                log.info("The real server is disconnected and the proxy service will be temporarily shut down: {}:{}", ip, port);
             }
-        }, delay);
+        });
     }
 
     /**
@@ -138,52 +135,38 @@ public class ProxyManager {
      * @param proxies 目前所有的代理信息
      */
     public void syncProxies(List<PortMapping> proxies) {
-
-        if (proxies.isEmpty()) {
-            return;
-        }
-
-        List<String> addresses = new ArrayList<>();
-
+        pool.clear();
         for (PortMapping mapping : proxies) {
-            String address = mapping.getClientIp() + ":" + mapping.getClientPort();
-            addresses.add(address);
-            PortMapping oldMapping = mappings.get(address);
-
-            if (oldMapping != null) {
-                oldMapping.setServerPort(mapping.getServerPort());
-                oldMapping.setProtocol(mapping.getProtocol());
-                continue;
-            }
-
             create(mapping);
-        }
-
-        for (String address : mappings.keySet()) {
-            if (!addresses.contains(address)) {
-                close(address);
-            }
         }
     }
 
     /**
-     * <p>Description: 关闭代理</p>
+     * <p>Description: 删除代理</p>
      * <p>Description: Close proxy</p>
      *
-     * @param address Real server address. Example: localhost:3305
+     * @param port Proxy server port. Example: 8848
      */
-    public void close(String address) {
-        mappings.remove(address);
-        SocketChannel channel = channels.remove(address);
-        if (channel != null) {
-            channel.close();
+    public void remove(Integer port) {
+
+        pool.remove(port);
+
+        List<String> visitorsIds = visitors.remove(port);
+        if (visitorsIds == null || visitorsIds.isEmpty()) {
+            return;
         }
 
-        log.info("Successfully close the agent: {}", address);
+        for (String visitorsId : visitorsIds) {
+            SocketChannel socketChannel = channels.remove(visitorsId);
+            if (socketChannel != null) {
+                socketChannel.close();
+            }
+        }
+
     }
 
-    public void send(String address, ByteBuf buf) {
-        SocketChannel channel = channels.get(address);
+    public void send(String visitorId, ByteBuf buf) {
+        SocketChannel channel = channels.get(visitorId);
         if (channel != null) {
             channel.writeAndFlush(buf);
         }
@@ -193,38 +176,29 @@ public class ProxyManager {
      * <p>Description: 更新客户端连接的状态并告知服务端</p>
      * <p>Description: Update client side connection status and inform server level</p>
      *
-     * @param host  真实服务的IP
-     * @param port  真实服务的端口
+     * @param serverPort  服务端代理端口
      * @param state 状态
      */
-    private void setConnectState(String host, int port, ProxyStateType state) {
-
-        String address = host + ":" + port;
-        PortMapping mapping = mappings.get(address);
-
-        if (mapping != null) {
-            mapping.setState(state);
-            mappings.put(address, mapping);
+    private void setConnectState(int serverPort, ProxyStateType state) {
+        if (!pool.containsKey(serverPort)) {
+            return;
         }
-
         try {
-            masterClient.reportConnectFuture(host, port, state);
+            masterClient.reportConnectFuture(serverPort, state);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public PortMapping getMappingByServerPort(String address) {
-        return mappings.get(address);
+    public PortMapping getMappingByServerPort(Integer port) {
+        return pool.get(port);
     }
 
     /**
-     * <p>Description: 根据通道上下文获取对应的服务地址</p>
-     * <p>Description: Get the corresponding service address according to the channel context</p>
-     *
-     * @return Example: localhost:3305
+     * <p>Description: 根据通道上下文获取对应的访客Id</p>
+     * <p>Description: Get the corresponding guest Id according to the channel context</p>
      */
-    private String getSocketAddress(ChannelHandlerContext ctx) {
+    private String getVisitorId(ChannelHandlerContext ctx) {
         for (Map.Entry<String, SocketChannel> entry : channels.entrySet()) {
             SocketChannel channel = entry.getValue();
             if (NetUtils.getChannelId(ctx).equals(NetUtils.getChannelId(channel))) {
@@ -238,16 +212,12 @@ public class ProxyManager {
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, ByteBuf byteBuf) throws Exception {
-            String address = getSocketAddress(ctx);
+            String visitorId = getVisitorId(ctx);
 
-            if (!mappings.containsKey(address)) {
-                close(address);
-                return;
-            }
             byte[] bytes = new byte[byteBuf.readableBytes()];
             byteBuf.writeBytes(byteBuf);
 
-            masterClient.forwardMessageRequest(address, bytes);
+            masterClient.forwardMessageRequest(visitorId, bytes);
         }
     }
 }

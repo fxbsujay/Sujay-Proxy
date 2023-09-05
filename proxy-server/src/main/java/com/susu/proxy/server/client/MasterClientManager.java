@@ -110,24 +110,33 @@ public class MasterClientManager {
      * @param ctx 客户端通道
      */
     public String disconnected(ChannelHandlerContext ctx) {
-        String ctxId = NetUtils.getChannelId(ctx);
 
+        ClientInfo client = getClient(ctx);
+
+        if (client == null) {
+            return null;
+        }
+
+        String hostname = client.getHostname();
+        channels.remove(hostname);
+        ClientInfo clientInfo = clients.get(hostname);
+        clientInfo.setStatus(ClientInfo.STATUS_DISCONNECT);
+        ctx.fireChannelInactive();
+        log.warn("Client disconnected : [name={}, hostname={}]", clientInfo.getName(), hostname);
+
+        return hostname;
+    }
+
+    public ClientInfo getClient(ChannelHandlerContext ctx) {
+        String ctxId = NetUtils.getChannelId(ctx);
         for (String hostname : channels.keySet()) {
             ChannelHandlerContext context = channels.get(hostname);
             String clientId = NetUtils.getChannelId(context);
-
             if (!clientId.equals(ctxId)) {
                 continue;
             }
-
-            channels.remove(hostname);
-            ClientInfo clientInfo = clients.get(hostname);
-            clientInfo.setStatus(ClientInfo.STATUS_DISCONNECT);
-            ctx.fireChannelInactive();
-            log.warn("Client disconnected : [name={}, hostname={}]", clientInfo.getName(), hostname);
-            return hostname;
+            return clients.get(hostname);
         }
-
         return null;
     }
 

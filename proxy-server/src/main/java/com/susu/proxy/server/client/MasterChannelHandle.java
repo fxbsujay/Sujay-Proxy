@@ -154,6 +154,10 @@ public class MasterChannelHandle extends AbstractChannelHandler {
      */
     private void clientReportFutureHandle(NetRequest request)  throws InvalidProtocolBufferException {
         ReportConnectFuture futureRequest = ReportConnectFuture.parseFrom(request.getRequest().getBody());
-        strategy.setConnectState(futureRequest.getClientIp(), futureRequest.getClientPort(), ProxyStateType.getEnum(futureRequest.getState()));
+        ClientInfo client = clientManager.getClient(request.getCtx());
+        if (client != null) {
+            strategy.setConnectState(client.getHostname(), futureRequest.getServerPort(), ProxyStateType.getEnum(futureRequest.getState()));
+        }
+
     }
 }

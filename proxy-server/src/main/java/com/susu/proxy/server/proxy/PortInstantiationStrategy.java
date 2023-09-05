@@ -81,14 +81,14 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     /**
      * 更新代理状态
      *
-     * @param ip    代理客户端ip
-     * @param ports 代理客户端端口
-     * @param state 代理状态
+     * @param hostname    代理客户端IP
+     * @param ports       服务端代理端口
+     * @param state       代理状态
      */
-    public void setConnectState(String ip, List<Integer> ports, ProxyStateType state) {
+    public void setConnectState(String hostname, List<Integer> ports, ProxyStateType state) {
         for (Map.Entry<Integer, PortMapping> entry : pool.entrySet()) {
             PortMapping mapping = entry.getValue();
-            if (mapping.getClientIp().equals(ip) && (ports.isEmpty() || ports.contains(mapping.getClientPort()))) {
+            if (mapping.getClientIp().equals(hostname) && (ports.isEmpty() || ports.contains(entry.getKey()))) {
                 mapping.setState(state);
                 pool.put(entry.getKey(), mapping);
                 return;
@@ -96,12 +96,12 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         }
     }
 
-    public void setConnectState(String ip, ProxyStateType state) {
-        setConnectState(ip, new ArrayList<>(), state);
+    public void setConnectState(String hostname, ProxyStateType state) {
+        setConnectState(hostname, new ArrayList<>(), state);
     }
 
-    public void setConnectState(String ip, Integer port, ProxyStateType state) {
-        setConnectState(ip, Collections.singletonList(port), state);
+    public void setConnectState(String hostname, Integer port, ProxyStateType state) {
+        setConnectState(hostname, Collections.singletonList(port), state);
     }
 
     @Override
