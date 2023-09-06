@@ -71,8 +71,8 @@ public class MasterChannelHandle extends AbstractChannelHandler {
             case SERVICE_HEART_BEAT:
                 serviceHeartbeatHandle(request);
                 break;
-            case CLIENT_REPORT_FUTURE:
-                clientReportFutureHandle(request);
+            case CONNECTION_CLOSURE_NOTIFICATION:
+                strategy.close(request.getRequest().getVisitorId());
                 break;
             case TRANSFER_NETWORK_PACKET:
                 break;
@@ -140,29 +140,5 @@ public class MasterChannelHandle extends AbstractChannelHandler {
                 .addAllProxies(proxies)
                 .build();
         request.sendResponse(response);
-    }
-
-    /**
-     * <p>Description: 客户端代理连接的响应结果</p>
-     * <p>Description: Response result of the client side creating the proxy </p>
-     *
-     * @param request NetWork Request 网络请求
-     * @throws InvalidProtocolBufferException protobuf error
-     */
-    private void clientReportFutureHandle(NetRequest request)  throws InvalidProtocolBufferException {
-        ReportConnectFuture futureRequest = ReportConnectFuture.parseFrom(request.getRequest().getBody());
-        String visitorId = futureRequest.getVisitorId();
-        Integer port = strategy.getVisitorPort(visitorId);
-        if (port == null) {
-            return;
-        }
-        if (futureRequest.getIsSuccess()) {
-            PortMapping mapping = strategy.getMapping(port);
-            strategy.setConnectState(mapping.getClientIp(), Collections.singletonList(mapping.getClientPort()), ProxyStateType.RUNNING);
-        } else {
-            strategy.close(visitorId);
-        }
-
-
     }
 }

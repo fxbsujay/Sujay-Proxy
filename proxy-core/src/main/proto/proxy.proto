@@ -25,14 +25,14 @@ message ProxiesRequest {
 /**
  *  代理结果
  */
-message ConnectionClosureNotificationRequest {
-  string visitorId = 1;
-}
-/**
- *  代理结果
- */
 message CloseProxyRequest {
   string clientIp = 1;
   int32 clientPort = 2;
 }
 
+/**
+ *  访客连接
+ */
+message VisitorConnectingRequest {
+  int32 serverPort = 1;
+}

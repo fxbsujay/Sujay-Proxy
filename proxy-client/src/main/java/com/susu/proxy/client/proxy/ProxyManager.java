@@ -3,6 +3,7 @@ package com.susu.proxy.client.proxy;
 import com.susu.proxy.core.common.entity.PortMapping;
 import com.susu.proxy.core.common.eum.ProxyStateType;
 import com.susu.proxy.core.common.utils.NetUtils;
+import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -123,9 +124,9 @@ public class ProxyManager {
      * @param visitorId   访客ID
      * @param serverPort  服务端端口
      */
-    private void connect(final String visitorId, final int serverPort) {
+    public void connect(String visitorId, int serverPort) {
 
-        if (!pool.containsKey(serverPort)) {
+        if (!pool.containsKey(serverPort) || StringUtils.isBlank(visitorId)) {
             return;
         }
 
@@ -168,6 +169,11 @@ public class ProxyManager {
     }
 
     public void closeVisitor(String visitorId) {
+
+        if (StringUtils.isBlank(visitorId)) {
+            return;
+        }
+
         for (List<String> visitorIds : visitors.values()) {
             if (visitorIds.isEmpty()) {
                 continue;
@@ -228,7 +234,7 @@ public class ProxyManager {
         }
     }
 
-    public void clearVisitors(Integer serverPort) {
+    private void clearVisitors(Integer serverPort) {
         List<String> visitorIds = visitors.get(serverPort);
         if (visitorIds == null || visitorIds.isEmpty()) {
             return;
@@ -271,7 +277,7 @@ public class ProxyManager {
             byte[] bytes = new byte[byteBuf.readableBytes()];
             byteBuf.writeBytes(byteBuf);
 
-            masterClient.forwardMessageRequest(visitorId, bytes);
+            masterClient.transferServerPacketRequest(visitorId, bytes);
         }
     }
 }

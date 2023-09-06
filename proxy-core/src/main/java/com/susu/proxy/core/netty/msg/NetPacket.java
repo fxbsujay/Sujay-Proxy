@@ -124,13 +124,15 @@ public class NetPacket {
         header.put("supportChunked", String.valueOf(chunkedFinish));
     }
 
-
-    public void setAddress(String address) {
-        header.put("address", address);
+    /**
+     * 访客Id
+     */
+    public void setVisitorId(String visitor) {
+        header.put("visitor", visitor);
     }
 
-    public String getAddress() {
-        return header.get("address");
+    public String getVisitorId() {
+        return header.get("visitor");
     }
 
     /**

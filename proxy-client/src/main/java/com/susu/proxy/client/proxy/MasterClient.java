@@ -130,12 +130,18 @@ public class MasterClient {
                 proxyManager.remove(closeProxyRequest.getClientPort());
                 break;
             case TRANSFER_NETWORK_PACKET:
-                transferServerNetworkPacket(request);
+                transferClientPacketRequest(request);
+                break;
+            case SERVER_VISITOR_CONNECTING:
+                VisitorConnectingRequest visitorConnectingRequest = VisitorConnectingRequest.parseFrom(request.getRequest().getBody());
+                proxyManager.connect(request.getRequest().getVisitorId(), visitorConnectingRequest.getServerPort());
+                break;
+            case CONNECTION_CLOSURE_NOTIFICATION:
+                proxyManager.closeVisitor(request.getRequest().getVisitorId());
                 break;
             default:
                 break;
         }
-
     }
 
     /**
@@ -189,21 +195,47 @@ public class MasterClient {
     }
 
     /**
-     * <p>Description: 转发服务端代理消息</p>
+     * <p>Description: 转发客户端代理消息</p>
      *
      * @param request NetWork Request 网络请求
      */
-    public void transferServerNetworkPacket(NetRequest request) {
+    public void transferClientPacketRequest(NetRequest request) {
         NetPacket packet = request.getRequest();
-        String address = packet.getAddress();
-        if (StringUtils.isEmpty(address)) {
+        String visitorId = packet.getVisitorId();
+        if (StringUtils.isEmpty(visitorId)) {
             return;
         }
 
         byte[] body = packet.getBody();
         ByteBuf buf = request.getCtx().alloc().buffer(body.length);
         buf.writeBytes(body);
-        proxyManager.send(address, buf);
+        proxyManager.send(visitorId, buf);
+    }
+
+    /**
+     * <p>Description: 转发服务端代理消息</p>
+     *
+     * @param visitorId 访客ID
+     */
+    public void transferServerPacketRequest(String visitorId, byte[] bytes) throws InterruptedException {
+        NetPacket packet = NetPacket.buildPacket(bytes, PacketType.TRANSFER_NETWORK_PACKET);
+        packet.setVisitorId(visitorId);
+        netClient.send(packet);
+    }
+
+    /**
+     * 访客连接失败通知
+     *
+     * @param visitorId 访客ID
+     */
+    public void connectionClosureNotificationRequest(String visitorId) {
+        NetPacket packet = NetPacket.buildPacket(new byte[0], PacketType.CONNECTION_CLOSURE_NOTIFICATION);
+        packet.setVisitorId(visitorId);
+        try {
+            netClient.send(packet);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<PortMapping> convertProxiesRequest(List<ProxyRequest> proxies) {
@@ -223,29 +255,5 @@ public class MasterClient {
         }
 
         return mappings;
-    }
-
-    public void forwardMessageRequest(String address, byte[] bytes) throws InterruptedException {
-
-        NetPacket packet = NetPacket.buildPacket(bytes, PacketType.TRANSFER_NETWORK_PACKET);
-        packet.setAddress(address);
-        netClient.send(packet);
-    }
-
-    /**
-     * 访客连接失败通知
-     *
-     * @param visitorId 访客ID
-     */
-    public void connectionClosureNotificationRequest(String visitorId) {
-        ConnectionClosureNotificationRequest request = ConnectionClosureNotificationRequest.newBuilder()
-                .setVisitorId(visitorId)
-                .build();
-        NetPacket packet = NetPacket.buildPacket(request.toByteArray(), PacketType.CONNECTION_CLOSURE_NOTIFICATION);
-        try {
-            netClient.send(packet);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

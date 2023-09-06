@@ -24,8 +24,10 @@ public enum PacketType {
     SERVER_CREATE_PROXY(2001,"向客户端发送创建代理的请求"),
     SERVER_SYNC_PROXY(2001, "同步代理"),
     SERVER_REMOVE_PROXY(2002,"向客户端发送删除代理的请求"),
+    SERVER_VISITOR_CONNECTING(2003, "向客户端发送建立连接请求"),
 
     CONNECTION_CLOSURE_NOTIFICATION(3001,"访客连接失败或主动关闭通知"),
+
 
     TRANSFER_NETWORK_PACKET(4001,"传输网络包")
     ;
