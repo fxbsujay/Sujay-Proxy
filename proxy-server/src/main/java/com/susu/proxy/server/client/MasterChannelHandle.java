@@ -16,10 +16,7 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -146,7 +143,7 @@ public class MasterChannelHandle extends AbstractChannelHandler {
     }
 
     /**
-     * <p>Description: 客户端创建代理的响应结果</p>
+     * <p>Description: 客户端代理连接的响应结果</p>
      * <p>Description: Response result of the client side creating the proxy </p>
      *
      * @param request NetWork Request 网络请求
@@ -154,10 +151,18 @@ public class MasterChannelHandle extends AbstractChannelHandler {
      */
     private void clientReportFutureHandle(NetRequest request)  throws InvalidProtocolBufferException {
         ReportConnectFuture futureRequest = ReportConnectFuture.parseFrom(request.getRequest().getBody());
-        ClientInfo client = clientManager.getClient(request.getCtx());
-        if (client != null) {
-            strategy.setConnectState(client.getHostname(), futureRequest.getServerPort(), ProxyStateType.getEnum(futureRequest.getState()));
+        String visitorId = futureRequest.getVisitorId();
+        Integer port = strategy.getVisitorPort(visitorId);
+        if (port == null) {
+            return;
         }
+        if (futureRequest.getIsSuccess()) {
+            PortMapping mapping = strategy.getMapping(port);
+            strategy.setConnectState(mapping.getClientIp(), Collections.singletonList(mapping.getClientPort()), ProxyStateType.RUNNING);
+        } else {
+            strategy.close(visitorId);
+        }
+
 
     }
 }

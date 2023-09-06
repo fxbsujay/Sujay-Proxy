@@ -1,6 +1,5 @@
 package com.susu.proxy.server.proxy;
 
-import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.netty.NetServer;
 import com.susu.proxy.core.task.TaskScheduler;
@@ -8,8 +7,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +25,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     /**
      * 访客群组 port -> channel
      */
-    private final Map<Integer, List<ChannelHandlerContext>> visitorChannels = new ConcurrentHashMap<>();
+    protected final Map<Integer, List<ChannelHandlerContext>> visitorChannels = new ConcurrentHashMap<>();
 
     public AbstractProxyServerFactory(TaskScheduler scheduler) {
         this.channelHandle = new ProxyChannelHandle(this);
@@ -60,6 +57,13 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
         return true;
     }
 
+    public void close(String visitor) {
+        ChannelHandlerContext channel = getVisitorChannel(visitor);
+        if (channel != null) {
+            channel.channel().close();
+        }
+    }
+
     public List<ChannelHandlerContext> getAllVisitorChannel(int port) {
         return visitorChannels.get(port);
     }
@@ -84,6 +88,36 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
                 return channel;
             }
         }
+        return null;
+    }
+
+    public ChannelHandlerContext getVisitorChannel(String channelId) {
+        for (List<ChannelHandlerContext> contexts : visitorChannels.values()) {
+            if (contexts.isEmpty()) {
+                continue;
+            }
+            for (ChannelHandlerContext context : contexts) {
+                if (channelId.equals(NetUtils.getChannelId(context))) {
+                    return context;
+                }
+            }
+        }
+        return null;
+    }
+
+    public Integer getVisitorPort(String channelId) {
+        for (Map.Entry<Integer, List<ChannelHandlerContext>> entry : visitorChannels.entrySet()) {
+            List<ChannelHandlerContext> contexts = entry.getValue();
+            if (contexts.isEmpty()) {
+                continue;
+            }
+            for (ChannelHandlerContext context : contexts) {
+                if (channelId.equals(NetUtils.getChannelId(context))) {
+                    return entry.getKey();
+                }
+            }
+        }
+
         return null;
     }
 
@@ -133,7 +167,6 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
             }
 
             setAllVisitorChannel(port, channels);
-
             invokeVisitorConnectListener(ctx, true);
             ctx.fireChannelActive();
         }

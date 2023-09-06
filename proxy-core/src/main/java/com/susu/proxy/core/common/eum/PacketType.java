@@ -25,7 +25,7 @@ public enum PacketType {
     SERVER_SYNC_PROXY(2001, "同步代理"),
     SERVER_REMOVE_PROXY(2002,"向客户端发送删除代理的请求"),
 
-    CLIENT_REPORT_FUTURE(3001,"当客户端连接真实服务端口或失败时上报客户端"),
+    CONNECTION_CLOSURE_NOTIFICATION(3001,"访客连接失败或主动关闭通知"),
 
     TRANSFER_NETWORK_PACKET(4001,"传输网络包")
     ;

@@ -13,6 +13,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,6 +90,32 @@ public class ProxyManager {
         }
     }
 
+
+    /**
+     * <p>Description: 删除代理</p>
+     * <p>Description: Close proxy</p>
+     *
+     * @param port Proxy server port. Example: 8848
+     */
+    public void remove(Integer port) {
+        pool.remove(port);
+        clearVisitors(port);
+    }
+
+    /**
+     * 向真实服务发送消息
+     *
+     * @param visitorId 访客ID
+     * @param buf       消息内容
+     */
+    public void send(String visitorId, ByteBuf buf) {
+        SocketChannel channel = channels.get(visitorId);
+        if (channel != null) {
+            channel.writeAndFlush(buf);
+        }
+    }
+
+
     /**
      * <p>Description: 代理客户端连接真实服务端</p>
      * <p>Description: The client side connects to the real server</p>
@@ -104,15 +131,25 @@ public class ProxyManager {
 
         PortMapping mapping = pool.get(serverPort);
 
+        if (mapping == null) {
+            return;
+        }
+
         String ip = mapping.getClientIp();
         Integer port = mapping.getClientPort();
+
+        List<String> visitorIds = visitors.get(serverPort);
+        if (visitorIds == null) {
+            visitorIds = new ArrayList<>();
+        }
+        visitorIds.add(visitorId);
+        visitors.put(serverPort, visitorIds);
 
         taskScheduler.scheduleOnce("Real-Client",() -> {
             try {
                 ChannelFuture future = bootstrap.connect(new InetSocketAddress(mapping.getClientIp(), mapping.getClientPort())).sync();
 
                 if (future.isSuccess()) {
-                    setConnectState(serverPort, ProxyStateType.RUNNING);
                     channels.put(visitorId, (SocketChannel) future.channel());
                     log.info("Successfully connected to the real server: {}:{}", ip, port);
                 }
@@ -121,11 +158,30 @@ public class ProxyManager {
             } catch (Exception e) {
                 log.error("Real connection exception, ready to reconnect：[ex={}, inetSocketAddress: {}:{}]", e.getMessage(), ip, port);
             } finally {
-                channels.remove(visitorId);
-                setConnectState(serverPort, ProxyStateType.CLOSE);
+                SocketChannel channel = channels.remove(visitorId);
+                if (channel != null) {
+                    masterClient.connectionClosureNotificationRequest(visitorId);
+                }
                 log.info("The real server is disconnected and the proxy service will be temporarily shut down: {}:{}", ip, port);
             }
         });
+    }
+
+    public void closeVisitor(String visitorId) {
+        for (List<String> visitorIds : visitors.values()) {
+            if (visitorIds.isEmpty()) {
+                continue;
+            }
+            for (String id : visitorIds) {
+                if (id.equals(visitorId)) {
+                    SocketChannel channel = channels.remove(visitorId);
+                    if (channel != null) {
+                        channel.close();
+                    }
+                    return;
+                }
+            }
+        }
     }
 
     /**
@@ -135,59 +191,57 @@ public class ProxyManager {
      * @param proxies 目前所有的代理信息
      */
     public void syncProxies(List<PortMapping> proxies) {
-        pool.clear();
-        for (PortMapping mapping : proxies) {
-            create(mapping);
-        }
-    }
 
-    /**
-     * <p>Description: 删除代理</p>
-     * <p>Description: Close proxy</p>
-     *
-     * @param port Proxy server port. Example: 8848
-     */
-    public void remove(Integer port) {
-
-        pool.remove(port);
-
-        List<String> visitorsIds = visitors.remove(port);
-        if (visitorsIds == null || visitorsIds.isEmpty()) {
+        if (proxies.isEmpty()) {
+            pool.clear();
+            visitors.clear();
+            if (!channels.isEmpty()) {
+                for (SocketChannel channel : channels.values()) {
+                    channel.close();
+                }
+                channels.clear();
+            }
             return;
         }
 
-        for (String visitorsId : visitorsIds) {
-            SocketChannel socketChannel = channels.remove(visitorsId);
-            if (socketChannel != null) {
-                socketChannel.close();
+        List<Integer> ports = new ArrayList<>();
+        for (PortMapping mapping : proxies) {
+            ports.add(mapping.getServerPort());
+            PortMapping oldMapping = pool.get(mapping.getServerPort());
+
+            if (oldMapping != null) {
+
+                oldMapping.setClientIp(mapping.getClientIp());
+                oldMapping.setClientPort(mapping.getClientPort());
+                oldMapping.setProtocol(mapping.getProtocol());
+                pool.put(mapping.getServerPort(), oldMapping);
+                continue;
+            }
+
+            create(mapping);
+        }
+
+        for (Integer port : pool.keySet()) {
+            if (!ports.contains(port)) {
+                clearVisitors(port);
+            }
+        }
+    }
+
+    public void clearVisitors(Integer serverPort) {
+        List<String> visitorIds = visitors.get(serverPort);
+        if (visitorIds == null || visitorIds.isEmpty()) {
+            return;
+        }
+
+        for (String visitorId : visitorIds) {
+            SocketChannel channel = channels.remove(visitorId);
+            if (channel != null) {
+                channel.close();
             }
         }
 
-    }
-
-    public void send(String visitorId, ByteBuf buf) {
-        SocketChannel channel = channels.get(visitorId);
-        if (channel != null) {
-            channel.writeAndFlush(buf);
-        }
-    }
-
-    /**
-     * <p>Description: 更新客户端连接的状态并告知服务端</p>
-     * <p>Description: Update client side connection status and inform server level</p>
-     *
-     * @param serverPort  服务端代理端口
-     * @param state 状态
-     */
-    private void setConnectState(int serverPort, ProxyStateType state) {
-        if (!pool.containsKey(serverPort)) {
-            return;
-        }
-        try {
-            masterClient.reportConnectFuture(serverPort, state);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        visitorIds.clear();
     }
 
     public PortMapping getMappingByServerPort(Integer port) {

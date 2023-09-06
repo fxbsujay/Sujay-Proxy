@@ -100,10 +100,6 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         setConnectState(hostname, new ArrayList<>(), state);
     }
 
-    public void setConnectState(String hostname, Integer port, ProxyStateType state) {
-        setConnectState(hostname, Collections.singletonList(port), state);
-    }
-
     @Override
     public boolean isExist(int port) {
         return pool.containsKey(port);

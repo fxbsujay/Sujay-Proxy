@@ -232,12 +232,20 @@ public class MasterClient {
         netClient.send(packet);
     }
 
-    public void reportConnectFuture(int serverPort, ProxyStateType state) throws InterruptedException {
-        ReportConnectFuture request = ReportConnectFuture.newBuilder()
-                .setServerPort(serverPort)
-                .setState(state.getName())
+    /**
+     * 访客连接失败通知
+     *
+     * @param visitorId 访客ID
+     */
+    public void connectionClosureNotificationRequest(String visitorId) {
+        ConnectionClosureNotificationRequest request = ConnectionClosureNotificationRequest.newBuilder()
+                .setVisitorId(visitorId)
                 .build();
-        NetPacket packet = NetPacket.buildPacket(request.toByteArray(), PacketType.CLIENT_REPORT_FUTURE);
-        netClient.send(packet);
+        NetPacket packet = NetPacket.buildPacket(request.toByteArray(), PacketType.CONNECTION_CLOSURE_NOTIFICATION);
+        try {
+            netClient.send(packet);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
