@@ -3,11 +3,14 @@ package com.susu.proxy.server.proxy;
 import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.eum.ProxyStateType;
+import com.susu.proxy.core.common.model.VisitorConnectingRequest;
+import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.core.common.entity.PortMapping;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.NetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -129,7 +132,8 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     }
 
     @Override
-    protected void channelReadInternal(int port, byte[] bytes) {
+    protected void channelReadInternal(String visitor, int port, byte[] bytes) {
+
         PortMapping mapping = getMapping(port);
 
         if(mapping == null || !clientManager.isExist(mapping.getClientIp())) {
@@ -137,7 +141,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         }
 
         NetPacket packet = NetPacket.buildPacket(bytes, PacketType.TRANSFER_NETWORK_PACKET);
-        packet.setAddress(mapping.getClientIp() + ":" + mapping.getClientPort());
+        packet.setVisitorId(visitor);
 
         try {
             clientManager.send(mapping.getClientIp(), packet);
@@ -147,9 +151,31 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     }
 
     @Override
-    protected void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected) {
+    protected void invokeVisitorConnectListener(String visitorId, int port, boolean isConnected) {
+
+        byte[] bytes;
+        PacketType packetType;
         if (isConnected) {
-            log.info(ctx.channel().toString());
+            VisitorConnectingRequest connectingRequest = VisitorConnectingRequest
+                    .newBuilder()
+                    .setServerPort(port)
+                    .build();
+            bytes = connectingRequest.toByteArray();
+            packetType = PacketType.SERVER_VISITOR_CONNECTING;
+        } else {
+            bytes = new byte[0];
+            packetType = PacketType.CONNECTION_CLOSURE_NOTIFICATION;
+        }
+
+        NetPacket packet = NetPacket.buildPacket(bytes, packetType);
+        packet.setVisitorId(visitorId);
+        PortMapping mapping = getMapping(port);
+        log.info("Listening on visitor connection: [real-server: {}:{}, message: {}, visitorId: {} ]", mapping.getClientIp(), mapping.getClientPort(), packetType, visitorId);
+
+        try {
+            clientManager.send(mapping.getClientIp(), packet);
+        } catch (InterruptedException e) {
+            log.error("Notifying the client side of the connection status failed because: {}", e.getMessage());
         }
     }
 }

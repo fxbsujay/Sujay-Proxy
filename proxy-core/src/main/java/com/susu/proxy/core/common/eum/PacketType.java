@@ -27,8 +27,6 @@ public enum PacketType {
     SERVER_VISITOR_CONNECTING(2003, "向客户端发送建立连接请求"),
 
     CONNECTION_CLOSURE_NOTIFICATION(3001,"访客连接失败或主动关闭通知"),
-
-
     TRANSFER_NETWORK_PACKET(4001,"传输网络包")
     ;
 

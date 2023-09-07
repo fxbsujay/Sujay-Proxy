@@ -2,11 +2,13 @@ package com.susu.proxy.client.proxy;
 
 import com.susu.proxy.core.common.entity.PortMapping;
 import com.susu.proxy.core.common.eum.ProxyStateType;
+import com.susu.proxy.core.common.utils.IpUtils;
 import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -126,7 +128,7 @@ public class ProxyManager {
      */
     public void connect(String visitorId, int serverPort) {
 
-        if (!pool.containsKey(serverPort) || StringUtils.isBlank(visitorId)) {
+        if (!pool.containsKey(serverPort)) {
             return;
         }
 
@@ -146,10 +148,11 @@ public class ProxyManager {
         visitorIds.add(visitorId);
         visitors.put(serverPort, visitorIds);
 
+
+
         taskScheduler.scheduleOnce("Real-Client",() -> {
             try {
-                ChannelFuture future = bootstrap.connect(new InetSocketAddress(mapping.getClientIp(), mapping.getClientPort())).sync();
-
+                ChannelFuture future = bootstrap.connect(new InetSocketAddress(ip.equals(IpUtils.getIp()) ? "localhost" : ip, port)).sync();
                 if (future.isSuccess()) {
                     channels.put(visitorId, (SocketChannel) future.channel());
                     log.info("Successfully connected to the real server: {}:{}", ip, port);
@@ -159,8 +162,8 @@ public class ProxyManager {
             } catch (Exception e) {
                 log.error("Real connection exception, ready to reconnect：[ex={}, inetSocketAddress: {}:{}]", e.getMessage(), ip, port);
             } finally {
-                SocketChannel channel = channels.remove(visitorId);
-                if (channel != null) {
+                channels.remove(visitorId);
+                if (visitors.get(serverPort).contains(visitorId)) {
                     masterClient.connectionClosureNotificationRequest(visitorId);
                 }
                 log.info("The real server is disconnected and the proxy service will be temporarily shut down: {}:{}", ip, port);
@@ -174,7 +177,9 @@ public class ProxyManager {
             return;
         }
 
-        for (List<String> visitorIds : visitors.values()) {
+
+        for (Map.Entry<Integer, List<String>> entry : visitors.entrySet()) {
+            List<String> visitorIds = entry.getValue();
             if (visitorIds.isEmpty()) {
                 continue;
             }
@@ -184,6 +189,8 @@ public class ProxyManager {
                     if (channel != null) {
                         channel.close();
                     }
+                    visitorIds.remove(visitorId);
+                    visitors.put(entry.getKey(), visitorIds);
                     return;
                 }
             }
@@ -273,10 +280,7 @@ public class ProxyManager {
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, ByteBuf byteBuf) throws Exception {
             String visitorId = getVisitorId(ctx);
-
-            byte[] bytes = new byte[byteBuf.readableBytes()];
-            byteBuf.writeBytes(byteBuf);
-
+            byte[] bytes = ByteBufUtil.getBytes(byteBuf);
             masterClient.transferServerPacketRequest(visitorId, bytes);
         }
     }

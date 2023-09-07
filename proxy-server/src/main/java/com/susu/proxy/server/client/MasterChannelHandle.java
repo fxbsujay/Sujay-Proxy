@@ -12,7 +12,10 @@ import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.netty.msg.NetRequest;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.proxy.PortInstantiationStrategy;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -75,6 +78,7 @@ public class MasterChannelHandle extends AbstractChannelHandler {
                 strategy.close(request.getRequest().getVisitorId());
                 break;
             case TRANSFER_NETWORK_PACKET:
+                transferServerPacketRequest(request);
                 break;
             default:
                 break;
@@ -140,5 +144,25 @@ public class MasterChannelHandle extends AbstractChannelHandler {
                 .addAllProxies(proxies)
                 .build();
         request.sendResponse(response);
+    }
+
+    /**
+     * <p>Description: 转发服务端代理消息</p>
+     *
+     * @param request NetWork Request 网络请求
+     */
+    public void transferServerPacketRequest(NetRequest request) {
+        NetPacket packet = request.getRequest();
+        String visitorId = packet.getVisitorId();
+        if (StringUtils.isEmpty(visitorId)) {
+            return;
+        }
+
+        byte[] body = packet.getBody();
+        ByteBuf buf = request.getCtx().alloc().buffer(body.length);
+        buf.writeBytes(body);
+
+        log.info("Received server side message: {}", visitorId);
+        strategy.send(visitorId, buf);
     }
 }

@@ -61,7 +61,6 @@ const onAddOrUpdateSubmitHandle = () => {
     mappingSaveRequest(formState.value).then(() => {
       successHandle()
     }).catch(() => loading.value = false)
-
   })
 }
 

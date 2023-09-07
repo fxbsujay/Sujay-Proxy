@@ -7,10 +7,16 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 @Slf4j
 public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
@@ -44,6 +50,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
 
     @Override
     public boolean close(int port) {
+
         List<ChannelHandlerContext> channels = visitorChannels.remove(port);
 
         if (channels != null && !channels.isEmpty()) {
@@ -58,9 +65,26 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     }
 
     public void close(String visitor) {
-        ChannelHandlerContext channel = getVisitorChannel(visitor);
-        if (channel != null) {
-            channel.channel().close();
+
+        for (Map.Entry<Integer, List<ChannelHandlerContext>> entry : visitorChannels.entrySet()) {
+            List<ChannelHandlerContext> contexts = entry.getValue();
+
+            for (ChannelHandlerContext context : contexts) {
+                if (NetUtils.getChannelId(context).equals(visitor)) {
+                    entry.getValue().remove(context);
+                    context.channel().close();
+                    return;
+                }
+            }
+        }
+    }
+
+    public void send(String visitor, ByteBuf buf) {
+        List<ChannelHandlerContext> contexts = getVisitorChannel(visitor);
+        if (contexts != null && !contexts.isEmpty()) {
+            for (ChannelHandlerContext ctx : contexts) {
+                ctx.channel().writeAndFlush(buf);
+            }
         }
     }
 
@@ -91,18 +115,19 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
         return null;
     }
 
-    public ChannelHandlerContext getVisitorChannel(String channelId) {
+    public List<ChannelHandlerContext> getVisitorChannel(String channelId) {
+        List<ChannelHandlerContext> result = new ArrayList<>();
         for (List<ChannelHandlerContext> contexts : visitorChannels.values()) {
             if (contexts.isEmpty()) {
                 continue;
             }
             for (ChannelHandlerContext context : contexts) {
                 if (channelId.equals(NetUtils.getChannelId(context))) {
-                    return context;
+                    result.add(context);
                 }
             }
         }
-        return null;
+        return result;
     }
 
     public Integer getVisitorPort(String channelId) {
@@ -127,7 +152,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
      * @param port  端口
      * @param bytes 数据
      */
-    protected abstract void channelReadInternal(int port, byte[] bytes);
+    protected abstract void channelReadInternal(String visitorId, int port, byte[] bytes);
 
     /**
      * 访客连接监听
@@ -136,7 +161,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
      * @param isConnected   是连接还是断开
      */
 
-    protected abstract void invokeVisitorConnectListener(ChannelHandlerContext ctx, boolean isConnected);
+    protected abstract void invokeVisitorConnectListener(String visitorId, int port, boolean isConnected);
 
     @ChannelHandler.Sharable
     public class ProxySimpleChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
@@ -167,7 +192,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
             }
 
             setAllVisitorChannel(port, channels);
-            invokeVisitorConnectListener(ctx, true);
+            invokeVisitorConnectListener(NetUtils.getChannelId(ctx), port, true);
             ctx.fireChannelActive();
         }
 
@@ -177,12 +202,14 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
         @Override
         public void channelInactive(ChannelHandlerContext ctx) {
             int port = NetUtils.getChannelPort(ctx);
+            String visitorId = NetUtils.getChannelId(ctx);
             List<ChannelHandlerContext> channels = visitorChannels.get(port);
-            if (channels != null) {
-                channels = channels.stream().filter(item -> !NetUtils.getChannelId(item).equals(NetUtils.getChannelId(ctx))).collect(Collectors.toList());
+
+            if (channels != null && channels.contains(ctx)) {
+                channels = channels.stream().filter(item -> !NetUtils.getChannelId(item).equals(visitorId)).collect(Collectors.toList());
                 setAllVisitorChannel(port, channels);
+                invokeVisitorConnectListener(visitorId, port,false);
             }
-            invokeVisitorConnectListener(ctx, false);
         }
 
         @Override
@@ -197,7 +224,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
 
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
-            channelReadInternal(port, bytes);
+            channelReadInternal(NetUtils.getChannelId(ctx), port, bytes);
         }
     }
 }

@@ -220,6 +220,7 @@ public class MasterClient {
     public void transferServerPacketRequest(String visitorId, byte[] bytes) throws InterruptedException {
         NetPacket packet = NetPacket.buildPacket(bytes, PacketType.TRANSFER_NETWORK_PACKET);
         packet.setVisitorId(visitorId);
+        log.info("Received client side message: {}", visitorId);
         netClient.send(packet);
     }
 
