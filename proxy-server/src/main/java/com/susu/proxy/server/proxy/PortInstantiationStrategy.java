@@ -3,7 +3,6 @@ package com.susu.proxy.server.proxy;
 import com.susu.proxy.core.common.LocalStorage;
 import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.eum.ProtocolType;
-import com.susu.proxy.core.common.eum.ProxyStateType;
 import com.susu.proxy.core.common.model.VisitorConnectingRequest;
 import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.task.TaskScheduler;
@@ -41,6 +40,15 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     public PortInstantiationStrategy(MasterClientManager clientManager, TaskScheduler scheduler) {
         super(scheduler);
         this.clientManager = clientManager;
+        setBindingListener((port, isBinding) -> {
+            if (!isBinding) {
+                log.error("Failed to create proxy server with port {}", port);
+            }
+            PortMapping mapping = pool.get(port);
+            if (mapping != null) {
+                mapping.setBinding(isBinding);
+            }
+        });
         loadReadyMappings();
         Runtime.getRuntime().addShutdownHook(new Thread(this::loadWriteMappings));
     }
@@ -59,19 +67,10 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
             return false;
         }
 
-        boolean bind;
-        try {
-            bind = bind(mapping.getServerPort());
-        } catch (InterruptedException e) {
-            log.error("Port creation failed, {}", e.getMessage());
-            return false;
-        }
-
-        if (bind) {
-            pool.put(serverPort, mapping);
-        }
+        pool.put(serverPort, mapping);
+        bind(mapping.getServerPort());
         loadWriteMappings();
-        return bind;
+        return true;
     }
 
     /**
@@ -84,43 +83,20 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         return mapping;
     }
 
-    /**
-     * 更新代理状态
-     *
-     * @param hostname    代理客户端IP
-     * @param ports       服务端代理端口
-     * @param state       代理状态
-     */
-    public void setConnectState(String hostname, List<Integer> ports, ProxyStateType state) {
-        for (Map.Entry<Integer, PortMapping> entry : pool.entrySet()) {
-            PortMapping mapping = entry.getValue();
-            if (mapping.getClientIp().equals(hostname) && (ports.isEmpty() || ports.contains(entry.getKey()))) {
-                mapping.setState(state);
-                pool.put(entry.getKey(), mapping);
-                return;
-            }
-        }
-    }
-
     private void loadReadyMappings() {
         pool.clear();
         List<PortMapping> mappingsJson = LocalStorage.loadReady(path, PortMapping.class);
-        if (mappingsJson == null) {
+        if (mappingsJson == null || mappingsJson.isEmpty()) {
             return;
         }
-
         for (PortMapping mapping : mappingsJson) {
             pool.put(mapping.getServerPort(), mapping);
+            bind(mapping.getServerPort());
         }
     }
 
     private void loadWriteMappings() {
         LocalStorage.loadWrite(path, pool.values());
-    }
-
-
-    public void setConnectState(String hostname, ProxyStateType state) {
-        setConnectState(hostname, new ArrayList<>(), state);
     }
 
     @Override

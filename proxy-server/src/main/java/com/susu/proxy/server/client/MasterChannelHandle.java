@@ -56,9 +56,6 @@ public class MasterChannelHandle extends AbstractChannelHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         String hostname = clientManager.disconnected(ctx);
-        if (StringUtils.isNotBlank(hostname)) {
-            strategy.setConnectState(hostname, ProxyStateType.CLOSE);
-        }
     }
 
     @Override

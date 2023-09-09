@@ -1,5 +1,6 @@
 package com.susu.proxy.server.web.dto;
 
+import com.susu.proxy.core.common.eum.ProxyStateType;
 import lombok.Data;
 
 @Data
@@ -29,4 +30,9 @@ public class MappingDTO {
      * 代理状态
      */
     private String state;
+
+    /**
+     * 是否已经绑定成功
+     */
+    private boolean binding;
 }

@@ -48,9 +48,13 @@ public class RealServerTest {
                         });
                     }
                 })
-                .bind(3309).sync();
+                .bind(3309).addListener(future -> {
+                    System.out.println(future.isSuccess());
+                }).sync();
 
-        sync.channel().closeFuture().addListener((ChannelFutureListener) f -> f.channel().close());
+        sync.channel().closeFuture().addListener((ChannelFutureListener) f -> {
+            f.channel().close();
+        });
         sync.channel().closeFuture().sync();
 
     }

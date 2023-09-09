@@ -1,5 +1,8 @@
 package com.susu.proxy.core.netty;
 
+import com.susu.proxy.core.netty.listener.NetBindingListener;
+import com.susu.proxy.core.netty.listener.NetClientFailListener;
+import com.susu.proxy.core.netty.listener.NetConnectListener;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -85,7 +88,6 @@ public class NetServer {
      * 启动服务, 会堵塞线程
      * <p>Description: start server </p>
      *
-     * @param ports 端口
      * @exception InterruptedException 绑定端口异常
      */
     public void start(int port) throws InterruptedException {
@@ -133,33 +135,54 @@ public class NetServer {
      * <p>Description: bind port </p>
      *
      * @param ports 端口号
-     * @throws InterruptedException 绑定端口异常
      */
-    public void bindAsync(List<Integer> ports) throws InterruptedException {
+    public void bindAsync(List<Integer> ports, NetBindingListener listener) {
 
         synchronized (NetServer.this) {
             while (bootstrap == null) {
-                wait(20);
+                try {
+                    wait(20);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
         taskScheduler.scheduleOnce("", () -> {
             try {
-                bind(ports);
+                bind(ports, listener);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    public void bindAsync(int port) throws InterruptedException {
-        bindAsync(Collections.singletonList(port));
+    public void bindAsync(List<Integer> ports) {
+        bindAsync(ports, null);
+    }
+
+    public void bindAsync(int port) {
+        bindAsync(Collections.singletonList(port), null);
+    }
+
+    public void bindAsync(int port, NetBindingListener listener) {
+        bindAsync(Collections.singletonList(port), listener);
     }
 
     public void bind(List<Integer> ports) throws InterruptedException {
+        bind(ports, null);
+    }
+
+    public void bind(List<Integer> ports, NetBindingListener listener) throws InterruptedException {
         List<ChannelFuture> channelFeature = new ArrayList<>();
         for (Integer port : ports) {
-            ChannelFuture future = bootstrap.bind(port).sync();
+
+            ChannelFuture future = bootstrap.bind(port).addListener(f -> {
+                if (listener != null) {
+                    listener.onBindStatusChanged(port, f.isSuccess());
+                }
+            }).sync();
+
             log.info("[{}] NetServer bind port : {}", name, port);
             channelFeature.add(future);
         }

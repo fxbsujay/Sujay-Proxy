@@ -43,7 +43,17 @@ public class ProxyService implements InstantiationComponent {
             dto.setClientPort(mapping.getClientPort());
             dto.setClientIp(mapping.getClientIp());
             dto.setServerPort(mapping.getServerPort());
-            dto.setState(mapping.getState().getName());
+            dto.setBinding(mapping.isBinding());
+
+            if (clientManager.isExist(mapping.getClientIp()) && mapping.isBinding()) {
+               if (strategy.isConnectionExists(mapping.getServerPort())) {
+                   dto.setState(ProxyStateType.RUNNING.getName());
+               } else {
+                   dto.setState(ProxyStateType.READY.getName());
+               }
+            } else {
+                dto.setState(ProxyStateType.CLOSE.getName());
+            }
             result.add(dto);
         }
 
@@ -66,11 +76,14 @@ public class ProxyService implements InstantiationComponent {
         mapping.setProtocol(protocol);
         mapping.setServerPort(dto.getServerPort());
         mapping.setClientPort(dto.getClientPort());
-        mapping.setState(ProxyStateType.READY);
 
         boolean createResult = strategy.createMapping(mapping);
 
-        if (createResult && clientManager.isExist(mapping.getClientIp())) {
+        if (!createResult) {
+            throw new SysException("创建失败，请查看端口" + mapping.getServerPort() + "是否被占用");
+        }
+
+        if (clientManager.isExist(mapping.getClientIp())) {
 
             ProxyRequest request = ProxyRequest.newBuilder()
                     .setProtocol(mapping.getProtocol().getName())

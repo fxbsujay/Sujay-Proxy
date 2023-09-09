@@ -33,9 +33,9 @@ public class PortMapping {
     private Integer clientPort;
 
     /**
-     * 代理状态
+     * 是否已经绑定成功
      */
-    private ProxyStateType state = ProxyStateType.READY;
+    private boolean binding;
 
     @Override
     public boolean equals(Object o) {

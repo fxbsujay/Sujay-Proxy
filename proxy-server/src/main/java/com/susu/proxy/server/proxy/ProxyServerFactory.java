@@ -2,6 +2,7 @@ package com.susu.proxy.server.proxy;
 
 import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.entity.PortMapping;
+import com.susu.proxy.core.netty.listener.NetBindingListener;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public interface ProxyServerFactory {
      *
      * @param port       服务端端口
      */
-    boolean bind(int port) throws InterruptedException;
+    void bind(int port);
 
     /**
      * 删除代理

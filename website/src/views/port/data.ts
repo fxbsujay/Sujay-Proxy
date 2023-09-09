@@ -18,10 +18,16 @@ export const columns = [
         align: 'center'
     },
     {
-        title: '状态',
+        title: '启动状态',
+        dataIndex: 'binding',
+        align: 'center',
+        customRender: ({ text }) => text ? "成功" : "失败"
+    },
+    {
+        title: '访客通道',
         dataIndex: 'state',
         align: 'center',
-        customRender: ({ text }) => ProxyStateConstant.find(item => item.value === text).label
+        customRender: ({ text }) => ProxyStateConstant.find(item => item.value === text)?.label
     },
     {
         title: '协议',

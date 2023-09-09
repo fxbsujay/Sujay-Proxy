@@ -9,4 +9,5 @@ export interface MappingModel {
     clientIp: string
     clientPort: number
     state: string
+    binding?: boolean
 }

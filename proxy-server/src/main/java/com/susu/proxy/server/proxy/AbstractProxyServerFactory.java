@@ -2,21 +2,16 @@ package com.susu.proxy.server.proxy;
 
 import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.netty.NetServer;
+import com.susu.proxy.core.netty.listener.NetBindingListener;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 @Slf4j
 public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
@@ -33,6 +28,11 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
      */
     protected final Map<Integer, List<ChannelHandlerContext>> visitorChannels = new ConcurrentHashMap<>();
 
+    /**
+     * 端口绑定监听器
+     */
+    private NetBindingListener bindingListener;
+
     public AbstractProxyServerFactory(TaskScheduler scheduler) {
         this.channelHandle = new ProxyChannelHandle(this);
         this.channelHandle.addHandler(new ProxySimpleChannelHandler());
@@ -42,10 +42,9 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     }
 
     @Override
-    public boolean bind(int port) throws InterruptedException {
-        proxyServer.bindAsync(port);
+    public void bind(int port) {
+        proxyServer.bindAsync(Collections.singletonList(port), bindingListener);
         setAllVisitorChannel(port,new ArrayList<>());
-        return true;
     }
 
     @Override
@@ -88,6 +87,10 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
         }
     }
 
+    public void setBindingListener(NetBindingListener listener) {
+        this.bindingListener = listener;
+    }
+
     public List<ChannelHandlerContext> getAllVisitorChannel(int port) {
         return visitorChannels.get(port);
     }
@@ -113,6 +116,16 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
             }
         }
         return null;
+    }
+
+    /**
+     * 是否存在连接
+     *
+     * @param port        服务端代理端口
+     */
+    public boolean isConnectionExists(int port) {
+        List<ChannelHandlerContext> contexts = visitorChannels.get(port);
+        return contexts != null && contexts.size() > 0;
     }
 
     public List<ChannelHandlerContext> getVisitorChannel(String channelId) {
@@ -157,7 +170,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     /**
      * 访客连接监听
      *
-     * @param ctx           访客
+     * @param visitorId           访客
      * @param isConnected   是连接还是断开
      */
 
