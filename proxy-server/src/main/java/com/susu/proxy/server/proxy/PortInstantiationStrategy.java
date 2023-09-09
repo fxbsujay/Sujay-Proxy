@@ -5,17 +5,11 @@ import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.eum.ProxyStateType;
 import com.susu.proxy.core.common.model.VisitorConnectingRequest;
-import com.susu.proxy.core.common.utils.NetUtils;
-import com.susu.proxy.core.config.ServerConfig;
 import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.core.common.entity.PortMapping;
-import com.susu.proxy.server.web.entity.UserInfo;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.NetUtil;
 import lombok.extern.slf4j.Slf4j;
-
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
