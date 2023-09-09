@@ -20,6 +20,7 @@ public class AuthService implements InstantiationComponent {
     public AuthService() {
         loadReadyUsers();
         Runtime.getRuntime().addShutdownHook(new Thread(this::loadWriteUsers));
+        instantiationComponent();
     }
 
     public boolean isExist(String username) {

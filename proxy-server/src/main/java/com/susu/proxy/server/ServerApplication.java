@@ -8,6 +8,7 @@ import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.server.client.MasterServer;
 import com.susu.proxy.server.proxy.PortInstantiationStrategy;
 import com.susu.proxy.server.web.TomcatServer;
+import com.susu.proxy.server.web.service.AuthService;
 import com.susu.proxy.server.web.service.ClientService;
 import com.susu.proxy.server.web.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +66,7 @@ public class ServerApplication {
         this.tomcatServer = new TomcatServer(ServerConfig.httpPort);
         new ClientService(clientManager);
         new ProxyService(strategy, clientManager);
+        new AuthService();
     }
 
     /**

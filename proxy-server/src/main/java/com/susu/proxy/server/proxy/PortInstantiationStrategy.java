@@ -47,6 +47,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     public PortInstantiationStrategy(MasterClientManager clientManager, TaskScheduler scheduler) {
         super(scheduler);
         this.clientManager = clientManager;
+        loadReadyMappings();
         Runtime.getRuntime().addShutdownHook(new Thread(this::loadWriteMappings));
     }
 
@@ -75,7 +76,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         if (bind) {
             pool.put(serverPort, mapping);
         }
-        loadWriteMapping();
+        loadWriteMappings();
         return bind;
     }
 
@@ -85,7 +86,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     public PortMapping removeMapping(int port) {
         close(port);
         PortMapping mapping = pool.remove(port);
-        loadWriteMapping();
+        loadWriteMappings();
         return mapping;
     }
 
@@ -107,7 +108,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         }
     }
 
-    private void loadWriteMappings() {
+    private void loadReadyMappings() {
         pool.clear();
         List<PortMapping> mappingsJson = LocalStorage.loadReady(path, PortMapping.class);
         if (mappingsJson == null) {
@@ -119,7 +120,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         }
     }
 
-    private void loadWriteMapping() {
+    private void loadWriteMappings() {
         LocalStorage.loadWrite(path, pool.values());
     }
 
