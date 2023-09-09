@@ -55,7 +55,6 @@ public class ApiDispatcherServlet extends AbstractDispatcherServlet {
         Method invokeMethod = mapping.getInvokeMethod();
         String className = invokeMethod.getDeclaringClass().getCanonicalName();
 
-
         String beanName = classNameToBeanNameMap.get(className);
         Object bean = beanNameToInstanceMap.get(beanName);
 

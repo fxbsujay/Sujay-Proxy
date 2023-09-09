@@ -1,18 +1,22 @@
 package com.susu.proxy.server.proxy;
 
+import com.susu.proxy.core.common.LocalStorage;
 import com.susu.proxy.core.common.eum.PacketType;
 import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.eum.ProxyStateType;
 import com.susu.proxy.core.common.model.VisitorConnectingRequest;
 import com.susu.proxy.core.common.utils.NetUtils;
+import com.susu.proxy.core.config.ServerConfig;
 import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.core.common.entity.PortMapping;
+import com.susu.proxy.server.web.entity.UserInfo;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.NetUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 public class PortInstantiationStrategy extends AbstractProxyServerFactory {
+
+    private final String path =  System.getProperty("user.dir") + File.separator + "mapping.info";
 
     /**
      * 客户端管理器
@@ -41,6 +47,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     public PortInstantiationStrategy(MasterClientManager clientManager, TaskScheduler scheduler) {
         super(scheduler);
         this.clientManager = clientManager;
+        Runtime.getRuntime().addShutdownHook(new Thread(this::loadWriteMappings));
     }
 
     /**
@@ -68,7 +75,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
         if (bind) {
             pool.put(serverPort, mapping);
         }
-
+        loadWriteMapping();
         return bind;
     }
 
@@ -77,9 +84,10 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
      */
     public PortMapping removeMapping(int port) {
         close(port);
-        return pool.remove(port);
+        PortMapping mapping = pool.remove(port);
+        loadWriteMapping();
+        return mapping;
     }
-
 
     /**
      * 更新代理状态
@@ -98,6 +106,23 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
             }
         }
     }
+
+    private void loadWriteMappings() {
+        pool.clear();
+        List<PortMapping> mappingsJson = LocalStorage.loadReady(path, PortMapping.class);
+        if (mappingsJson == null) {
+            return;
+        }
+
+        for (PortMapping mapping : mappingsJson) {
+            pool.put(mapping.getServerPort(), mapping);
+        }
+    }
+
+    private void loadWriteMapping() {
+        LocalStorage.loadWrite(path, pool.values());
+    }
+
 
     public void setConnectState(String hostname, ProxyStateType state) {
         setConnectState(hostname, new ArrayList<>(), state);

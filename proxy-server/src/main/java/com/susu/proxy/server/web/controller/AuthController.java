@@ -1,11 +1,12 @@
 package com.susu.proxy.server.web.controller;
 
-import com.susu.proxy.core.config.ServerConfig;
+import com.susu.proxy.server.web.annotation.Autowired;
 import com.susu.proxy.server.web.annotation.RequestBody;
 import com.susu.proxy.server.web.annotation.RequestMapping;
 import com.susu.proxy.server.web.annotation.RestController;
 import com.susu.proxy.server.web.dto.LoginDTO;
 import com.susu.proxy.server.web.entity.Result;
+import com.susu.proxy.server.web.service.AuthService;
 import com.susu.proxy.server.web.servlet.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,11 +21,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AuthController {
 
+    @Autowired
+    private AuthService authService;
+
     @RequestMapping( value = "/login", method = "POST")
     public Result<String> login(@RequestBody LoginDTO dto) {
-        if (ServerConfig.username.equalsIgnoreCase(dto.getUsername()) && ServerConfig.password.equalsIgnoreCase(dto.getPassword())) {
+        if (authService.verify(dto.getUsername(), dto.getPassword())) {
             return Result.ok(JwtUtils.encryption(dto.getUsername()));
         }
-        return Result.error("密码错误");
+
+        return Result.error("账户密码错误");
     }
 }
