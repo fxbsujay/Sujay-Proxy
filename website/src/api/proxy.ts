@@ -17,3 +17,10 @@ export const mappingSaveRequest = (data: MappingModel) => {
 export const mappingDeleteRequest = (port: number) => {
     return https().request<boolean>('/port/delete/' + port, Method.DELETE)
 }
+
+export const startProxyServerRequest = (param: RequestParams) => {
+    return https().request<Array<ClientModel>>('/port/start', Method.GET, param, ContentType.form)
+}
+export const closeProxyServerRequest = (param: RequestParams) => {
+    return https().request<Array<ClientModel>>('/port/close', Method.GET, param, ContentType.form)
+}

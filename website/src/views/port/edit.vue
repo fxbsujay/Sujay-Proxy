@@ -86,7 +86,7 @@ function successHandle () {
 
   notification.success({
     message: '端口映射成功',
-    description: `serverIp:${formState.value.serverPort} -> ${formState.value.clientIp}:${formState.value.clientPort}`
+    description: `localhost:${formState.value.serverPort} -> ${formState.value.clientIp}:${formState.value.clientPort}`
   })
   if (callbackFunc) {
     callbackFunc()

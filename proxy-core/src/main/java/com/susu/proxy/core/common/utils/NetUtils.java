@@ -28,6 +28,10 @@ public class NetUtils {
     }
 
     public static int getChannelPort(ChannelHandlerContext channel) {
-        return ((InetSocketAddress) channel.channel().localAddress()).getPort();
+        return getChannelPort(channel.channel());
+    }
+
+    public static int getChannelPort(Channel channel) {
+        return ((InetSocketAddress)channel.localAddress()).getPort();
     }
 }

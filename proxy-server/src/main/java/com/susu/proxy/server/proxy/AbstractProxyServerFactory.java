@@ -8,7 +8,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -24,6 +27,11 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     protected final NetServer proxyServer;
 
     /**
+     * 代理服务器
+     */
+    protected final Map<Integer, NioServerSocketChannel> proxyServerChannels = new ConcurrentHashMap<>();
+
+    /**
      * 访客群组 port -> channel
      */
     protected final Map<Integer, List<ChannelHandlerContext>> visitorChannels = new ConcurrentHashMap<>();
@@ -31,7 +39,12 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     /**
      * 端口绑定监听器
      */
-    private NetBindingListener bindingListener;
+    private final NetBindingListener bindingListener = (port, channel) -> {
+        if (channel.isOpen()) {
+            proxyServerChannels.put(port, (NioServerSocketChannel) channel);
+        }
+        serverStatusListener(port, channel.isOpen());
+    };
 
     public AbstractProxyServerFactory(TaskScheduler scheduler) {
         this.channelHandle = new ProxyChannelHandle(this);
@@ -44,18 +57,19 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     @Override
     public void bind(int port) {
         proxyServer.bindAsync(Collections.singletonList(port), bindingListener);
-        setAllVisitorChannel(port,new ArrayList<>());
+        setAllVisitorChannel(port, new ArrayList<>());
     }
 
     @Override
     public boolean close(int port) {
 
-        List<ChannelHandlerContext> channels = visitorChannels.remove(port);
-
-        if (channels != null && !channels.isEmpty()) {
-            channels.get(0).channel().parent().close();
-            for (ChannelHandlerContext channel : channels) {
-                channel.channel().close();
+        NioServerSocketChannel socketChannel = proxyServerChannels.remove(port);
+        visitorChannels.remove(port);
+        if (socketChannel != null) {
+            try {
+                socketChannel.close().sync();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
 
@@ -63,7 +77,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
         return true;
     }
 
-    public void close(String visitor) {
+    public void closeVisitorChannel(String visitor) {
 
         for (Map.Entry<Integer, List<ChannelHandlerContext>> entry : visitorChannels.entrySet()) {
             List<ChannelHandlerContext> contexts = entry.getValue();
@@ -85,10 +99,6 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
                 ctx.channel().writeAndFlush(buf);
             }
         }
-    }
-
-    public void setBindingListener(NetBindingListener listener) {
-        this.bindingListener = listener;
     }
 
     public List<ChannelHandlerContext> getAllVisitorChannel(int port) {

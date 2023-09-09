@@ -30,6 +30,8 @@ public class ClassUtils {
      */
     private static final Map<Class<?>, Class<?>> primitiveWrapperMap = new HashMap<>();
 
+    private static final Map<Class<?>, Class<?>> basicPrimitiveWrapperMap = new HashMap<>();
+
     static {
         primitiveWrapperMap.put(Boolean.TYPE, Boolean.class);
         primitiveWrapperMap.put(Byte.TYPE, Byte.class);
@@ -40,6 +42,17 @@ public class ClassUtils {
         primitiveWrapperMap.put(Double.TYPE, Double.class);
         primitiveWrapperMap.put(Float.TYPE, Float.class);
         primitiveWrapperMap.put(Void.TYPE, Void.TYPE);
+
+        basicPrimitiveWrapperMap.put(Boolean.class, boolean.class);
+        basicPrimitiveWrapperMap.put(Byte.class, byte.class);
+        basicPrimitiveWrapperMap.put(Character.class, char.class);
+        basicPrimitiveWrapperMap.put(Short.class, short.class);
+        basicPrimitiveWrapperMap.put(Integer.class, int.class);
+        basicPrimitiveWrapperMap.put(Long.class, long.class);
+        basicPrimitiveWrapperMap.put(Double.class, double.class);
+        basicPrimitiveWrapperMap.put(Float.class, float.class);
+        basicPrimitiveWrapperMap.put(Void.class, void.class);
+        basicPrimitiveWrapperMap.put(String.class, String.class);
     }
 
 
@@ -67,6 +80,10 @@ public class ClassUtils {
 
     public static boolean isPrimitiveWrapper(final Class<?> type) {
         return wrapperPrimitiveMap.containsKey(type);
+    }
+
+    public static Class<?> getBasic(final Class<?> type) {
+       return basicPrimitiveWrapperMap.get(type);
     }
 
 

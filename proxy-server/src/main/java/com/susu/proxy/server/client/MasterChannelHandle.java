@@ -72,7 +72,7 @@ public class MasterChannelHandle extends AbstractChannelHandler {
                 serviceHeartbeatHandle(request);
                 break;
             case CONNECTION_CLOSURE_NOTIFICATION:
-                strategy.close(request.getRequest().getVisitorId());
+                strategy.closeVisitorChannel(request.getRequest().getVisitorId());
                 break;
             case TRANSFER_NETWORK_PACKET:
                 transferServerPacketRequest(request);

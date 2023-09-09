@@ -18,10 +18,10 @@ export const columns = [
         align: 'center'
     },
     {
-        title: '启动状态',
+        title: '运行状态',
         dataIndex: 'binding',
         align: 'center',
-        customRender: ({ text }) => text ? "成功" : "失败"
+        customRender: ({ text }) => text ? "启动中" : "未启动"
     },
     {
         title: '访客通道',

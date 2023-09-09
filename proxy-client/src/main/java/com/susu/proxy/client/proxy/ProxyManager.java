@@ -148,8 +148,6 @@ public class ProxyManager {
         visitorIds.add(visitorId);
         visitors.put(serverPort, visitorIds);
 
-
-
         taskScheduler.scheduleOnce("Real-Client",() -> {
             try {
                 ChannelFuture future = bootstrap.connect(new InetSocketAddress(ip.equals(IpUtils.getIp()) ? "localhost" : ip, port)).sync();

@@ -38,11 +38,8 @@ public class TomcatServer {
 
     private final List<Servlet> servlets = new ArrayList<>();
 
-    static {
+    public TomcatServer(int port) {
         Logger.getLogger("org.apache").setLevel(Level.OFF);
-    }
-
-    public TomcatServer(int port) {;
         this.tomcat = new Tomcat();
         this.basedir = createTempDir();
         this.port = port;

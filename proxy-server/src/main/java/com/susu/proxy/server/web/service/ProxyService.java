@@ -43,9 +43,9 @@ public class ProxyService implements InstantiationComponent {
             dto.setClientPort(mapping.getClientPort());
             dto.setClientIp(mapping.getClientIp());
             dto.setServerPort(mapping.getServerPort());
-            dto.setBinding(mapping.isBinding());
+            dto.setBinding(mapping.getBinding());
 
-            if (clientManager.isExist(mapping.getClientIp()) && mapping.isBinding()) {
+            if (clientManager.isExist(mapping.getClientIp()) && mapping.getBinding()) {
                if (strategy.isConnectionExists(mapping.getServerPort())) {
                    dto.setState(ProxyStateType.RUNNING.getName());
                } else {
@@ -121,6 +121,24 @@ public class ProxyService implements InstantiationComponent {
         } catch (InterruptedException e) {
             throw new SysException(e.getMessage());
         }
+    }
 
+    public void reStart(Integer port) {
+        if (strategy.isExist(port)) {
+            close(port);
+            strategy.bind(port);
+        }
+    }
+
+    public void close(Integer port) {
+        PortMapping mapping = strategy.getMapping(port);
+
+        if (mapping == null) {
+            return;
+        }
+
+        if (mapping.getBinding()) {
+            strategy.close(port);
+        }
     }
 }

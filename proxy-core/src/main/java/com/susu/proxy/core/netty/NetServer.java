@@ -1,8 +1,7 @@
 package com.susu.proxy.core.netty;
 
+import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.netty.listener.NetBindingListener;
-import com.susu.proxy.core.netty.listener.NetClientFailListener;
-import com.susu.proxy.core.netty.listener.NetConnectListener;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -13,6 +12,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
+
+import java.nio.channels.Channel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -179,7 +180,7 @@ public class NetServer {
 
             ChannelFuture future = bootstrap.bind(port).addListener(f -> {
                 if (listener != null) {
-                    listener.onBindStatusChanged(port, f.isSuccess());
+                    listener.onBindStatusChanged(port, ((ChannelFuture) f).channel());
                 }
             }).sync();
 
@@ -188,7 +189,12 @@ public class NetServer {
         }
 
         for (ChannelFuture future : channelFeature) {
-            future.channel().closeFuture().addListener((ChannelFutureListener) f -> f.channel().close());
+            future.channel().closeFuture().addListener((ChannelFutureListener) f -> {
+                f.channel().close();
+                if (listener != null) {
+                    listener.onBindStatusChanged(NetUtils.getChannelPort(f.channel()), f.channel());
+                }
+            });
         }
 
         for (ChannelFuture future : channelFeature) {

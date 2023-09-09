@@ -8,8 +8,12 @@ import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.core.common.entity.PortMapping;
+import io.netty.bootstrap.AbstractBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import java.io.File;
+import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,18 +41,10 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
      */
     private final Map<Integer, PortMapping> pool = new ConcurrentHashMap<>();
 
+
     public PortInstantiationStrategy(MasterClientManager clientManager, TaskScheduler scheduler) {
         super(scheduler);
         this.clientManager = clientManager;
-        setBindingListener((port, isBinding) -> {
-            if (!isBinding) {
-                log.error("Failed to create proxy server with port {}", port);
-            }
-            PortMapping mapping = pool.get(port);
-            if (mapping != null) {
-                mapping.setBinding(isBinding);
-            }
-        });
         loadReadyMappings();
         Runtime.getRuntime().addShutdownHook(new Thread(this::loadWriteMappings));
     }
@@ -125,6 +121,18 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     @Override
     public List<PortMapping> getAllMapping() {
         return new ArrayList<>(pool.values());
+    }
+
+    @Override
+    public void serverStatusListener(int port, boolean status) {
+        PortMapping mapping = pool.get(port);
+        if (mapping != null) {
+            mapping.setBinding(status);
+        }
+
+        if (!status) {
+            log.error("Failed to create proxy server with port {}", port);
+        }
     }
 
     @Override

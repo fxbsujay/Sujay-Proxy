@@ -31,4 +31,16 @@ public class ProxyController {
         return Result.ok(true);
     }
 
+    @RequestMapping(value="/start")
+    public Result<Boolean> start(@RequestParam("port") String port) {
+        proxyService.reStart(Integer.valueOf(port));
+        return Result.ok(true);
+    }
+
+    @RequestMapping(value="/close")
+    public Result<Boolean> close(@RequestParam("port") String port) {
+        proxyService.close(Integer.valueOf(port));
+        return Result.ok(true);
+    }
+
 }

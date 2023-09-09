@@ -35,7 +35,7 @@ public class PortMapping {
     /**
      * 是否已经绑定成功
      */
-    private boolean binding;
+    private Boolean binding = false;
 
     @Override
     public boolean equals(Object o) {

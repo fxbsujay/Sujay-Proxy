@@ -29,6 +29,14 @@ public interface ProxyServerFactory {
     boolean close(int port);
 
     /**
+     * 代理服务器启动关闭监听
+     *
+     * @param port      代理端口
+     * @param status    是关闭还是启动
+     */
+    void serverStatusListener(int port, boolean status);
+
+    /**
      * 端口是否存在
      */
     boolean isExist(int port);
