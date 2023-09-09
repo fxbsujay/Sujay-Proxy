@@ -5,6 +5,7 @@ import com.susu.proxy.core.common.eum.ProtocolType;
 import com.susu.proxy.core.common.eum.ProxyStateType;
 import com.susu.proxy.core.common.model.CloseProxyRequest;
 import com.susu.proxy.core.common.model.ProxyRequest;
+import com.susu.proxy.core.common.utils.IpUtils;
 import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.server.client.MasterClientManager;
@@ -83,19 +84,24 @@ public class ProxyService implements InstantiationComponent {
             throw new SysException("创建失败，请查看端口" + mapping.getServerPort() + "是否被占用");
         }
 
+        String clientIp = mapping.getClientIp();
+        if (clientIp.equals("localhost") || clientIp.equals("127.0.0.1")) {
+            clientIp = IpUtils.getIp();
+        }
+
         if (clientManager.isExist(mapping.getClientIp())) {
 
             ProxyRequest request = ProxyRequest.newBuilder()
                     .setProtocol(mapping.getProtocol().getName())
                     .setClientPort(mapping.getClientPort())
                     .setServerPort(mapping.getServerPort())
-                    .setClientIp(mapping.getClientIp())
+                    .setClientIp(clientIp)
                     .build();
 
             NetPacket nettyPacket = NetPacket.buildPacket(request.toByteArray(), PacketType.SERVER_CREATE_PROXY);
 
             try {
-                clientManager.send(mapping.getClientIp(), nettyPacket);
+                clientManager.send(clientIp, nettyPacket);
             } catch (InterruptedException e) {
                 throw new SysException(e.getMessage());
             }
