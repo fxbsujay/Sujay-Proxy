@@ -3,9 +3,7 @@ package com.susu.proxy.server.client;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.susu.proxy.core.common.entity.PortMapping;
 import com.susu.proxy.core.common.eum.PacketType;
-import com.susu.proxy.core.common.eum.ProxyStateType;
 import com.susu.proxy.core.common.model.*;
-import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.common.utils.StringUtils;
 import com.susu.proxy.core.netty.AbstractChannelHandler;
 import com.susu.proxy.core.netty.msg.NetPacket;
@@ -13,12 +11,9 @@ import com.susu.proxy.core.netty.msg.NetRequest;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.proxy.PortInstantiationStrategy;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
-
-import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -156,9 +151,7 @@ public class MasterChannelHandle extends AbstractChannelHandler {
         }
 
         byte[] body = packet.getBody();
-        ByteBuf buf = request.getCtx().alloc().buffer(body.length);
-        buf.writeBytes(body);
-
+        ByteBuf buf = Unpooled.wrappedBuffer(body);
         log.info("Received server side message: {}", visitorId);
         strategy.send(visitorId, buf);
     }
