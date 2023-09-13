@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AuthService implements InstantiationComponent {
 
-    private final String path =  System.getProperty("user.dir") + File.separator + "user.info";
+    private final String path =  System.getProperty("user.dir") + File.separator + "data" + File.separator + "user.info";
 
     private final Map<String, UserInfo> users = new ConcurrentHashMap<>();
 

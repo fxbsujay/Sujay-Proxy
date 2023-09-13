@@ -10,22 +10,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class ClientApplication {
 
-    private final MasterClient client;
-
-    private final TaskScheduler taskScheduler;
-
-    private final ProxyManager proxyManager;
-
-    private final AtomicBoolean started = new AtomicBoolean(false);
-
-    public ClientApplication() {
-        this.taskScheduler = new TaskScheduler("Client-Scheduler");
-        this.client = new MasterClient(taskScheduler);
-        this.proxyManager = new ProxyManager(client, taskScheduler);
-    }
-
-    public static void main( String[] args ) {
-        ConfigLoadUtils.refreshConfig();
+    public static void main(String[] args) {
+        ConfigLoadUtils.refreshConfig(args);
         ClientApplication application = new ClientApplication();
         try {
             Runtime.getRuntime().addShutdownHook(new Thread(application::shutdown));
@@ -35,6 +21,19 @@ public class ClientApplication {
             log.info("Client Application Start Error!!");
             System.exit(1);
         }
+    }
+
+    private final MasterClient client;
+
+    private final TaskScheduler taskScheduler;
+
+    private final AtomicBoolean started = new AtomicBoolean(false);
+
+
+    public ClientApplication() {
+        this.taskScheduler = new TaskScheduler("Client-Scheduler");
+        this.client = new MasterClient(taskScheduler);
+        new ProxyManager(client, taskScheduler);
     }
 
     /**

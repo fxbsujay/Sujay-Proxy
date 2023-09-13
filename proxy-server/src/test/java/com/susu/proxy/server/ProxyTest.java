@@ -7,10 +7,8 @@ import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.web.dto.MappingDTO;
 import com.susu.proxy.server.web.service.ProxyService;
 import com.susu.proxy.server.web.servlet.DispatchComponentProvider;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class ProxyTest {
 
     private final TaskScheduler scheduler = new TaskScheduler("Test-Task");
@@ -20,7 +18,7 @@ public class ProxyTest {
     @Test
     public void createProxyTests() throws InterruptedException {
 
-        ConfigLoadUtils.refreshConfig();
+        ConfigLoadUtils.refreshConfig(new String[0]);
         ServerApplication application = new ServerApplication();
 
         scheduler.scheduleOnce("creatProxy", () -> {

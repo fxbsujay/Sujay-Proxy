@@ -8,12 +8,8 @@ import com.susu.proxy.core.netty.msg.NetPacket;
 import com.susu.proxy.core.task.TaskScheduler;
 import com.susu.proxy.server.client.MasterClientManager;
 import com.susu.proxy.core.common.entity.PortMapping;
-import io.netty.bootstrap.AbstractBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import java.io.File;
-import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class PortInstantiationStrategy extends AbstractProxyServerFactory {
 
-    private final String path =  System.getProperty("user.dir") + File.separator + "mapping.info";
+    private final String path =  System.getProperty("user.dir") + File.separator + "data" + File.separator + "mapping.info";
 
     /**
      * 客户端管理器
