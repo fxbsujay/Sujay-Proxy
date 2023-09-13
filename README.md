@@ -56,8 +56,8 @@ client:
 ```
 
 ### 操作实例
-![](assets/img/img_2.png)
+![](./assets/img/img_2.png)
 
-![](assets/img/img_3.png)
+![](./assets/img/img_3.png)
 
-![](assets/img/img_4.png)
+![](./assets/img/img_4.png)
