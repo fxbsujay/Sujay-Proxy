@@ -8,6 +8,7 @@
 ServerApplication application = new ServerApplication();
 application.start();
 ```
+
 Docker
 ```sh
 docker pull registry.cn-hangzhou.aliyuncs.com/susu-space/simple-proxy:1.0
@@ -26,8 +27,10 @@ application.start();
 ```
 
 ### 配置文件说明
-
-application.yaml
+启动时可指定配置文件
+```sh
+java -jar proxy-server.jar config=/home/application.yaml
+```
 
 ```yaml
 app:
