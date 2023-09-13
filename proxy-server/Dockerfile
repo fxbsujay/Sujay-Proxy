@@ -7,7 +7,8 @@ RUN mkdir -p /root/proxy-server
 
 WORKDIR /root/proxy-server
 
+COPY ../application.yaml /root/proxy-server/config/application.yaml
 COPY ../proxy-server-1.0.jar /root/proxy-server/proxy-server.jar
 
-ENTRYPOINT ["java","-jar","proxy-server.jar"]
-#docker run -it -p 9000-9200:9000-9200/tcp -p 8888:8888 -v /root/neutrino-proxy/config:/root/neutrino-proxy/config -d --restart=always --name neutrino registry.cn-hangzhou.aliyuncs.com/asgc/aoshiguchen-docker-images:1.7
+ENTRYPOINT ["java","-jar","proxy-server.jar", "config=/root/proxy-server/config/application.yaml"]
+#docker run -it -p 9000-9200:9000-9200 -p 8899:8899 -p 8890:8890 -v /root/proxy-server/config:/root/proxy-server/config -d --restart=always --name proxy-server registry.cn-hangzhou.aliyuncs.com/susu-space/simple-proxy:1.0

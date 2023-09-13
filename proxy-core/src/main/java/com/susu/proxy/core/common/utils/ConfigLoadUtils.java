@@ -5,7 +5,6 @@ import com.susu.proxy.core.common.Constants;
 import com.susu.proxy.core.stereotype.Configuration;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -63,15 +62,23 @@ public class ConfigLoadUtils {
     }
 
     public static Set<Class<?>> loadConfigurationClass() {
-        return  ClassUtils.scanPackageByAnnotation("", Configuration.class);
+        return ClassUtils.scanPackageByAnnotation("com.susu.proxy", Configuration.class);
     }
 
     public static void refreshConfig(String[] args) {
+
+        System.out.println("       _            __                              \n" +
+                "  ___ (_)_ _  ___  / /__ _______  _______ __ ____ __\n" +
+                " (_-</ /  ' \\/ _ \\/ / -_)___/ _ \\/ __/ _ \\\\ \\ / // /\n" +
+                "/___/_/_/_/_/ .__/_/\\__/   / .__/_/  \\___/_\\_\\\\_, / \n" +
+                "           /_/            /_/                /___/  ");
+
         String configPath = null;
         for (String arg : args) {
             String[] split = arg.split("=");
             if ("config".equals(split[0])) {
                 configPath = split[1];
+                log.info("Load configuration file: {}", configPath);
                 break;
             }
         }

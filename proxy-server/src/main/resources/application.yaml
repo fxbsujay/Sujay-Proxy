@@ -1,8 +1,10 @@
 app:
   name: master-server
 server:
-  port: 8849
-  httpPort: 8846
+  port: 8899
+  httpPort: 8890
   username: admin
   password: admin
-  heartbeatInterval: 1000
+  heartbeatInterval: 30000
+  heartbeatOutTime: 60000
+  heartbeatCheckInterval: 30000
