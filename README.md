@@ -58,7 +58,7 @@ client:
   heartbeatInterval: 30000
 ```
 
-### 操作实例
+### 操作示例
 ![](https://github.com/fxbsujay/Sujay-Proxy/blob/main/assets/img/img_2.png)
 
 ![](https://github.com/fxbsujay/Sujay-Proxy/blob/main/assets/img/img_3.png)
