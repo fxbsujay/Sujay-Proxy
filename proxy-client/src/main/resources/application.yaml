@@ -1,6 +1,6 @@
 app:
   name: proxy-client
 client:
-  serverIp: localhost
+  serverIp: 192.168.8.129
   serverPort: 8899
   heartbeatInterval: 30000

@@ -1,24 +1,63 @@
 # Sujay-Proxy
-一个内网穿透工具
-
-实现思路
-
-请求 -> 代理服务器 -> 代理客户端将消息转发给真实服务器
-
-真实服务器反馈给代理客户端 -> 代理客户端转发消息给代理服务器 -> 代理服务器返回响应
-
-代理服务器部署在可通过外网访问的服务器上，客户端部署在需要代理服务的服务器上
-
-代理服务器与代理客户端保持长链接，并做心跳检测
-
-
+一个简单快捷，开箱即用的内网穿透工具
 
 ### 快速开始
-```shell
-mvn protobuf:compile
+启动代理服务器 http://localhost:8890/
 
-mvn install
+```java
+ServerApplication application = new ServerApplication();
+application.start();
 ```
-可以使用idea的maven插件进行安装
+Docker
+```sh
+docker pull registry.cn-hangzhou.aliyuncs.com/susu-space/simple-proxy:1.0
 
-![](assets/img/img_1.png)
+docker run --name simple-proxy \
+-p 8899:8899 -p 8890:8890 \
+-v /root/proxy-server/config:/mydata/config \
+-v /root/proxy-server/data:/mydata/data \
+-d registry.cn-hangzhou.aliyuncs.com/susu-space/simple-proxy:1.0
+```
+
+启动代理客户端
+```java
+ClientApplication application = new ClientApplication();
+application.start();
+```
+
+### 配置文件说明
+
+application.yaml
+
+```yaml
+app:
+  # 服务名称
+  name: master-server
+server:
+  # 代理服务器端口
+  port: 8899
+  # 代理服务器Http端口
+  httpPort: 8890
+  # 默认启动时的用户名密码
+  username: admin
+  password: admin
+  # 客户端心跳间隔
+  heartbeatInterval: 30000
+  # 客户端断线超时时间
+  heartbeatOutTime: 60000
+  # 服务段检测心态时间间隔
+  heartbeatCheckInterval: 30000
+client:
+  # 代理客户端要连接的代理服务器IP端口
+  serverIp: localhost
+  serverPort: 8899
+  # 向服务队发生心态间隔
+  heartbeatInterval: 30000
+```
+
+### 操作实例
+![](assets/img/img_2.png)
+
+![](assets/img/img_3.png)
+
+![](assets/img/img_4.png)
