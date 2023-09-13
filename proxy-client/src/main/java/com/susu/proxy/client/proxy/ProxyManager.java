@@ -1,7 +1,6 @@
 package com.susu.proxy.client.proxy;
 
 import com.susu.proxy.core.common.entity.PortMapping;
-import com.susu.proxy.core.common.eum.ProxyStateType;
 import com.susu.proxy.core.common.utils.IpUtils;
 import com.susu.proxy.core.common.utils.NetUtils;
 import com.susu.proxy.core.common.utils.StringUtils;
@@ -15,8 +14,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,6 +60,8 @@ public class ProxyManager {
      * value:   代理信息
      */
     private final Map<Integer, PortMapping> pool = new ConcurrentHashMap<>();
+
+    private final List<String> visitorsLock = new ArrayList<>();
 
     public ProxyManager(MasterClient masterClient, TaskScheduler taskScheduler) {
         this.masterClient = masterClient;
@@ -115,9 +116,15 @@ public class ProxyManager {
         SocketChannel channel = channels.get(visitorId);
         if (channel != null) {
             channel.writeAndFlush(buf);
+        } else if (visitorsLock.contains(visitorId)) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                log.info("Send message waiting for connection to fail: {}", visitorId);
+            }
+            send(visitorId, buf);
         }
     }
-
 
     /**
      * <p>Description: 代理客户端连接真实服务端</p>
@@ -128,15 +135,16 @@ public class ProxyManager {
      */
     public void connect(String visitorId, int serverPort) {
 
-        if (!pool.containsKey(serverPort)) {
-            return;
-        }
-
         PortMapping mapping = pool.get(serverPort);
-
         if (mapping == null) {
             return;
         }
+
+        if (visitorsLock.contains(visitorId)) {
+            return;
+        }
+
+        visitorsLock.add(visitorId);
 
         String ip = mapping.getClientIp();
         Integer port = mapping.getClientPort();
@@ -151,30 +159,29 @@ public class ProxyManager {
         taskScheduler.scheduleOnce("Real-Client",() -> {
             try {
                 ChannelFuture future = bootstrap.connect(new InetSocketAddress(ip.equals(IpUtils.getIp()) ? "localhost" : ip, port)).sync();
+                visitorsLock.remove(visitorId);
                 if (future.isSuccess()) {
                     channels.put(visitorId, (SocketChannel) future.channel());
-                    log.info("Successfully connected to the real server: {}:{}", ip, port);
+                    log.info("Successfully connected to the real server: {}:{}, visitorId: {}", ip, port, visitorId);
                 }
-
                 future.channel().closeFuture().sync();
             } catch (Exception e) {
-                log.error("Real connection exception, ready to reconnect：[ex={}, inetSocketAddress: {}:{}]", e.getMessage(), ip, port);
+                visitorsLock.remove(visitorId);
+                log.error("Real connection exception, ready to reconnect：[inetSocketAddress: {}:{}, visitorId: {}]", ip, port, visitorId);
             } finally {
+                log.info("The real server is disconnected and the proxy service will be temporarily shut down: {}:{}", ip, port);
                 channels.remove(visitorId);
                 if (visitors.get(serverPort).contains(visitorId)) {
                     masterClient.connectionClosureNotificationRequest(visitorId);
                 }
-                log.info("The real server is disconnected and the proxy service will be temporarily shut down: {}:{}", ip, port);
             }
         });
     }
 
     public void closeVisitor(String visitorId) {
-
         if (StringUtils.isBlank(visitorId)) {
             return;
         }
-
 
         for (Map.Entry<Integer, List<String>> entry : visitors.entrySet()) {
             List<String> visitorIds = entry.getValue();
@@ -183,12 +190,12 @@ public class ProxyManager {
             }
             for (String id : visitorIds) {
                 if (id.equals(visitorId)) {
+                    visitorIds.remove(visitorId);
+                    visitors.put(entry.getKey(), visitorIds);
                     SocketChannel channel = channels.remove(visitorId);
                     if (channel != null) {
                         channel.close();
                     }
-                    visitorIds.remove(visitorId);
-                    visitors.put(entry.getKey(), visitorIds);
                     return;
                 }
             }

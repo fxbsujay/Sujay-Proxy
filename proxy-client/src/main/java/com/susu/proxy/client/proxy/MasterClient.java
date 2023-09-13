@@ -19,10 +19,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.ScheduledFuture;
 import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -220,7 +217,6 @@ public class MasterClient {
     public void transferServerPacketRequest(String visitorId, byte[] bytes) throws InterruptedException {
         NetPacket packet = NetPacket.buildPacket(bytes, PacketType.TRANSFER_NETWORK_PACKET);
         packet.setVisitorId(visitorId);
-        log.info("Received client side message: {}", visitorId);
         netClient.send(packet);
     }
 

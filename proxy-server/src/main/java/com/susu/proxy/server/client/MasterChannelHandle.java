@@ -14,6 +14,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -152,7 +153,6 @@ public class MasterChannelHandle extends AbstractChannelHandler {
 
         byte[] body = packet.getBody();
         ByteBuf buf = Unpooled.wrappedBuffer(body);
-        log.info("Received server side message: {}", visitorId);
         strategy.send(visitorId, buf);
     }
 }
