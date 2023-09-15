@@ -12,4 +12,6 @@ public class AppConfig {
     public static String name = StringUtils.uuid();
 
     public static String localhost = IpUtils.getIp();
+
+    public static String secretKey = "iV7FmSnEVNlvKek9Am";
 }

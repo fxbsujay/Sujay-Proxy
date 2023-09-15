@@ -1,16 +1,20 @@
 package com.susu.proxy.server.web.service;
 
 import com.susu.proxy.core.common.LocalStorage;
+import com.susu.proxy.core.common.utils.EncryptUtil;
 import com.susu.proxy.core.common.utils.StringUtils;
+import com.susu.proxy.core.config.AppConfig;
 import com.susu.proxy.core.config.ServerConfig;
 import com.susu.proxy.server.web.entity.UserInfo;
 import com.susu.proxy.server.web.servlet.InstantiationComponent;
 import com.susu.proxy.server.web.servlet.SysException;
+import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class AuthService implements InstantiationComponent {
 
     private final String path =  System.getProperty("user.dir") + File.separator + "data" + File.separator + "user.info";
@@ -33,7 +37,7 @@ public class AuthService implements InstantiationComponent {
             return false;
         }
 
-        return users.get(username).getPassword().equals(password);
+        return EncryptUtil.decode(users.get(username).getPassword(), AppConfig.secretKey).equals(password);
     }
 
     public void changePassword(String username, String oldPassword, String password) {
@@ -46,16 +50,16 @@ public class AuthService implements InstantiationComponent {
         if (user == null) {
             throw new SysException("用户不存在");
         }
-
-        if (!user.getPassword().equals(oldPassword)) {
+        String decode = EncryptUtil.decode(user.getPassword(), AppConfig.secretKey);
+        if (!oldPassword.equals(decode)) {
             throw new SysException("密码错误");
         }
 
-        if (user.getPassword().equals(password)) {
+        if (password.equals(decode)) {
             throw new SysException("新密码不能与旧密码相同");
         }
 
-        user.setPassword(oldPassword);
+        user.setPassword(EncryptUtil.encode(password, AppConfig.secretKey));
         users.put(username, user);
         loadWriteUsers();
     }
@@ -71,6 +75,8 @@ public class AuthService implements InstantiationComponent {
         if (containsUser != null) {
             throw new SysException("用户名已存在");
         }
+
+        user.setPassword(EncryptUtil.encode(user.getPassword(), AppConfig.secretKey));
 
         users.put(user.getUsername(),user);
         loadWriteUsers();
@@ -92,7 +98,7 @@ public class AuthService implements InstantiationComponent {
         users.clear();
         List<UserInfo> usersJson = LocalStorage.loadReady(path, UserInfo.class);
         if (usersJson == null) {
-            users.put(ServerConfig.username, new UserInfo(ServerConfig.username, ServerConfig.password));
+            users.put(ServerConfig.username, new UserInfo(ServerConfig.username, EncryptUtil.encode(ServerConfig.password, AppConfig.secretKey)));
             return;
         }
 
@@ -102,6 +108,7 @@ public class AuthService implements InstantiationComponent {
     }
 
     private void loadWriteUsers() {
+        log.info("Save user information: {}", path);
         LocalStorage.loadWrite(path, users.values());
     }
 }

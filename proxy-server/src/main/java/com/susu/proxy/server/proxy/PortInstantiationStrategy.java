@@ -88,6 +88,7 @@ public class PortInstantiationStrategy extends AbstractProxyServerFactory {
     }
 
     private void loadWriteMappings() {
+        log.info("Save proxy information: {}", path);
         LocalStorage.loadWrite(path, pool.values());
     }
 
