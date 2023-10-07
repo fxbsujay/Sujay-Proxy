@@ -5,6 +5,7 @@ import com.susu.proxy.core.netty.NetServer;
 import com.susu.proxy.core.netty.listener.NetBindingListener;
 import com.susu.proxy.core.task.TaskScheduler;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -93,6 +94,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
     public void send(String visitor, ByteBuf buf) {
         List<ChannelHandlerContext> contexts = getVisitorChannel(visitor);
         if (contexts != null && !contexts.isEmpty()) {
+            log.info("Transfer response, size={}", ByteBufUtil.getBytes(buf).length);
             for (ChannelHandlerContext ctx : contexts) {
                 ctx.channel().writeAndFlush(buf);
             }
@@ -245,6 +247,7 @@ public abstract class AbstractProxyServerFactory implements ProxyServerFactory {
 
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
+            log.info("Transfer request, size={}", bytes.length);
             channelReadInternal(NetUtils.getChannelId(ctx), port, bytes);
         }
     }

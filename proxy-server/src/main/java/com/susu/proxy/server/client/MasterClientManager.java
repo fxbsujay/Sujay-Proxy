@@ -84,6 +84,7 @@ public class MasterClientManager {
      * @return 是否注册成功 【 true / false 】
      */
     public boolean register(RegisterRequest request, ChannelHandlerContext channel) {
+
         if (StringUtils.isBlank(request.getHostname())) {
             return false;
         }
@@ -121,7 +122,7 @@ public class MasterClientManager {
         channels.remove(hostname);
         ClientInfo clientInfo = clients.get(hostname);
         clientInfo.setStatus(ClientInfo.STATUS_DISCONNECT);
-        ctx.fireChannelInactive();
+        ctx.close();
         log.warn("Client disconnected : [name={}, hostname={}]", clientInfo.getName(), hostname);
 
         return hostname;

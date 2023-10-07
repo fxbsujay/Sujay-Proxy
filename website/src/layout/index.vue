@@ -12,12 +12,15 @@
       >
         <LayoutMenu :routes="routes" />
       </a-menu>
+      <div class="logout" @click="logoutSubmit">
+        LOGOUT
+      </div>
     </a-layout-header>
     <a-layout-content class="s-layout-content">
       <router-view/>
     </a-layout-content>
     <a-layout-footer style="text-align: center">
-      Ant Design ©2018 Created by Ant UED
+      Simple-Proxy ©2023 Created by <a href="http://xuebin.xyz">Fan XueBin</a>
     </a-layout-footer>
   </a-layout>
 </template>
@@ -28,11 +31,15 @@ import { ref, watch } from 'vue'
 import { commonRoutes } from '@/router'
 import { RouteModel } from '@/model/AuthModel'
 import LayoutMenu from '@/layout/LayoutMenu.vue'
+import { authStore } from '@/store/auth'
 
 const currentRoute = useRoute()
 const selectedKeyList = ref<string[]>([])
 const routes = ref<Array<RouteModel>>(generateLayoutMenu(commonRoutes.children!))
 
+const logoutSubmit = () => {
+  authStore().logout()
+}
 watch(currentRoute, () => {
   selectedKeyList.value = [currentRoute.name as string]
 },{ deep: true, immediate: true})

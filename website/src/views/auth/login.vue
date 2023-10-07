@@ -8,7 +8,7 @@
         Login
       </a-button>
     </form>
-    <span class="footer">fxbsujay@gmil.com</span>
+    <span class="footer">Simple-Proxy ©2023 Created by <a href="http://xuebin.xyz">Fan XueBin</a></span>
   </div>
 </template>
 
@@ -65,6 +65,15 @@ const loginSubmit = () => {
     color: white;
     position: absolute;
     bottom: 30px;
+
+    a {
+      color: #0c74b0;
+      font-weight: 600;
+      &:link {
+        text-decoration: none;
+      }
+
+    }
   }
 
   .form-box {

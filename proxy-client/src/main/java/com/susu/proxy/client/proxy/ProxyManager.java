@@ -114,6 +114,7 @@ public class ProxyManager {
     public void send(String visitorId, ByteBuf buf) {
         SocketChannel channel = channels.get(visitorId);
         if (channel != null) {
+            log.info("Transfer request, size={}", ByteBufUtil.getBytes(buf).length);
             channel.writeAndFlush(buf);
         } else if (visitorsLock.contains(visitorId)) {
             try {
@@ -285,6 +286,7 @@ public class ProxyManager {
         protected void channelRead0(ChannelHandlerContext ctx, ByteBuf byteBuf) throws Exception {
             String visitorId = getVisitorId(ctx);
             byte[] bytes = ByteBufUtil.getBytes(byteBuf);
+            log.info("Transfer response, size={}", bytes.length);
             masterClient.transferServerPacketRequest(visitorId, bytes);
         }
     }

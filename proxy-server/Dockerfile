@@ -4,8 +4,8 @@ RUN mkdir -p /root/proxy-server
 
 WORKDIR /root/proxy-server
 
-COPY ../application.yaml /root/proxy-server/config/application.yaml
-COPY ../proxy-server-1.0.jar /root/proxy-server/proxy-server.jar
+COPY ./application.yaml /root/proxy-server/config/application.yaml
+COPY ./proxy-server-1.0.jar /root/proxy-server/proxy-server.jar
 
 ENTRYPOINT ["java","-jar","proxy-server.jar", "config=/root/proxy-server/config/application.yaml"]
 

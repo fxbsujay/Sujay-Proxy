@@ -6,7 +6,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Executor;

@@ -14,9 +14,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * <p>Description: 代理客户端的消息处理器</p>
@@ -29,11 +27,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class MasterChannelHandle extends AbstractChannelHandler {
 
     /**
-     * 共享线程池
-     */
-    private final TaskScheduler taskScheduler;
-
-    /**
      * 代理策略
      */
     private final PortInstantiationStrategy strategy;
@@ -43,10 +36,9 @@ public class MasterChannelHandle extends AbstractChannelHandler {
      */
     private final MasterClientManager clientManager;
 
-    public MasterChannelHandle(PortInstantiationStrategy strategy, MasterClientManager clientManager, TaskScheduler taskScheduler) {
+    public MasterChannelHandle(PortInstantiationStrategy strategy, MasterClientManager clientManager) {
         this.strategy = strategy;
         this.clientManager = clientManager;
-        this.taskScheduler = taskScheduler;
     }
 
     @Override
@@ -59,7 +51,6 @@ public class MasterChannelHandle extends AbstractChannelHandler {
 
         PacketType packetType = PacketType.getEnum(packet.getType());
         NetRequest request = new NetRequest(ctx, packet);
-
         switch (packetType) {
             case SERVICE_REGISTER:
                 serviceRegisterHandle(request);
@@ -83,11 +74,6 @@ public class MasterChannelHandle extends AbstractChannelHandler {
     @Override
     protected Set<Integer> interestPackageTypes() {
         return new HashSet<>();
-    }
-
-    @Override
-    public ThreadPoolExecutor getExecutor() {
-        return taskScheduler.getExecutor();
     }
 
     /**

@@ -3,6 +3,7 @@
 
 ### 快速开始
 启动代理服务器 http://localhost:8890/
+默认账号密码 admin/admin
 
 ```java
 ServerApplication application = new ServerApplication();
@@ -11,13 +12,13 @@ application.start();
 
 Docker
 ```sh
-docker pull registry.cn-hangzhou.aliyuncs.com/susu-space/simple-proxy:1.0
+docker pull registry.cn-hangzhou.aliyuncs.com/susu-space/simple-proxy:1.0.0
 
 docker run --name simple-proxy \
 -p 8899:8899 -p 8890:8890 \
 -v /root/proxy-server/config:/mydata/config \
 -v /root/proxy-server/data:/mydata/data \
--d registry.cn-hangzhou.aliyuncs.com/susu-space/simple-proxy:1.0
+-d registry.cn-hangzhou.aliyuncs.com/susu-space/simple-proxy:1.0.0
 ```
 
 启动代理客户端

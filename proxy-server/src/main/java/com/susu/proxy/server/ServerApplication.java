@@ -51,7 +51,7 @@ public class ServerApplication {
         this.taskScheduler = new TaskScheduler("Server-Scheduler");
         MasterClientManager clientManager = new MasterClientManager(taskScheduler);
         PortInstantiationStrategy strategy = new PortInstantiationStrategy(clientManager, taskScheduler);
-        this.server = new MasterServer(taskScheduler, new MasterChannelHandle(strategy, clientManager, taskScheduler));
+        this.server = new MasterServer(taskScheduler, new MasterChannelHandle(strategy, clientManager));
         this.tomcatServer = new TomcatServer(ServerConfig.httpPort);
         new ClientService(clientManager);
         new ProxyService(strategy, clientManager);
